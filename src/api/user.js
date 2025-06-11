@@ -7,3 +7,12 @@ export const loginApi = (email, password) => {
         password
     });
 }
+
+export const addStaff = (fullName, email, password, role) => {
+  return axios.post(`${server}/api/Users`, {
+    fullName,
+    email,
+    password,  // ✅ match exactly as expected in DTO
+    role
+  });
+};

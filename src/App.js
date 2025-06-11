@@ -1,11 +1,16 @@
 import {BrowserRouter} from 'react-router-dom';
-import './styles/login.scss'
 import CustomRouter from './routes';
-
+import Navbar from './components/common/NavBar';
+import './styles/main.scss'
 function App() {
   return (
     <BrowserRouter>
-      <CustomRouter/>
+      <Navbar/>
+      <div className='main-container'>
+          <CustomRouter/>
+
+      </div>
+
     </BrowserRouter>
   );
 }
