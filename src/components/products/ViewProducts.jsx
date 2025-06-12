@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 // import { getAllProducts, deleteProduct } from '../../api/product';
 import { useNavigate } from 'react-router-dom';
 import { deleteProducts, getAllProducts } from '../../api/product';
+import '../../styles/view.scss';
 
 const ViewProducts = () => {
   const [products, setProducts] = useState([]);
@@ -42,8 +43,14 @@ const ViewProducts = () => {
     navigate(`/edit-product/${id}`);
   };
 
+  const handleAddNewProduct = ()=>{
+    navigate('/add-product')
+  }
   return (
-    <div className="product-container">
+    <div className="main-container-box">
+      <button onClick={handleAddNewProduct}>+ Add New Product</button>
+    <div className="view-container">
+    
       <h2>Product List</h2>
       {error && <p className="error-msg">{error}</p>}
       {products.length === 0 ? (
@@ -79,6 +86,7 @@ const ViewProducts = () => {
           </tbody>
         </table>
       )}
+    </div>
     </div>
   );
 };

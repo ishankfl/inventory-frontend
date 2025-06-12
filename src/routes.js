@@ -5,6 +5,8 @@ import AddCategory from "./components/category/AddCategory";
 import AddStaff from "./components/auth/AddStaff";
 import ViewCategory from "./components/category/ViewCategory";
 import ViewProducts from "./components/products/ViewProducts";
+import EditCategory from "./components/category/EditCategory";
+import EditProduct from "./components/products/EditProduct";
 
 const CustomRouter = () => {
   return (
@@ -16,6 +18,9 @@ const CustomRouter = () => {
       <Route path="/add-category" element={<AddCategory/>}/>
       <Route path="/add-staff" element={<AddStaff/>}/>
       <Route path="/category" element={<ViewCategory/>}/>
+      <Route path="/edit-category/:id" element={<EditCategory />} />
+      <Route path="/edit-product/:id" element={<EditProduct />} />
+
     </Routes>
   );
 }
