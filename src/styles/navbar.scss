@@ -1,6 +1,7 @@
 @use './variables' as *;
 
 .navbar {
+  z-index: 10000;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -9,6 +10,8 @@
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 30px;
+  // position: absolute;
+  // width: 100%;
 
   .nav-logo {
     font-size: 1.5rem;

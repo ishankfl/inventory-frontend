@@ -8,6 +8,14 @@ export const loginApi = (email, password) => {
     });
 }
 
+
+export const getAllUsers = () => {
+    return axios.get(`${server}/api/Users/`,);
+}
+
+export const deleteUser = (id) => {
+    return axios.delete(`${server}/api/Users/${id}`,);
+}
 export const addStaff = (fullName, email, password, role) => {
   return axios.post(`${server}/api/Users`, {
     fullName,
