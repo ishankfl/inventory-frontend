@@ -54,3 +54,80 @@ form select {
 .error-msg {
   @apply text-red-600;
 }
+
+
+/* Tailwind css for view pages */
+.main-container-box {
+  @apply p-8 bg-[#f9f9f9] min-h-[75vh];
+  /* Uncomment if needed: z-index and margin-top
+  z-index: -100;
+  margin-top: 5%;
+  */
+}
+
+.view-container {
+  @apply bg-white p-8 rounded-xl shadow-lg min-h-[75vh];
+}
+
+.view-container h2 {
+  @apply mb-6 text-[#333];
+}
+
+.view-container .error-msg {
+  @apply text-red-600 font-bold mb-4;
+}
+
+.view-container table {
+  @apply w-full border-collapse mt-4 min-w-full divide-y divide-gray-200;
+}
+
+
+.view-container thead {
+  @apply bg-blue-600 text-white;
+}
+
+.view-container thead th {
+  @apply p-4 text-left font-semibold;
+}
+
+.view-container tbody tr:nth-child(even) {
+  @apply bg-gray-100;
+}
+
+.view-container tbody td {
+  @apply p-3 align-middle;
+}
+
+.view-container tbody button {
+  @apply px-4 py-2 text-sm rounded cursor-pointer transition-colors duration-200 ease-in-out border-none;
+}
+
+/* First button styles */
+.view-container tbody button:first-of-type {
+  @apply bg-yellow-400 text-gray-900;
+}
+.view-container tbody button:first-of-type:hover {
+  @apply bg-yellow-500;
+}
+
+/* Last button styles */
+.view-container tbody button:last-of-type {
+  @apply bg-red-600 text-white ml-2;
+}
+.view-container tbody button:last-of-type:hover {
+  @apply bg-red-700;
+}
+
+/* General button styles outside table */
+button {
+  @apply bg-[#5a9] text-white font-bold px-5 py-2 rounded mb-4 cursor-pointer transition-colors duration-200 ease-in-out border-none;
+}
+button:hover {
+  @apply bg-[#4b8];
+}
+
+input,
+textarea,
+select {
+  @apply p-2.5 text-base border border-gray-300 rounded mb-4 transition-all w-[90%] focus:border-green-500 focus:outline-none;
+}
