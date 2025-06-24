@@ -1,40 +1,40 @@
-@use './variables' as *;
+// @use './variables' as *;
 
-.navbar {
-  z-index: 10000;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: $primary-color;
-  padding: 15px 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
-  // position: absolute;
-  // width: 100%;
+// .navbar {
+//   z-index: 10000;
+//   display: flex;
+//   justify-content: space-between;
+//   align-items: center;
+//   background-color: $primary-color;
+//   padding: 15px 30px;
+//   border-radius: 10px;
+//   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+//   margin-bottom: 30px;
+//   // position: absolute;
+//   // width: 100%;
 
-  .nav-logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: white;
-  }
+//   .nav-logo {
+//     font-size: 1.5rem;
+//     font-weight: bold;
+//     color: white;
+//   }
 
-  .nav-links {
-    display: flex;
-    gap: 20px;
+//   .nav-links {
+//     display: flex;
+//     gap: 20px;
 
-    a {
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-      padding: 8px 15px;
-      border-radius: 5px;
-      transition: background-color 0.3s ease;
-      font-size: 20px;
+//     a {
+//       color: white;
+//       text-decoration: none;
+//       font-weight: 500;
+//       padding: 8px 15px;
+//       border-radius: 5px;
+//       transition: background-color 0.3s ease;
+//       font-size: 20px;
 
-      &:hover {
-        background-color: darken($primary-color, 10%);
-      }
-    }
-  }
-}
+//       &:hover {
+//         background-color: darken($primary-color, 10%);
+//       }
+//     }
+//   }
+// }

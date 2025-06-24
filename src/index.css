@@ -1,13 +1,56 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* styles.css */
+.btn-primary {
+  @apply bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+
+.input-text {
+  @apply border-2 border-blue-500 rounded-lg p-4 focus:outline-none focus:ring-0 focus:border-blue-500;
+}
+.bg-col-primary {
+  @apply bg-primary;
+}
+
+
+.nav-item { @apply text-white no-underline font-medium text-[20px] px-4  rounded transition duration-300 hover:bg-primary-dark; }
+
+.container{ @apply
+w-[500px] mx-auto my-[50px] p-[30px] border border-gray-300 rounded-lg bg-[#fdfdfd] shadow-md absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2
+}
+
+.container {
+  @apply w-[500px] mx-auto my-[50px] p-[30px] border border-gray-300 rounded-lg bg-[#fdfdfd] shadow-md absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2;
+}
+
+ h2 {
+  @apply text-center mb-5 text-[#333] text-2xl font-bold;
+}
+
+form {
+  @apply flex flex-col justify-start;
+}
+
+form label {
+  @apply font-semibold mb-1 text-[18px];
+}
+
+form div {
+  @apply flex flex-col;
+}
+
+form input,
+form textarea,
+form select {
+  @apply p-2.5 text-base border border-gray-300 rounded mb-4 transition-all focus:border-green-500 focus:outline-none;
+}
+
+.submit-button {
+  @apply py-[13px] bg-primary text-white font-bold border-none rounded cursor-pointer transition-all text-[17px] hover:bg-[#4b8];
+}
+
+.error-msg {
+  @apply text-red-600;
 }

@@ -52,30 +52,30 @@
 //     }
 //   }
 // }
-@use './variables' as *;
+// @use './variables' as *;
 
-.main-container{
-  // body{
-    height: 90vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+// .main-container{
+//   // body{
+//     height: 90vh;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+// // }
 // }
-}
 
-.main-container-box{
-  button{
-    color: white;
-    padding: 10px 20px;
-    background-color: darken($color: $primary-color, $amount: 10%);
-    border: none;
-    border-radius: 10px;  
-    font-size: 20px;
-      &:hover{
-        background-color: darken($color: $primary-color, $amount: 20%);
-        cursor: pointer;
+// .main-container-box{
+//   button{
+//     color: white;
+//     padding: 10px 20px;
+//     background-color: darken($color: $primary-color, $amount: 10%);
+//     border: none;
+//     border-radius: 10px;  
+//     font-size: 20px;
+//       &:hover{
+//         background-color: darken($color: $primary-color, $amount: 20%);
+//         cursor: pointer;
 
-  }
-  }
+//   }
+//   }
 
-}
+// }
