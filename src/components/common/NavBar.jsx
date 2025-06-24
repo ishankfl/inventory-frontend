@@ -4,6 +4,7 @@ const Navbar = () => {
         <div className="navbar">
             <div className="nav-logo">IMS</div>
             <div className="nav-links">
+                <a href="/dashboard">Dashboard</a>
                 <a href="/product">Product</a>
                 <a href="/issue-product">Issue Product</a>
                 <a href="/category">Category</a>

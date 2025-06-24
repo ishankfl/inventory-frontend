@@ -1,0 +1,21 @@
+.dashboard-container {
+   width: 100%;
+  min-height: 100vh;   
+  display: grid;
+ grid-template-columns: repeat(2, minmax(400px, 1fr));
+
+  gap: 40px;
+  place-items: center;
+}
+
+.linechart {
+  /* width: 100%; */
+  min-width: 500px !important;
+  max-width: 500px;
+  min-height: 400px;
+
+  background-color: white;
+  /* padding: 20px; */
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

@@ -12,6 +12,8 @@ import ViewAllDepartments from "./components/departments/ViewDepartments";
 import IssuePage from "./components/issue/IssuePage";
 import ViewIssue from "./components/issue/ViewIssue";
 import ViewIssuePage from "./components/issue/us";
+import LineChart from "./components/dashboard/LineChart";
+import Dashboard from "./components/dashboard/Dashboard";
 
 const CustomRouter = () => {
   return (
@@ -30,6 +32,7 @@ const CustomRouter = () => {
       <Route path="/departments" element={<ViewAllDepartments />} />
       <Route path="/issue" element={<IssuePage />} />
       <Route path="/view-issues" element={<ViewIssue />} />
+      <Route path="/dashboard" element={<Dashboard />} />
 
     </Routes>
   );
