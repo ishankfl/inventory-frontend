@@ -11,7 +11,6 @@ import ViewAllUsers from "./components/auth/ViewAllUsers";
 import ViewAllDepartments from "./components/departments/ViewDepartments";
 import IssuePage from "./components/issue/IssuePage";
 import ViewIssue from "./components/issue/ViewIssue";
-import ViewIssuePage from "./components/issue/us";
 import LineChart from "./components/dashboard/LineChart";
 import Dashboard from "./components/dashboard/Dashboard";
 
