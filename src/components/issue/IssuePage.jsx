@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllDepartments } from "../../api/departments";
 import { getAllProducts } from "../../api/product";
-import { addNewProduct, fetchIssuedItemByDept, issueProducts } from "../../api/issue";
+import { addNewProduct, completeIssue, fetchIssuedItemByDept, issueProducts } from "../../api/issue";
 import { getToken, getUserId } from "../../utils/tokenutils";
 
 const IssuePage = () => {
@@ -12,6 +12,7 @@ const IssuePage = () => {
   const [productQuantities, setProductQuantities] = useState({});
   const [departmentItems, setDepartmentItems] = useState([]);
   const [error, setError] = useState("");
+  const [issudeId, setIssueId] = useState("");
 
   useEffect(() => {
     fetchDepartments();
@@ -82,6 +83,7 @@ const IssuePage = () => {
       } else {
         console.log(response.status);
         console.log(response.data);
+        setIssueId(response.data.id)
         setDepartmentItems(response.data);
       }
     } catch (e) {
@@ -101,25 +103,26 @@ const IssuePage = () => {
 
   const handleIssueProducts = async () => {
     try {
-      const itemsByDepartment = {};
-      departmentItems.forEach(item => {
-        if (!itemsByDepartment[item.departmentId]) {
-          itemsByDepartment[item.departmentId] = [];
-        }
-        itemsByDepartment[item.departmentId].push(item);
-      });
+      const response = await completeIssue(issudeId);
+      console.log(response.data);
+      // const itemsByDepartment = {};
+      // departmentItems.forEach(item => {
+      //   if (!itemsByDepartment[item.departmentId]) {
+      //     itemsByDepartment[item.departmentId] = [];
+      //   }
+      //   itemsByDepartment[item.departmentId].push(item);
+      // });
 
-      for (const deptId in itemsByDepartment) {
-        const payload = {
-          departmentId: deptId,
-          issuedById,
-          items: itemsByDepartment[deptId].map(item => ({
-            productId: item.productId,
-            quantityIssued: item.quantity,
-          })),
-        };
-        await issueProducts(payload);
-      }
+      // for (const deptId in itemsByDepartment) {
+      //   const payload = {
+      //     departmentId: deptId,
+      //     issuedById,
+      //     items: itemsByDepartment[deptId].map(item => ({
+      //       productId: item.productId,
+      //       quantityIssued: item.quantity,
+      //     })),
+      //   };
+      // }
 
       alert("Products issued successfully!");
       setDepartmentItems([]);
