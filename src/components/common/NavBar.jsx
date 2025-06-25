@@ -50,10 +50,11 @@ const Navbar = () => {
         <div className="relative">
           <button
             onClick={() => setShowMore(!showMore)}
-            className="nav-item flex items-center gap-2"
+            className="nav-item w-[100px] flex items-center gap-2 justify-center mt-[15px]"
           >
             <FaEllipsisH /> {showMore ? 'Less' : 'More'}
           </button>
+
 
           {showMore && (
             <div
