@@ -22,3 +22,7 @@ export const updateDepartment = (id, name, description) => {
 export const addDepartment = (name, description) => {
   return axios.post(`${server}/api/Department`, { name, description }, authHeader());
 };
+
+export const deleteDepartmentById = (id) => {
+  return axios.delete(`${server}/api/Department/${id}`, authHeader());
+};

@@ -36,7 +36,6 @@ const ViewIssuePage = () => {
     ? issues 
     : issues.filter(issue => issue.department.name === selectedDepartment);
 
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -89,16 +88,13 @@ const ViewIssuePage = () => {
                 <select
                   value={selectedDepartment}
                   onChange={(e) => setSelectedDepartment(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                 >
                   <option value="all">All Departments</option>
                   {departmentNames.map(dept => (
                     <option key={dept} value={dept}>{dept}</option>
                   ))}
                 </select>
-                
-                {/* Download All Button */}
-              
               </div>
             </div>
           </div>
@@ -144,53 +140,42 @@ const ViewIssuePage = () => {
                               {issue.isCompleted ? '✅ Completed' : '⏳ Not Completed'}
                             </span>
                           </div>
-                          <div className="text-sm text-gray-600 space-y-1">
+                          <div className="">
                             <p><span className="font-medium">Issued By:</span> {issue.issuedBy.fullName} ({issue.issuedBy.email})</p>
                             <p><span className="font-medium">Issue Date:</span> {new Date(issue.issueDate).toLocaleDateString()}</p>
                           </div>
                         </div>
                         
                         <button
-                          // onClick={() => generateSingleIssuePDF(issue)}
                           className="mt-4 lg:mt-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2"
                         >
                           <span>📄</span>
                           Download PDF
                         </button>
                       </div>
-
+                      
                       {/* Products Table */}
                       <div className="overflow-x-auto">
-                        <table className="w-full border-collapse border border-gray-300">
-                          <thead>
-                            <tr className="bg-gray-50">
-                              <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">Product Name</th>
-                              <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">Description</th>
-                              <th className="border border-gray-300 px-4 py-3 text-center font-semibold text-gray-900">Quantity</th>
-                              <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-900">Unit Price</th>
-                              <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-900">Total Price</th>
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-primary text-white">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Product Name</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Description</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Quantity</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Unit Price</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Total Price</th>
                             </tr>
                           </thead>
-                          <tbody>
+                          <tbody className="bg-white divide-y divide-gray-200">
                             {issue.issueItems.map(item => (
-                              <tr key={item.id} className="hover:bg-gray-50">
-                                <td className="border border-gray-300 px-4 py-3 font-medium text-gray-900">
-                                  {item.product.name}
+                              <tr key={item.id}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.product.name}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.product.description}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">{item.quantityIssued}</span>
                                 </td>
-                                <td className="border border-gray-300 px-4 py-3 text-gray-600">
-                                  {item.product.description}
-                                </td>
-                                <td className="border border-gray-300 px-4 py-3 text-center">
-                                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
-                                    {item.quantityIssued}
-                                  </span>
-                                </td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-medium">
-                                  Rs. {item.product.price.toLocaleString()}
-                                </td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-semibold text-green-700">
-                                  Rs. {(item.quantityIssued * item.product.price).toLocaleString()}
-                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rs. {item.product.price.toLocaleString()}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rs. {(item.quantityIssued * item.product.price).toLocaleString()}</td>
                               </tr>
                             ))}
                           </tbody>

@@ -90,7 +90,7 @@ const ViewAllUsers = () => {
                   <td>{index + 1}</td>
                   <td>{user.fullName || user.name}</td>
                   <td>{user.email}</td>
-                  <td>{user.role==0?"Staff":"Admin" || 'User'}</td>
+                  <td>{user.role==1?"Staff":"Admin" || 'User'}</td>
                   <td>
                     <button onClick={() => handleEdit(user.id)}>Edit</button>
                     <button onClick={() => handleDelete(user.id)} style={{ marginLeft: '10px' }}>

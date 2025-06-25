@@ -30,7 +30,7 @@ const Navbar = () => {
 
   const menuItems = [
     { name: 'Dashboard', href: '/', icon: <FaHome /> },
-    { name: 'Product', href: '/view-product', icon: <FaBox /> },
+    { name: 'Product', href: '/view-products', icon: <FaBox /> },
     { name: 'Issue Product', href: '/issue-products', icon: <FaLayerGroup /> },
     { name: 'Category', href: '/view-category', icon: <FaLayerGroup /> },
     { name: 'Staff', href: '/view-users', icon: <FaUsers /> },
