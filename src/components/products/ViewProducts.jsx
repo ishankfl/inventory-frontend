@@ -48,7 +48,7 @@ const ViewProducts = () => {
   }
   return (
     <div className="main-container-box">
-      <button className='btn' onClick={handleAddNewProduct}>+ Add New Product</button>
+      <button className='nav-item' onClick={handleAddNewProduct}>+ Add New Product</button>
     <div className="view-container overflow-x-auto">
     
       <h2>Product List</h2>

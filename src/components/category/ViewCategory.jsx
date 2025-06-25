@@ -65,7 +65,7 @@ const handleDelete = async (categoryId) => {
   }
   return (
     <div className="main-container-box">
-            <button onClick={handleAddNewCategory}>+ Add New Category</button>
+            <button className='nav-item' onClick={handleAddNewCategory}>+ Add New Category</button>
 
     <div className="view-container">
       <h2>View All Categories</h2>

@@ -2,8 +2,9 @@ import { useState } from 'react';
 import '../../styles/form.scss';
 import { addCategory } from '../../api/category';
 import { getUserId } from '../../utils/tokenutils';
-
+import { useNavigate } from 'react-router-dom';
 const AddCategory = () => {
+  const navigate = useNavigate();
   const [categoryName, setCategoryName] = useState('');
   const [categoryDescription, setCategoryDescription] = useState('');
   const [errors, setErrors] = useState({});
@@ -35,6 +36,7 @@ const handleSubmit = async (e) => {
       setCategoryName('');
       setCategoryDescription('');
       setErrors({});
+      navigate('/view-category')
     }
   } catch (error) {
     console.error('Error adding category:', error);

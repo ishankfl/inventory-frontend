@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { addStaff } from '../../api/user';
-
+import { useNavigate } from 'react-router-dom';
 const AddStaff = () => {
+    const navigate = useNavigate();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -25,6 +26,7 @@ const AddStaff = () => {
             if (response.status === 201) {
                 console.log("Staff added successfully:", response.data);
                 setError('');  // Clear error message on success if you want
+                navigate('/view-users')
             } else {
                 console.log("Unexpected response:", response);
                 setError('Something went wrong. Please try again.');

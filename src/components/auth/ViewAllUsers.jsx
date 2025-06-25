@@ -63,7 +63,7 @@ const ViewAllUsers = () => {
 
   return (
     <div className="main-container-box">
-      <button onClick={handleAddNewUser}>+ Add New User</button>
+      <button className='nav-item' onClick={handleAddNewUser}>+ Add New User</button>
 
       <div className="view-container">
         <h2>View All Users</h2>

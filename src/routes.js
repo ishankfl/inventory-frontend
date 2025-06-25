@@ -22,18 +22,18 @@ const CustomRouter = () => {
     <Routes>
       <Route path="/login" element={<Login/>}/>
       <Route path="/add-product" element={<AddProduct/>}/>
-      <Route path="/product" element={<ViewProducts/>}/>
+      <Route path="/view-products" element={<ViewProducts/>}/>
       <Route path="/add-category" element={<AddCategory/>}/>
       <Route path="/add-user" element={<AddStaff/>}/>
-      <Route path="/users" element={<ViewAllUsers/>}/>
-      <Route path="/category" element={<ViewCategory/>}/>
+      <Route path="/view-users" element={<ViewAllUsers/>}/>
+      <Route path="/view-category" element={<ViewCategory/>}/>
       <Route path="/edit-category/:id" element={<EditCategory />} />
       <Route path="/edit-product/:id" element={<EditProduct />} />
       <Route path="/departments/:id" element={<EditProduct />} />
-      <Route path="/departments" element={<ViewAllDepartments />} />
-      <Route path="/edit-departments/:id" element={<EditDepartment />} />
-      <Route path="/add-departments" element={<AddDepartment />} />
-      <Route path="/issue-product" element={<IssuePage />} />
+      <Route path="/view-departments" element={<ViewAllDepartments />} />
+      <Route path="/edit-department/:id" element={<EditDepartment />} />
+      <Route path="/add-department" element={<AddDepartment />} />
+      <Route path="/issue-products" element={<IssuePage />} />
       <Route path="/view-issues" element={<ViewIssue />} />
       <Route path="/" element={<Dashboard />} />
 

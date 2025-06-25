@@ -3,8 +3,10 @@ import { getAllDepartments } from "../../api/departments";
 import { getAllProducts } from "../../api/product";
 import { addNewProduct, completeIssue, fetchIssuedItemByDept, removeProductFromIssue } from "../../api/issue";
 import { getUserId } from "../../utils/tokenutils";
+import { useNavigate } from "react-router-dom";
 
 const IssuePage = () => {
+  const navigate = useNavigate()
   const [departments, setDepartments] = useState([]);
   const [products, setProducts] = useState([]);
   const [selectedDept, setSelectedDept] = useState("");
@@ -172,11 +174,17 @@ const IssuePage = () => {
       setError("Failed to remove product from issue");
     }
   };
+    const handleViewIssueClicked = ()=>{
+    // navigate('/add-product')
+    navigate('/view-issues')
+  }
 
   return (
     <div className="flex h-screen">
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="main-container-box !mr-0">
+        <button className="nav-item"  onClick={handleViewIssueClicked}>View Previous Hisotory</button>
+
           <div className="view-container overflow-x-auto">
             <h2 className="text-xl font-bold mb-4">Issue Products</h2>
             {error && (

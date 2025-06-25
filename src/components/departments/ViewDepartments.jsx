@@ -32,10 +32,13 @@ const ViewAllDepartments = () => {
         navigate('/add-user');
     };
     const handleEdit = (deptId) => {
-        navigate(`/edit-departments/${deptId}`);
+        navigate(`/edit-department/${deptId}`);
     };
+    const handleAddButtonClicked=()=>{
+        navigate('/add-department')
+    }
     return <div className="main-container-box">
-        <button >+ Add New User</button>
+        <button onClick={handleAddButtonClicked} className="nav-item" >+ Add New Department</button>
         <div className="view-container">
             <h2>View All Departments</h2>
             {loading && <p>Loading ...</p>}

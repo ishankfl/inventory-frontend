@@ -10,6 +10,7 @@ import {
   FaLayerGroup,
   FaEllipsisH,
 } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import '../../styles/navbar.scss';
 import { isLoggedIn } from '../../utils/tokenutils';
 
@@ -28,21 +29,21 @@ const Navbar = () => {
   }, []);
 
   const menuItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: <FaHome /> },
-    { name: 'Product', href: '/product', icon: <FaBox /> },
-    { name: 'Issue Product', href: '/issue-product', icon: <FaLayerGroup /> },
-    { name: 'Category', href: '/category', icon: <FaLayerGroup /> },
-    { name: 'Staff', href: '/users', icon: <FaUsers /> },
-    { name: 'Department', href: '/departments', icon: <FaBuilding /> },
+    { name: 'Dashboard', href: '/', icon: <FaHome /> },
+    { name: 'Product', href: '/view-product', icon: <FaBox /> },
+    { name: 'Issue Product', href: '/issue-products', icon: <FaLayerGroup /> },
+    { name: 'Category', href: '/view-category', icon: <FaLayerGroup /> },
+    { name: 'Staff', href: '/view-users', icon: <FaUsers /> },
+    { name: 'Department', href: '/view-departments', icon: <FaBuilding /> },
   ];
 
   const renderMenuLinks = (isMobile = false) => (
     <div className={`nav-links ${isMobile ? 'flex-col' : 'flex'} gap-5`}>
       {menuItems.slice(0, 3).map((item, index) => (
-        <a key={index} className="nav-item flex items-center gap-2" href={item.href}>
+        <Link key={index} className="nav-item flex items-center gap-2" to={item.href}>
           {item.icon}
           {item.name}
-        </a>
+        </Link>
       ))}
 
       {menuItems.length > 3 && (
@@ -53,20 +54,22 @@ const Navbar = () => {
           >
             <FaEllipsisH /> {showMore ? 'Less' : 'More'}
           </button>
-          
+
           {showMore && (
-            <div className={`absolute ${isMobile ? 'static mt-2' : 'right-0 mt-2'} bg-primary rounded-md shadow-lg z-50`}>
+            <div
+              className={`absolute ${isMobile ? 'static mt-2' : 'right-0 mt-2'} bg-primary rounded-md shadow-lg z-50`}
+            >
               <div className="flex flex-col gap-3 p-3">
                 {menuItems.slice(3).map((item, index) => (
-                  <a
+                  <Link
                     key={`more-${index}`}
                     className="nav-item flex items-center gap-2 whitespace-nowrap"
-                    href={item.href}
+                    to={item.href}
                     onClick={() => setShowMore(false)}
                   >
                     {item.icon}
                     {item.name}
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -75,9 +78,9 @@ const Navbar = () => {
       )}
 
       {!loggedIn && (
-        <a className="nav-item flex items-center gap-2" href="/login">
+        <Link className="nav-item flex items-center gap-2" to="/login">
           <FaSignInAlt /> Login
-        </a>
+        </Link>
       )}
     </div>
   );
@@ -87,7 +90,9 @@ const Navbar = () => {
       <div className="navbar flex justify-between items-center rounded-lg shadow-md relative w-[80%] p-4 text-white bg-primary z-[10000]">
         <div className="nav-logo text-[1.5rem] font-bold">Welcome to IMS</div>
 
-        <div className="hidden md:flex items-center relative">{renderMenuLinks(false)}</div>
+        <div className="hidden md:flex items-center relative">
+          {renderMenuLinks(false)}
+        </div>
 
         <div className="md:hidden z-50 cursor-pointer" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}

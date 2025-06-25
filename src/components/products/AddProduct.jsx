@@ -3,8 +3,9 @@ import { addProduct } from '../../api/product';
 import { getAllCategories, getCategories } from '../../api/category';
 import { getUserId } from '../../utils/tokenutils';
 // import '../../styles/product.scss'; // Optional CSS
-
+import { useNavigate } from 'react-router-dom';
 const AddProduct = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -54,6 +55,8 @@ const AddProduct = () => {
         setPrice('');
         setCategoryId('');
         setError('');
+        navigate('/view-products')
+        
       } else {
         setError("Failed to add product");
       }
