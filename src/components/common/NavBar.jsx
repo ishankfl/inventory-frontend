@@ -17,7 +17,7 @@ const Navbar = () => {
 }, []);
 
   return (
-    <div className="main-nav flex items-center justify-center p-8 fixed w-[100%]">
+    <div className="main-nav flex items-center justify-center p-8 fixed w-[100%] ">
        <div className=" navbar bg-primary z-[10000] flex justify-between items-center rounded-lg shadow-md mb-8 relative w-[80%] p-8 ">
       <div className="nav-logo text-[1.5rem] font-bold text-white">Welcome to IMS</div>
 

@@ -35,3 +35,7 @@ export const completeIssue = (issueId) => {
   console.log(issueId);
   return axios.post(`${server}/api/issues/CompleteIssue/${issueId}`, {}, authHeader());
 };
+
+export const removeProductFromIssue = (issueId, productId)=>{
+  return axios.delete(`${server}/api/issues/removeItem/${issueId}/Product/${productId}`, authHeader());
+}

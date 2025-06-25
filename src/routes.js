@@ -29,7 +29,7 @@ const CustomRouter = () => {
       <Route path="/edit-product/:id" element={<EditProduct />} />
       <Route path="/departments/:id" element={<EditProduct />} />
       <Route path="/departments" element={<ViewAllDepartments />} />
-      <Route path="/issue" element={<IssuePage />} />
+      <Route path="/issue-product" element={<IssuePage />} />
       <Route path="/view-issues" element={<ViewIssue />} />
       <Route path="/dashboard" element={<Dashboard />} />
 
