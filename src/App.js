@@ -6,7 +6,7 @@ function App() {
   return (
     <BrowserRouter>
       <Navbar/>
-      <div className='main-container'>
+      <div className='main-container pt-[120px] px-6'>
           <CustomRouter/>
 
       </div>

@@ -58,7 +58,7 @@ form select {
 
 /* Tailwind css for view pages */
 .main-container-box {
-  @apply p-8  min-h-[75vh];
+  @apply p-8  min-h-[75vh] flex flex-col items-start mx-[10%];
   /* Uncomment if needed: z-index and margin-top
   z-index: -100;
   margin-top: 5%;
@@ -66,11 +66,11 @@ form select {
 }
 
 .view-container {
-  @apply p-8 rounded-xl  min-h-[75vh];
+  @apply rounded-xl  min-h-[75vh] min-w-[100%];
 }
 
 .view-container h2 {
-  @apply mb-6 text-[#333];
+  @apply mb-6 text-[#333] text-left;
 }
 
 .view-container .error-msg {
