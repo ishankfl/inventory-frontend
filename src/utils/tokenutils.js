@@ -3,7 +3,11 @@
 import { jwtDecode } from "jwt-decode";
 
 const TOKEN_KEY = 'authToken';
-
+export const authHeader = () => ({
+  headers: {
+    Authorization: `Bearer ${getToken()}`
+  }
+});
 // Get token from localStorage
 export const getToken = () => {
     return localStorage.getItem(TOKEN_KEY);

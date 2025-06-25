@@ -1,13 +1,9 @@
 import axios from "axios";
 import { server } from "./server";
-import { getToken } from "../utils/tokenutils";
-// import { getToken } from "./tokenutils"; // make sure this path is correct
+import { getToken, authHeader } from "../utils/tokenutils";
 
-const authHeader = () => ({
-  headers: {
-    Authorization: `Bearer ${getToken()}`
-  }
-});
+
+
 
 export const issueProducts = (data) => {
   return axios.post(`${server}/api/issues`, data, authHeader());

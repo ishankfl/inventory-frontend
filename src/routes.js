@@ -13,6 +13,8 @@ import IssuePage from "./components/issue/IssuePage";
 import ViewIssue from "./components/issue/ViewIssue";
 import LineChart from "./components/dashboard/LineChart";
 import Dashboard from "./components/dashboard/Dashboard";
+import EditDepartment from "./components/departments/EditDepartment";
+import AddDepartment from "./components/departments/AddDepartment";
 
 const CustomRouter = () => {
   return (
@@ -29,9 +31,11 @@ const CustomRouter = () => {
       <Route path="/edit-product/:id" element={<EditProduct />} />
       <Route path="/departments/:id" element={<EditProduct />} />
       <Route path="/departments" element={<ViewAllDepartments />} />
+      <Route path="/edit-departments/:id" element={<EditDepartment />} />
+      <Route path="/add-departments" element={<AddDepartment />} />
       <Route path="/issue-product" element={<IssuePage />} />
       <Route path="/view-issues" element={<ViewIssue />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/" element={<Dashboard />} />
 
     </Routes>
   );

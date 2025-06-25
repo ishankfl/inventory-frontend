@@ -33,12 +33,11 @@ const Navbar = () => {
     { name: 'Issue Product', href: '/issue-product', icon: <FaLayerGroup /> },
     { name: 'Category', href: '/category', icon: <FaLayerGroup /> },
     { name: 'Staff', href: '/users', icon: <FaUsers /> },
-    { name: 'Department', href: '/deprtments', icon: <FaBuilding /> },
+    { name: 'Department', href: '/departments', icon: <FaBuilding /> },
   ];
 
   const renderMenuLinks = (isMobile = false) => (
     <div className={`nav-links ${isMobile ? 'flex-col' : 'flex'} gap-5`}>
-      {/* First 3 menu items */}
       {menuItems.slice(0, 3).map((item, index) => (
         <a key={index} className="nav-item flex items-center gap-2" href={item.href}>
           {item.icon}
@@ -46,7 +45,6 @@ const Navbar = () => {
         </a>
       ))}
 
-      {/* More button and dropdown */}
       {menuItems.length > 3 && (
         <div className="relative">
           <button
@@ -56,7 +54,6 @@ const Navbar = () => {
             <FaEllipsisH /> {showMore ? 'Less' : 'More'}
           </button>
           
-          {/* Dropdown for additional items */}
           {showMore && (
             <div className={`absolute ${isMobile ? 'static mt-2' : 'right-0 mt-2'} bg-primary rounded-md shadow-lg z-50`}>
               <div className="flex flex-col gap-3 p-3">
@@ -77,7 +74,6 @@ const Navbar = () => {
         </div>
       )}
 
-      {/* Login shown only if not logged in */}
       {!loggedIn && (
         <a className="nav-item flex items-center gap-2" href="/login">
           <FaSignInAlt /> Login
@@ -91,15 +87,12 @@ const Navbar = () => {
       <div className="navbar flex justify-between items-center rounded-lg shadow-md relative w-[80%] p-4 text-white bg-primary z-[10000]">
         <div className="nav-logo text-[1.5rem] font-bold">Welcome to IMS</div>
 
-        {/* Desktop Menu */}
         <div className="hidden md:flex items-center relative">{renderMenuLinks(false)}</div>
 
-        {/* Mobile Menu Toggle Button */}
         <div className="md:hidden z-50 cursor-pointer" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
         </div>
 
-        {/* Mobile Menu */}
         {menuOpen && (
           <div className="absolute top-full left-0 w-full bg-primary flex flex-col items-center gap-4 py-4 px-4 md:hidden z-40">
             {renderMenuLinks(true)}

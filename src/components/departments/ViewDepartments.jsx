@@ -31,8 +31,8 @@ const ViewAllDepartments = () => {
     const handleDelete = () => {
         navigate('/add-user');
     };
-    const handleEdit = () => {
-        navigate('/add-user');
+    const handleEdit = (deptId) => {
+        navigate(`/edit-departments/${deptId}`);
     };
     return <div className="main-container-box">
         <button >+ Add New User</button>

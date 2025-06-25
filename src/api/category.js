@@ -1,57 +1,31 @@
-import axios from "axios";
+import axios from 'axios';
 import { server } from './server.js';
-import { getToken } from '../utils/tokenutils.js'; // this should be your token utility
+import { authHeader } from '../utils/tokenutils.js'; // Reusable header function
 
 export const addCategory = (name, description, userId) => {
-    const token = getToken(); // gets the token from localStorage
-
-    return axios.post(
-        `${server}/api/Category`, // Fix the endpoint if needed
-        { name, description, userId },
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        }
-    );
+  return axios.post(
+    `${server}/api/Category`,
+    { name, description, userId },
+    authHeader()
+  );
 };
 
 export const getAllCategories = () => {
-    const token = getToken(); // gets the token from localStorage
-
-    return axios.get(`${server}/api/Category`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    })
-}
+  return axios.get(`${server}/api/Category`); // GET: no token unless required
+};
 
 export const deleteCategory = (id) => {
-    const token = getToken(); // gets the token from localStorage
-
-    return axios.delete(`${server}/api/Category/${id}`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    })
-}
+  return axios.delete(`${server}/api/Category/${id}`, authHeader());
+};
 
 export const getCategoryById = (id) => {
-    const token = getToken(); // gets the token from localStorage
-
-    return axios.get(`${server}/api/Category/${id}`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    })
-}
+  return axios.get(`${server}/api/Category/${id}`); // GET: no token
+};
 
 export const updateCategory = (id, name, description) => {
-    const token = getToken(); // gets the token from localStorage
-    console.log(id,name, description);
-    return axios.put(`${server}/api/Category/${id}`,{name, description}, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    })
-}
+  return axios.put(
+    `${server}/api/Category/${id}`,
+    { name, description },
+    authHeader()
+  );
+};
