@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import LineChart from "./LineChart";
-import { fetchTop10ItemsByQty, fetchTop10IssuedProduct } from '../../api/dashboard';
+import { fetchTop10ItemsByQty, fetchTop10IssuedProduct, fetchCountForCard } from '../../api/dashboard';
 import { Bar } from 'react-chartjs-2';
 import { 
   Chart as ChartJS, 
@@ -17,33 +17,25 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const Dashboard = () => {
   const [top10Items, setTop10ProductByQty] = useState([]);
   const [topIssuedItems, setTopIssuedProduct] = useState([]);
+  const [cardCount, setCardCount] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight
-  });
 
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight
-      });
-    };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [quantityResponse, issuedResponse] = await Promise.all([
+      const [quantityResponse, issuedResponse,countResponse] = await Promise.all([
         fetchTop10ItemsByQty(),
-        fetchTop10IssuedProduct()
+        fetchTop10IssuedProduct(),
+        fetchCountForCard()
+
       ]);
+      console.log(countResponse.data)
       setTop10ProductByQty(quantityResponse.data);
       setTopIssuedProduct(issuedResponse.data);
+      setCardCount(countResponse.data);
+
     } catch (e) {
       console.error("Error fetching data:", e);
     } finally {
@@ -66,7 +58,6 @@ const Dashboard = () => {
           usePointStyle: true,
           padding: 15,
           font: {
-            size: windowSize.width < 640 ? 10 : 12
           }
         }
       },
@@ -74,7 +65,6 @@ const Dashboard = () => {
         display: true,
         text: title,
         font: {
-          size: windowSize.width < 640 ? 14 : 16,
           weight: 'bold'
         },
         padding: {
@@ -95,13 +85,10 @@ const Dashboard = () => {
         title: {
           display: true,
           text: 'Quantity',
-          font: {
-            size: windowSize.width < 640 ? 10 : 12
-          }
+        
         },
         ticks: {
           font: {
-            size: windowSize.width < 640 ? 10 : 12
           },
           precision: 0
         },
@@ -115,20 +102,15 @@ const Dashboard = () => {
           display: true,
           text: 'Products',
           font: {
-            size: windowSize.width < 640 ? 10 : 12
           }
         },
         ticks: {
           font: {
-            size: windowSize.width < 640 ? 10 : 12
           },
-          maxRotation: windowSize.width < 768 ? 45 : 0,
-          minRotation: windowSize.width < 768 ? 45 : 0,
+       
           callback: function(value) {
             const label = this.getLabelForValue(value);
-            if (windowSize.width < 640 && label.length > 8) {
-              return label.substring(0, 6) + '...';
-            }
+        
             return label;
           }
         },
@@ -167,9 +149,30 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-[80%] mx-auto space-y-6">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Dashboard Analytics</h1>
-        
+       <div className="flex flex-wrap gap-12 items-center justify-center py-8">
+  <div className="bg-primary text-white px-12 py-8 flex flex-col gap-4 custom-radius text-center w-[220px]">
+    <h3 className="text-xl font-semibold">Users</h3>
+    <span className="text-3xl font-bold">{cardCount.users}</span>
+  </div>
+
+  <div className="bg-accent text-white px-12 py-8 flex flex-col gap-4 rounded-[60px_70px_40px_140px] custom-radius text-center w-[220px]">
+    <h3 className="text-xl font-semibold">Products</h3>
+    <span className="text-3xl font-bold">{cardCount.products}</span>
+  </div>
+
+  <div className="bg-success text-white px-12 py-8 flex flex-col gap-4 rounded-[60px_70px_40px_140px] custom-radius text-center w-[220px]">
+    <h3 className="text-xl font-semibold">Departments</h3>
+    <span className="text-3xl font-bold">{cardCount.departments}</span>
+  </div>
+
+  <div className="bg-primary-dark text-white px-12 py-8 flex flex-col gap-4 rounded-[60px_70px_40px_140px] custom-radius text-center w-[220px]">
+    <h3 className="text-xl font-semibold">Categories</h3>
+    <span className="text-3xl font-bold">{cardCount.categories}</span>
+  </div>
+</div>
+
         {/* Bar Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Inventory Chart */}
@@ -213,35 +216,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Line Charts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-white rounded-xl shadow-md p-4 md:p-6">
-            <div className="h-64 md:h-80">
-              <LineChart 
-                title="Monthly Sales Trend" 
-                color="rgba(245, 158, 11, 0.7)" // amber-500
-              />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-xl shadow-md p-4 md:p-6">
-            <div className="h-64 md:h-80">
-              <LineChart 
-                title="Department Usage" 
-                color="rgba(139, 92, 246, 0.7)" // purple-500
-              />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-xl shadow-md p-4 md:p-6 md:col-span-2 lg:col-span-1">
-            <div className="h-64 md:h-80">
-              <LineChart 
-                title="Product Returns" 
-                color="rgba(239, 68, 68, 0.7)" // red-500
-              />
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

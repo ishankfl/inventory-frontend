@@ -9,3 +9,7 @@ export const fetchTop10ItemsByQty=()=>{
 export const fetchTop10IssuedProduct=()=>{
     return axios.get(`${server}/api/Dashboard/GetTopIssuedProducts`)
 }
+
+export const fetchCountForCard=()=>{
+    return axios.get(`${server}/api/Dashboard/GetCount`)
+}
