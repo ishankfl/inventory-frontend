@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { getAllDepartments } from "../../api/departments";
 import { getAllProducts } from "../../api/product";
-import { addNewProduct, completeIssue, fetchIssuedItemByDept, issueProducts, removeProductFromIssue } from "../../api/issue";
-import { getToken, getUserId } from "../../utils/tokenutils";
+import { addNewProduct, completeIssue, fetchIssuedItemByDept, removeProductFromIssue } from "../../api/issue";
+import { getUserId } from "../../utils/tokenutils";
 
 const IssuePage = () => {
   const [departments, setDepartments] = useState([]);
@@ -39,8 +39,8 @@ const IssuePage = () => {
   };
 
   const getIssuedById = () => {
-    const token = getUserId();
-    setIssuedById(token);
+    const userId = getUserId();
+    setIssuedById(userId);
   };
 
   const handleQuantityChange = (productId, productName, quantity) => {
@@ -50,7 +50,10 @@ const IssuePage = () => {
   };
 
   const handleAddProduct = async (productId) => {
-    if (!selectedDept || !productQuantities[productId]) return;
+    if (!selectedDept || !productQuantities[productId]) {
+      setError("Please select a department and enter a quantity");
+      return;
+    }
 
     try {
       const response = await addNewProduct(
@@ -61,7 +64,7 @@ const IssuePage = () => {
       );
       
       if (response.status === 200) {
-        // Update product quantities in the list
+        // Update product quantities in the main list
         setProducts(prevProducts => 
           prevProducts.map(product => 
             product.id === productId 
@@ -70,65 +73,90 @@ const IssuePage = () => {
           )
         );
         
+        // Reset the input field for the added product
         setProductQuantities(prev => ({
           ...prev,
           [productId]: { ...prev[productId], quantity: 0 }
         }));
         
-        fetchIssuedItemsByDept();
+        // Refresh the department items
+        await fetchIssuedItemsByDept(selectedDept);
       }
     } catch (e) {
-      console.log(e);
+      console.error("Failed to add product:", e);
+      setError("Failed to add product to department");
     }
   };
 
-  const fetchIssuedItemsByDept = async () => {
-    if (!selectedDept) return;
+  const fetchIssuedItemsByDept = async (deptId) => {
+    if (!deptId) {
+      setDepartmentItems([]);
+      return;
+    }
 
     try {
-      const response = await fetchIssuedItemByDept(selectedDept);
+      const response = await fetchIssuedItemByDept(deptId);
       if (response.status === 204) {
         setDepartmentItems([]);
+        setIssueId("");
       } else {
         setIssueId(response.data.id);
         setDepartmentItems(response.data);
       }
     } catch (e) {
-      console.log(e);
+      console.error("Failed to fetch department items:", e);
       setDepartmentItems([]);
+      setIssueId("");
+      setError("Failed to load department items");
     }
   };
 
-  const handleDepartmentSelection = (department) => {
-    setSelectedDept(department);
-    if (department) {
-      fetchIssuedItemsByDept();
+  const handleDepartmentSelection = async (departmentId) => {
+    setSelectedDept(departmentId);
+    setProductQuantities({});
+    setError("");
+
+    if (departmentId) {
+      await fetchIssuedItemsByDept(departmentId);
     } else {
       setDepartmentItems([]);
+      setIssueId("");
     }
   };
 
   const handleIssueProducts = async () => {
+    if (!issueId) {
+      setError("No issue to complete");
+      return;
+    }
+
     try {
       const response = await completeIssue(issueId);
       if (response.status === 200) {
         alert("Products issued successfully!");
-        // Refresh products to get updated quantities
+        // Refresh all data
         fetchProducts();
         setDepartmentItems([]);
         setProductQuantities({});
+        setIssueId("");
+        setSelectedDept("");
       }
     } catch (err) {
-      console.error("Failed to issue products", err);
-      alert("An error occurred while issuing products.");
+      console.error("Failed to issue products:", err);
+      setError("Failed to complete the issue");
     }
   };
 
   const handleRemoveItem = async (productId, quantity) => {
+    if (!issueId) {
+      setError("No active issue to modify");
+      return;
+    }
+
     try {
       const response = await removeProductFromIssue(issueId, productId);
       if (response.status === 200) {
-        // Update product quantities in the list
+        // Update product quantities in the main list
         setProducts(prevProducts => 
           prevProducts.map(product => 
             product.id === productId 
@@ -136,10 +164,12 @@ const IssuePage = () => {
               : product
           )
         );
-        fetchIssuedItemsByDept();
+        // Refresh department items
+        await fetchIssuedItemsByDept(selectedDept);
       }
     } catch (e) {
-      console.log(e);
+      console.error("Failed to remove product:", e);
+      setError("Failed to remove product from issue");
     }
   };
 
@@ -148,51 +178,48 @@ const IssuePage = () => {
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="main-container-box !mr-0">
           <div className="view-container overflow-x-auto">
-            <h2>Issue Products</h2>
+            <h2 className="text-xl font-bold mb-4">Issue Products</h2>
             {error && (
-              <div className="mt-4 p-4 bg-danger-50 border border-danger-200 rounded-lg">
-                <p className="text-danger-700 text-sm">{error}</p>
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-700 text-sm">{error}</p>
               </div>
             )}
             <table className="min-w-full divide-y divide-gray-200">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Description</th>
-                  <th>Available Qty</th>
-                  <th>Enter Qty</th>
-                  <th>Action</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available Qty</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enter Qty</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="bg-white divide-y divide-gray-200">
                 {products.map((prod) => (
                   <tr key={prod.id} className="hover:bg-gray-50">
-                    <td className="border border-gray-300 px-4 py-3 font-medium text-gray-900">
-                      {prod.name}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-3 text-gray-600">
-                      {prod.description || "-"}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-3 text-center">
+                    <td className="px-4 py-3 font-medium text-gray-900">{prod.name}</td>
+                    <td className="px-4 py-3 text-gray-600">{prod.description || "-"}</td>
+                    <td className="px-4 py-3 text-center">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        prod.quantity > 10 ? 'status-high' :
-                        prod.quantity > 0 ? 'status-medium' : 'status-low'
+                        prod.quantity > 10 ? 'bg-green-100 text-green-800' :
+                        prod.quantity > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
                       }`}>
                         {prod.quantity}
                       </span>
                     </td>
-                    <td className="border border-gray-300 px-4 py-3">
+                    <td className="px-4 py-3">
                       <input
                         type="number"
                         min="1"
                         max={prod.quantity}
                         value={productQuantities[prod.id]?.quantity || ""}
                         onChange={(e) => handleQuantityChange(prod.id, prod.name, e.target.value)}
-                        className="input-field w-20 text-center"
+                        className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
                         placeholder="0"
+                        disabled={!selectedDept}
                       />
                     </td>
-                    <td className="border border-gray-300 px-4 py-3 text-center">
+                    <td className="px-4 py-3 text-center">
                       <button
                         disabled={
                           !selectedDept ||
@@ -201,7 +228,7 @@ const IssuePage = () => {
                           prod.quantity < productQuantities[prod.id]?.quantity
                         }
                         onClick={() => handleAddProduct(prod.id)}
-                        className="btn-primary px-4 py-2 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm font-medium transition-colors duration-200"
                       >
                         Add to Dept
                       </button>
@@ -210,7 +237,7 @@ const IssuePage = () => {
                 ))}
                 {products.length === 0 && (
                   <tr>
-                    <td colSpan="5" className="border border-gray-300 px-4 py-8 text-center text-gray-500">
+                    <td colSpan="5" className="px-4 py-8 text-center text-gray-500">
                       No products available
                     </td>
                   </tr>
@@ -221,7 +248,6 @@ const IssuePage = () => {
         </div>
       </div>
 
-      {/* Sidebar */}
       <div className="w-96 bg-white border-l border-gray-200 flex flex-col">
         <div className="p-6 border-b border-gray-200">
           <label htmlFor="department" className="block text-sm font-semibold text-gray-900 mb-3">
@@ -231,7 +257,7 @@ const IssuePage = () => {
             id="department"
             value={selectedDept}
             onChange={(e) => handleDepartmentSelection(e.target.value)}
-            className="input-field"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
           >
             <option value="">-- Select Department --</option>
             {departments.map((dept) => (
@@ -243,85 +269,73 @@ const IssuePage = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <SelectedProduct
-            departmentItems={departmentItems}
-            onIssueProducts={handleIssueProducts}
-            selectedDept={selectedDept}
-            departments={departments}
-            issueId={issueId}
-            onRemoveItem={handleRemoveItem}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const SelectedProduct = ({ departmentItems, onIssueProducts, selectedDept, departments, issueId, onRemoveItem }) => {
-  const issuedItemsForDepartment = departmentItems.issueItems ?? [];
-  const selectedDepartment = departments.find(d => d.id === selectedDept);
-
-  return (
-    <div className="p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Selected Products</h3>
-
-      {!selectedDept ? (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">🏢</div>
-          <p className="text-gray-500 text-sm">Please select a department first</p>
-        </div>
-      ) : issuedItemsForDepartment.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">📦</div>
-          <p className="text-gray-500 text-sm mb-2">No products selected yet</p>
-          <p className="text-gray-400 text-xs">
-            Add products from the table to issue to {selectedDepartment?.name}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center">
-              <div className="text-primary-600 text-lg mr-3">🏢</div>
-              <div>
-                <p className="font-medium text-primary-900">Issuing to:</p>
-                <p className="text-primary-700 text-sm">{selectedDepartment?.name}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {issuedItemsForDepartment.map((item) => (
-              <div key={item.product.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900 mb-2">{item.product.name}</h4>
-                    <div className="flex items-center space-x-3">
-                      <span className="text-sm text-gray-600">Qty: {item.quantityIssued}</span>
+          {selectedDept ? (
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Selected Products</h3>
+              
+              {departmentItems.issueItems?.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center">
+                      <div className="text-blue-600 text-lg mr-3">🏢</div>
+                      <div>
+                        <p className="font-medium text-blue-900">Issuing to:</p>
+                        <p className="text-blue-700 text-sm">
+                          {departments.find(d => d.id === selectedDept)?.name}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <button
-                    className="ml-4 w-8 h-8 flex items-center justify-center text-danger-500 hover:bg-danger-50 rounded-full transition-colors duration-200"
-                    title="Remove product"
-                    onClick={() => onRemoveItem(item.product.id, item.quantityIssued)}
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
 
-          <div className="pt-4 border-t border-gray-200">
-            <button
-              onClick={onIssueProducts}
-              className="btn-success w-full"
-            >
-              Issue All Products ({issuedItemsForDepartment.length})
-            </button>
-          </div>
+                  <div className="space-y-3">
+                    {departmentItems.issueItems.map((item) => (
+                      <div key={item.product.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900 mb-2">{item.product.name}</h4>
+                            <div className="flex items-center space-x-3">
+                              <span className="text-sm text-gray-600">Qty: {item.quantityIssued}</span>
+                            </div>
+                          </div>
+                          <button
+                            className="ml-4 w-8 h-8 flex items-center justify-center text-red-500 hover:bg-red-50 rounded-full transition-colors duration-200"
+                            title="Remove product"
+                            onClick={() => handleRemoveItem(item.product.id, item.quantityIssued)}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-200">
+                    <button
+                      onClick={handleIssueProducts}
+                      className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium"
+                    >
+                      Issue All Products ({departmentItems.issueItems.length})
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">📦</div>
+                  <p className="text-gray-500 text-sm mb-2">No products selected yet</p>
+                  <p className="text-gray-400 text-xs">
+                    Add products from the table to issue to {departments.find(d => d.id === selectedDept)?.name}
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🏢</div>
+              <p className="text-gray-500 text-sm">Please select a department first</p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
