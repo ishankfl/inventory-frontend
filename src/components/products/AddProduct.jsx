@@ -3,8 +3,9 @@ import { addProduct } from '../../api/product';
 import { getAllCategories, getCategories } from '../../api/category';
 import { getUserId } from '../../utils/tokenutils';
 // import '../../styles/product.scss'; // Optional CSS
-
+import { useNavigate } from 'react-router-dom';
 const AddProduct = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -54,6 +55,8 @@ const AddProduct = () => {
         setPrice('');
         setCategoryId('');
         setError('');
+        navigate('/view-products')
+        
       } else {
         setError("Failed to add product");
       }
@@ -64,36 +67,38 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="container">
+   <div className="container">
+ 
+
       <h2>Add Product</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} >
         {error && <p className="error-msg">{error}</p>}
-        <div>
+        <div className=' '>
           <label>Name:</label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+          <input  type="text" value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
-        <div>
+        <div className=''>
           <label>Description:</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
+          <textarea  value={description} onChange={(e) => setDescription(e.target.value)} />
         </div>
-        <div>
+        <div className=' '>
           <label>Quantity:</label>
-          <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} required />
+          <input  type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} required />
         </div>
-        <div>
+        <div className=' '>
           <label>Price:</label>
-          <input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} required />
+          < input  type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} required />
         </div>
-        <div>
+        <div className=' '>
           <label>Category:</label>
-          <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
+          <select className='input-text' value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
             <option value="">Select Category</option>
             {categories.map(cat => (
               <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
           </select>
         </div>
-        <button type="submit">Add Product</button>
+        <button type="submit" className='btn-primary submit-button'>Add Product</button>
       </form>
     </div>
   );

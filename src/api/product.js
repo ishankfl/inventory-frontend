@@ -1,31 +1,43 @@
 import axios from "axios";
 import { server } from "./server";
-import { getToken } from "../utils/tokenutils";
+import { authHeader } from "../utils/tokenutils";
 
-export const addProduct = (name,description,quantity, price,categoryId,userId) => {
-  return axios.post(`${server}/api/Product`, {name,description,quantity, price, categoryId,userId}, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`
-    }
-  });
+//  Create Product (POST)
+export const addProduct = (name, description, quantity, price, categoryId, userId) => {
+  return axios.post(`${server}/api/Product`, {
+    name,
+    description,
+    quantity,
+    price,
+    categoryId,
+    userId
+  }, authHeader());
 };
-export const updateProduct = (id, name,description,quantity, price,categoryId,userId) => {
-  console.log(id,name,description,quantity,price,categoryId, userId  )
-  return axios.put(`${server}/api/Product/${id}`, {name,description,quantity, price, categoryId,userId}, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`
-    }
-  });
+
+//  Update Product (PUT)
+export const updateProduct = (id, name, description, quantity, price, categoryId, userId) => {
+  console.log(id, name, description, quantity, price, categoryId, userId);
+  return axios.put(`${server}/api/Product/${id}`, {
+    name,
+    description,
+    quantity,
+    price,
+    categoryId,
+    userId
+  }, authHeader());
 };
+
+//  Get All Products (no token required unless backend demands it)
 export const getAllProducts = () => {
   return axios.get(`${server}/api/Product`);
 };
 
+//  FIXED: This should be DELETE instead of GET
 export const deleteProducts = (id) => {
-  return axios.get(`${server}/api/Product/${id}`);
+  return axios.delete(`${server}/api/Product/${id}`, authHeader());
 };
 
-
+//  Get Single Product by ID
 export const getProductById = (id) => {
   return axios.get(`${server}/api/Product/${id}`);
 };

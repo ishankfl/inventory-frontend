@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
-import { getAllDepartments } from "../../api/departments";
+import { deleteDepartmentById, getAllDepartments } from "../../api/departments";
 const ViewAllDepartments = () => {
     const [departments, setDepartments] = useState([])
     const [error, setError] = useState('');
@@ -28,14 +28,31 @@ const ViewAllDepartments = () => {
         fetchDepartments();
     }, [])
 
-    const handleDelete = () => {
-        navigate('/add-user');
+    const handleDelete = async (id) => {
+        const confirmed = window.confirm('Are you sure you want to delete this department?');
+        if (!confirmed) return;
+
+        try {
+            await deleteDepartmentById(id);
+            alert('Department deleted successfully.');
+            // const department = departments.
+             setDepartments(departments =>
+      departments.filter(dept => dept.id !== id)
+    );
+            // navigate('/view-departments');
+        } catch (error) {
+            console.error('Error deleting department:', error);
+            alert('Failed to delete department.');
+        }
     };
-    const handleEdit = () => {
-        navigate('/add-user');
+    const handleEdit = (deptId) => {
+        navigate(`/edit-department/${deptId}`);
     };
+    const handleAddButtonClicked = () => {
+        navigate('/add-department')
+    }
     return <div className="main-container-box">
-        <button >+ Add New User</button>
+        <button onClick={handleAddButtonClicked} className="nav-item" >+ Add New Department</button>
         <div className="view-container">
             <h2>View All Departments</h2>
             {loading && <p>Loading ...</p>}

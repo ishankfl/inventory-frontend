@@ -11,9 +11,10 @@ import ViewAllUsers from "./components/auth/ViewAllUsers";
 import ViewAllDepartments from "./components/departments/ViewDepartments";
 import IssuePage from "./components/issue/IssuePage";
 import ViewIssue from "./components/issue/ViewIssue";
-import ViewIssuePage from "./components/issue/us";
 import LineChart from "./components/dashboard/LineChart";
 import Dashboard from "./components/dashboard/Dashboard";
+import EditDepartment from "./components/departments/EditDepartment";
+import AddDepartment from "./components/departments/AddDepartment";
 
 const CustomRouter = () => {
   return (
@@ -21,18 +22,20 @@ const CustomRouter = () => {
     <Routes>
       <Route path="/login" element={<Login/>}/>
       <Route path="/add-product" element={<AddProduct/>}/>
-      <Route path="/product" element={<ViewProducts/>}/>
+      <Route path="/view-products" element={<ViewProducts/>}/>
       <Route path="/add-category" element={<AddCategory/>}/>
       <Route path="/add-user" element={<AddStaff/>}/>
-      <Route path="/users" element={<ViewAllUsers/>}/>
-      <Route path="/category" element={<ViewCategory/>}/>
+      <Route path="/view-users" element={<ViewAllUsers/>}/>
+      <Route path="/view-category" element={<ViewCategory/>}/>
       <Route path="/edit-category/:id" element={<EditCategory />} />
       <Route path="/edit-product/:id" element={<EditProduct />} />
       <Route path="/departments/:id" element={<EditProduct />} />
-      <Route path="/departments" element={<ViewAllDepartments />} />
-      <Route path="/issue" element={<IssuePage />} />
+      <Route path="/view-departments" element={<ViewAllDepartments />} />
+      <Route path="/edit-department/:id" element={<EditDepartment />} />
+      <Route path="/add-department" element={<AddDepartment />} />
+      <Route path="/issue-products" element={<IssuePage />} />
       <Route path="/view-issues" element={<ViewIssue />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/" element={<Dashboard />} />
 
     </Routes>
   );

@@ -1,0 +1,5 @@
+{
+    "C_Cpp.configurationWarnings": "enabled",
+    "terminal.integrated.enableMultiLinePasteWarning": "auto",
+    "debug.hideSlowPreLaunchWarning": false
+}

@@ -1,19 +1,111 @@
-import '../../styles/navbar.scss'
+import { useEffect, useState } from 'react';
+import {
+  FaBars,
+  FaTimes,
+  FaHome,
+  FaBox,
+  FaUsers,
+  FaSignInAlt,
+  FaBuilding,
+  FaLayerGroup,
+  FaEllipsisH,
+} from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import '../../styles/navbar.scss';
+import { isLoggedIn } from '../../utils/tokenutils';
+
 const Navbar = () => {
-    return <>
-        <div className="navbar">
-            <div className="nav-logo">IMS</div>
-            <div className="nav-links">
-                <a href="/dashboard">Dashboard</a>
-                <a href="/product">Product</a>
-                <a href="/issue-product">Issue Product</a>
-                <a href="/category">Category</a>
-                <a href="/users">Staff</a>
-                <a href="/login">Login</a>
-                <a href="/deprtments">Department</a>
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [showMore, setShowMore] = useState(false);
+
+  const checkLoggedin = () => {
+    const isUserLoggedIn = isLoggedIn();
+    setLoggedIn(isUserLoggedIn);
+  };
+
+  useEffect(() => {
+    checkLoggedin();
+  }, []);
+
+  const menuItems = [
+    { name: 'Dashboard', href: '/', icon: <FaHome /> },
+    { name: 'Product', href: '/view-products', icon: <FaBox /> },
+    { name: 'Issue Product', href: '/issue-products', icon: <FaLayerGroup /> },
+    { name: 'Category', href: '/view-category', icon: <FaLayerGroup /> },
+    { name: 'Staff', href: '/view-users', icon: <FaUsers /> },
+    { name: 'Department', href: '/view-departments', icon: <FaBuilding /> },
+  ];
+
+  const renderMenuLinks = (isMobile = false) => (
+    <div className={`nav-links ${isMobile ? 'flex-col' : 'flex'} gap-5`}>
+      {menuItems.slice(0, 3).map((item, index) => (
+        <Link key={index} className="nav-item flex items-center gap-2" to={item.href}>
+          {item.icon}
+          {item.name}
+        </Link>
+      ))}
+
+      {menuItems.length > 3 && (
+        <div className="relative">
+          <button
+            onClick={() => setShowMore(!showMore)}
+            className="nav-item flex items-center gap-2"
+          >
+            <FaEllipsisH /> {showMore ? 'Less' : 'More'}
+          </button>
+
+          {showMore && (
+            <div
+              className={`absolute ${isMobile ? 'static mt-2' : 'right-0 mt-2'} bg-primary rounded-md shadow-lg z-50`}
+            >
+              <div className="flex flex-col gap-3 p-3">
+                {menuItems.slice(3).map((item, index) => (
+                  <Link
+                    key={`more-${index}`}
+                    className="nav-item flex items-center gap-2 whitespace-nowrap"
+                    to={item.href}
+                    onClick={() => setShowMore(false)}
+                  >
+                    {item.icon}
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
             </div>
+          )}
+        </div>
+      )}
+
+      {!loggedIn && (
+        <Link className="nav-item flex items-center gap-2" to="/login">
+          <FaSignInAlt /> Login
+        </Link>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="main-nav flex items-center justify-center p-8 fixed w-full">
+      <div className="navbar flex justify-between items-center rounded-lg shadow-md relative w-[80%] p-4 text-white bg-primary z-[10000]">
+        <div className="nav-logo text-[1.5rem] font-bold">Welcome to IMS</div>
+
+        <div className="hidden md:flex items-center relative">
+          {renderMenuLinks(false)}
         </div>
 
-    </>
-}
+        <div className="md:hidden z-50 cursor-pointer" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+        </div>
+
+        {menuOpen && (
+          <div className="absolute top-full left-0 w-full bg-primary flex flex-col items-center gap-4 py-4 px-4 md:hidden z-40">
+            {renderMenuLinks(true)}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default Navbar;

@@ -48,15 +48,15 @@ const ViewProducts = () => {
   }
   return (
     <div className="main-container-box">
-      <button onClick={handleAddNewProduct}>+ Add New Product</button>
-    <div className="view-container">
+      <button className='nav-item' onClick={handleAddNewProduct}>+ Add New Product</button>
+    <div className="view-container overflow-x-auto">
     
       <h2>Product List</h2>
       {error && <p className="error-msg">{error}</p>}
       {products.length === 0 ? (
         <p>No products found.</p>
       ) : (
-        <table border="1" cellPadding="10" cellSpacing="0">
+        <table  border="1" cellPadding="10" cellSpacing="0" className='min-w-full divide-y divide-gray-20'>
           <thead>
             <tr>
               <th>Name</th>
