@@ -4,9 +4,9 @@ import Navbar from './components/common/NavBar';
 import './styles/main.scss'
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter >
       <Navbar/>
-      <div className='main-container pt-[180px] px-6'>
+      <div className='main-container pt-[180px] px-6 '>
           <CustomRouter/>
 
       </div>
