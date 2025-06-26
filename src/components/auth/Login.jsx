@@ -3,7 +3,9 @@ import '../../styles/form.scss'
 import { loginApi } from '../../api/user';
 import userEvent from '@testing-library/user-event';
 import { setToken } from '../../utils/tokenutils';
+import { useNavigate } from 'react-router-dom';
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error,setError] = useState('')
@@ -15,6 +17,9 @@ const Login = () => {
       console.log(response);
       setToken(response.data.token)
       console.log("Login successful");
+      window.location='/'
+      return;
+
     } else {
       console.log("Something went wrong");
     }

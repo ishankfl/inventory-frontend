@@ -39,14 +39,14 @@ const Navbar = () => {
 
   const renderMenuLinks = (isMobile = false) => (
     <div className={`nav-links ${isMobile ? 'flex-col' : 'flex'} gap-5`}>
-      {menuItems.slice(0, 3).map((item, index) => (
+      {loggedIn && menuItems.slice(0, 3).map((item, index) => (
         <Link key={index} className="nav-item flex items-center gap-2" to={item.href}>
           {item.icon}
           {item.name}
         </Link>
       ))}
 
-      {menuItems.length > 3 && (
+      { loggedIn && menuItems.length > 3 && (
         <div className="relative">
           <button
             onClick={() => setShowMore(!showMore)}

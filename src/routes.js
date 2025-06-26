@@ -15,8 +15,24 @@ import LineChart from "./components/dashboard/LineChart";
 import Dashboard from "./components/dashboard/Dashboard";
 import EditDepartment from "./components/departments/EditDepartment";
 import AddDepartment from "./components/departments/AddDepartment";
+import { useNavigate } from "react-router-dom";
+import { isLoggedIn } from './utils/tokenutils';
+import { useState,useEffect } from "react";
+const CustomRouter = (c) => {
+const navigate = useNavigate();
+  const [userLoggedinStatus,setUserLoggedinStatus]= useState(false);
+   function getUserLoggedInStatus(){
+    const userLoggedInStatus =  isLoggedIn();
+    if (!userLoggedInStatus){
+    navigate('/login')
+    return;
+    }
+    setUserLoggedinStatus(userLoggedInStatus);
+  }
+  useEffect(()=>{
+    getUserLoggedInStatus();
+  });
 
-const CustomRouter = () => {
   return (
     
     <Routes>
