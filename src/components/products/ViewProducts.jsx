@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { deleteProducts, getAllProducts } from '../../api/product';
 import '../../styles/view.scss';
 import AddProduct from './AddProduct';
-
+import EditProduct from './EditProduct';
 const ViewProducts = () => {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [isAddModelOpened, setIsAddModelOpened] = useState(false);
+  const [isEditModelOpened, setIsEditModelOpened] = useState(false);
+  const [productId, setProductId]=useState('');
 
   // Fetch products on load
   useEffect(() => {
@@ -39,7 +41,9 @@ const ViewProducts = () => {
   };
 
   const handleEdit = (id) => {
-    navigate(`/edit-product/${id}`);
+    setProductId(id);
+    setIsEditModelOpened(true);
+    // navigate(`/edit-product/${id}`);
   };
 
   const handleAddNewProduct = () => {
@@ -48,6 +52,7 @@ const ViewProducts = () => {
 
   const closeModal = () => {
     setIsAddModelOpened(false);
+    setIsEditModelOpened(false);
   };
 
   return (
@@ -56,7 +61,7 @@ const ViewProducts = () => {
 
       <div
         className={`view-container overflow-x-auto transition-all duration-300 ${
-          isAddModelOpened ? "blur-sm pointer-events-none select-none" : ""
+          (isAddModelOpened ||isEditModelOpened)  ? "blur-sm pointer-events-none select-none" :  ""
         }`}
       >
         <h2>Product List</h2>
@@ -96,20 +101,19 @@ const ViewProducts = () => {
         )}
       </div>
 
-      {/* Modal Overlay with Tailwind classes */}
-      {isAddModelOpened && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-          onClick={closeModal}
-        >
-          <div
-            className="bg-white p-6 rounded shadow-lg max-w-0 w-full"
-            onClick={(e) => e.stopPropagation()} 
-          >
-            <AddProduct onClose={closeModal} />
-          </div>
-        </div>
-      )}
+    { (isAddModelOpened || isEditModelOpened) && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[101]" onClick={closeModal}>
+    <div
+      className="bg-white p-6 rounded shadow-lg max-w-lg w-0"
+      onClick={(e) => e.stopPropagation()} 
+    >
+      {isAddModelOpened && <AddProduct onClose={closeModal} />}
+      {isEditModelOpened && <EditProduct onClose={closeModal} productId={productId} />}
+    </div>
+  </div>
+)}
+
+      
     </div>
   );
 };

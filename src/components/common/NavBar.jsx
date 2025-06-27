@@ -38,7 +38,7 @@ const Navbar = () => {
   ];
 
   const renderMenuLinks = (isMobile = false) => (
-    <div className={`nav-links ${isMobile ? 'flex-col' : 'flex'} gap-5`}>
+    <div className={`nav-links ${isMobile ? 'flex-col' : 'flex'}`}>
       {loggedIn && menuItems.slice(0, 3).map((item, index) => (
         <Link key={index} className="nav-item flex items-center gap-2" to={item.href}>
           {item.icon}
@@ -87,7 +87,7 @@ const Navbar = () => {
   );
 
   return (
-    <div className="main-nav flex items-center justify-center p-8 fixed w-full">
+    <div className="main-nav flex items-center justify-center p-8 fixed w-full z-[100]">
       <div className="navbar flex justify-between items-center rounded-lg shadow-md relative w-[80%] p-4 text-white bg-primary z-[10000]">
         <div className="nav-logo text-[1.5rem] font-bold">Welcome to IMS</div>
 

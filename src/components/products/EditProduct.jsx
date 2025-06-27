@@ -4,8 +4,9 @@ import { getProductById, updateProduct } from '../../api/product';
 import { getAllCategories } from '../../api/category'; // <-- import your category API
 import '../../styles/form.scss';
 
-const EditProduct = () => {
-  const { id } = useParams();
+const EditProduct = ({onClose, productId}) => {
+  const id  =productId;
+  console.log(id);
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
@@ -100,7 +101,8 @@ const EditProduct = () => {
         </div>
         <div>
           <button type="submit">Update Product</button>
-          <button type="button" onClick={() => navigate('/view-products')}>Cancel</button>
+          <button type="button" onClick={onClose}
+>Cancel</button>
         </div>
       </form>
     </div>
