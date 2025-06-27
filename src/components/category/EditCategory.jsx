@@ -3,13 +3,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getCategoryById, updateCategory } from '../../api/category';
 import '../../styles/form.scss';
 
-const EditCategory = () => {
-  const { id } = useParams();
+const EditCategory = ({ closeModal, catId }) => {
+  // console.log(catId);
+  const id = catId;
+  // const id  =id ;
+  // console.log(id)
   const navigate = useNavigate();
   const [categoryName, setCategoryName] = useState('');
   const [categoryDescription, setCategoryDescription] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     const fetchCategory = async () => {
@@ -67,7 +71,7 @@ const EditCategory = () => {
       <h2>Edit Category</h2>
       <form onSubmit={handleSubmit}>
         {errors.api && <p className="error-msg">{errors.api}</p>}
-        {}
+        { }
         <div>
           <label>Category Name</label>
           <input
@@ -90,6 +94,8 @@ const EditCategory = () => {
 
         <div>
           <button type="submit">Update</button>
+          <button type="button" onClick={closeModal}
+          >Cancel</button>
         </div>
       </form>
     </div>

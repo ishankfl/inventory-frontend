@@ -3,46 +3,47 @@ import '../../styles/form.scss';
 import { addCategory } from '../../api/category';
 import { getUserId } from '../../utils/tokenutils';
 import { useNavigate } from 'react-router-dom';
-const AddCategory = () => {
+const AddCategory = ({closeModal}) => {
+  
   const navigate = useNavigate();
   const [categoryName, setCategoryName] = useState('');
   const [categoryDescription, setCategoryDescription] = useState('');
   const [errors, setErrors] = useState({});
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
 
-  
-  e.preventDefault();
-  const userId =(getUserId())
+
+    e.preventDefault();
+    const userId = (getUserId())
     console.log(userId);
-  const newErrors = {};
-  if (!categoryName.trim()) newErrors.categoryName = 'Category Name is required';
-  if (!categoryDescription.trim()) newErrors.categoryDescription = 'Description is required';
+    const newErrors = {};
+    if (!categoryName.trim()) newErrors.categoryName = 'Category Name is required';
+    if (!categoryDescription.trim()) newErrors.categoryDescription = 'Description is required';
 
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
-    return;
-  }
-
-  try {
-    const response = await addCategory(categoryName, categoryDescription,userId);
-    if (response.status === 201 || response.status === 200) {
-      console.log('Category added:', response.data);
-
-      // Optionally show success message
-      alert('Category added successfully');
-
-      // Reset form
-      setCategoryName('');
-      setCategoryDescription('');
-      setErrors({});
-      navigate('/view-category')
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
     }
-  } catch (error) {
-    console.error('Error adding category:', error);
-    setErrors({ api: 'Failed to add category. Please try again.' });
-  }
-};
+
+    try {
+      const response = await addCategory(categoryName, categoryDescription, userId);
+      if (response.status === 201 || response.status === 200) {
+        console.log('Category added:', response.data);
+
+        // Optionally show success message
+        alert('Category added successfully');
+
+        // Reset form
+        setCategoryName('');
+        setCategoryDescription('');
+        setErrors({});
+        navigate('/view-category')
+      }
+    } catch (error) {
+      console.error('Error adding category:', error);
+      setErrors({ api: 'Failed to add category. Please try again.' });
+    }
+  };
 
   return (
     <div className="container">
@@ -70,6 +71,8 @@ const handleSubmit = async (e) => {
 
         <div>
           <button type="submit">Add</button>
+          <button type="button" onClick={closeModal}
+          >Cancel</button>
         </div>
       </form>
     </div>
