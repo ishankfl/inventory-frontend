@@ -1,32 +1,34 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 /* styles.css */
 .btn-primary {
   @apply bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark;
 }
-add-btn
 
-
-.input-text {
+add-btn .input-text {
   @apply border-2 border-primary rounded-lg p-4 focus:outline-none focus:ring-0 focus:border-primary;
 }
+
 .bg-col-primary {
   @apply bg-primary;
 }
 
 
-.nav-item { @apply text-white no-underline font-medium text-[20px] px-4 rounded transition duration-300 hover:bg-primary-dark; }
+.nav-item {
+  @apply text-white no-underline font-medium text-[20px] px-4 rounded transition duration-300 hover:bg-primary-dark;
+}
 
-.container{ @apply
-w-[500px] mx-auto my-[50px] p-[30px] border border-gray-300 rounded-lg bg-[#fdfdfd] shadow-md absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2
+.container {
+  @apply w-[500px] mx-auto my-[50px] p-[30px] border border-gray-300 rounded-lg bg-[#fdfdfd] shadow-md absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2
 }
 
 .container {
   @apply w-[500px] mx-auto my-[50px] p-[30px] border border-gray-300 rounded-lg bg-[#fdfdfd] shadow-md absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2;
 }
 
- h2 {
+h2 {
   @apply text-center mb-5 text-gray-800 text-2xl font-bold;
 }
 
@@ -103,6 +105,7 @@ form select {
 .view-container tbody button:first-of-type {
   @apply bg-accent text-gray-900;
 }
+
 .view-container tbody button:first-of-type:hover {
   @apply bg-accent-dark;
 }
@@ -111,6 +114,7 @@ form select {
 .view-container tbody button:last-of-type {
   @apply bg-danger text-white ml-2;
 }
+
 .view-container tbody button:last-of-type:hover {
   @apply bg-danger-dark;
 }
@@ -119,6 +123,7 @@ form select {
 button {
   @apply bg-primary text-white font-bold px-5 py-2 rounded mb-4 cursor-pointer transition-colors duration-200 ease-in-out border-none;
 }
+
 button:hover {
   @apply bg-primary-dark;
 }
@@ -133,4 +138,16 @@ select {
 /* For dashboard good showing */
 .custom-radius {
   border-radius: 10px 70px 30px 60px;
+}
+
+/* remove scroll option in side of page */
+.no-scrollbar::-webkit-scrollbar {
+   display: none !important;
+}
+
+.no-scrollbar {
+   -ms-overflow-style: none  !important;
+  /* IE and Edge */
+   scrollbar-width: none !important;
+  /* Firefox */
 }

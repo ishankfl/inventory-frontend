@@ -148,7 +148,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 no-scrollbar">
       <div className="max-w-[80%] mx-auto space-y-6">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Dashboard Analytics</h1>
        <div className="flex flex-wrap gap-12 items-center justify-center py-8">
