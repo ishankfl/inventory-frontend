@@ -4,13 +4,14 @@ import { deleteProducts, getAllProducts } from '../../api/product';
 import '../../styles/view.scss';
 import AddProduct from './AddProduct';
 import EditProduct from './EditProduct';
+import { Fa500Px, FaBed, FaSearch, FaUser } from 'react-icons/fa';
 const ViewProducts = () => {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [isAddModelOpened, setIsAddModelOpened] = useState(false);
   const [isEditModelOpened, setIsEditModelOpened] = useState(false);
-  const [productId, setProductId]=useState('');
+  const [productId, setProductId] = useState('');
 
   // Fetch products on load
   useEffect(() => {
@@ -54,18 +55,65 @@ const ViewProducts = () => {
     setIsAddModelOpened(false);
     setIsEditModelOpened(false);
   };
+  // const handleSearchFilter=(details)=>{
+  //   if (details==='' || details == null){
+  //     setProducts(products);
+  //     return;
+  //   }
+  //   const filteredProduct = products.filter(item => item.name===details);
+  //   console.log(filteredProduct)
+  //   setProducts(filteredProduct)
+
+  // }
+const handleSearchFilter = (details) => {
+  console.log(details);
+
+  if (!details) {
+      if (!details) {
+    // If input is empty, reset to original full list
+    setProducts(products);
+    return;
+  }
+  };
+ let filteredProduct = products;
+
+   filteredProduct = filteredProduct.filter(item =>
+    item.name.toLowerCase().startsWith(details.toLowerCase()) ||
+    item.description.toLowerCase().startsWith(details.toLowerCase())
+  );
+
+  console.log(filteredProduct);
+  setProducts(filteredProduct);
+};
+
+
 
   return (
     <div className="main-container-box relative">
       <button className="nav-item" onClick={handleAddNewProduct}>+ Add New Product</button>
 
       <div
-        className={`view-container overflow-x-auto transition-all duration-300 ${
-          (isAddModelOpened ||isEditModelOpened)  ? "blur-sm pointer-events-none select-none" :  ""
-        }`}
+        className={`view-container overflow-x-auto transition-all duration-300 ${(isAddModelOpened || isEditModelOpened) ? "blur-sm pointer-events-none select-none" : ""
+          }`}
       >
-        <h2>Product List</h2>
-        {error && <p className="error-msg">{error}</p>}
+        <div className='flex  justify-between '>
+          <h2>Product List</h2>
+
+          {/* <input type="text" className='w-[20%]' prefix="hidlkfsdlkfjsdlfkjsdlfkjsdflkj" /> */}
+          <div className="flex items-center justify-center border border-gray-300 rounded px-2 w-[20%]">
+            <FaSearch className="text-gray-500 mr-2 " />
+            <input
+              type="text"
+              className="flex-1 !outline-none !border-none m-0 p-0"
+              placeholder="Enter product name"
+              onChange={(e) => {
+                handleSearchFilter(e.target.value)
+              }}
+            />
+          </div>
+
+
+        </div>        {error && <p className="error-msg">{error}</p>}
         {products.length === 0 ? (
           <p>No products found.</p>
         ) : (
@@ -101,19 +149,19 @@ const ViewProducts = () => {
         )}
       </div>
 
-    { (isAddModelOpened || isEditModelOpened) && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[101]" onClick={closeModal}>
-    <div
-      className="bg-white p-6 rounded shadow-lg max-w-lg w-0"
-      onClick={(e) => e.stopPropagation()} 
-    >
-      {isAddModelOpened && <AddProduct onClose={closeModal} />}
-      {isEditModelOpened && <EditProduct onClose={closeModal} productId={productId} />}
-    </div>
-  </div>
-)}
+      {(isAddModelOpened || isEditModelOpened) && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[101]" onClick={closeModal}>
+          <div
+            className="bg-white p-6 rounded shadow-lg max-w-lg w-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {isAddModelOpened && <AddProduct onClose={closeModal} />}
+            {isEditModelOpened && <EditProduct onClose={closeModal} productId={productId} />}
+          </div>
+        </div>
+      )}
 
-      
+
     </div>
   );
 };

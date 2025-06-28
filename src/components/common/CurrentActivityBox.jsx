@@ -13,18 +13,19 @@ const CurrentActivityBox = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isOpen, setIsOpen] = useState(false);
   const [activities, setActivities] = useState([]);
-  const scrollRef = useRef(null);  // 
-  const scrollToBottom = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  };
+  const scrollRef = useRef(null);  
 
-  const scrollToTop = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = 0;
-    }
-  };
+  // const scrollToBottom = () => {
+  //   if (scrollRef.current) {
+  //     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  //   }
+  // };
+
+  // const scrollToTop = () => {
+  //   if (scrollRef.current) {
+  //     scrollRef.current.scrollTop = 0;
+  //   }
+  // };
 
   const fetchAllActivity = async () => {
     try {
