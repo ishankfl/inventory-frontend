@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { getAllDepartments } from "../../api/departments";
 import { getAllProducts } from "../../api/product";
-import { addNewProduct, completeIssue, fetchIssuedItemByDept, removeProductFromIssue } from "../../api/issue";
+import { addNewProduct, completeIssue, fetchIssuedItemByDept, removeProductFromIssue, updateProduct } from "../../api/issue";
 import { getUserId } from "../../utils/tokenutils";
 import { useNavigate } from "react-router-dom";
+import QuantityCard from "./QuantityCard";
 
 const IssuePage = () => {
   const navigate = useNavigate()
@@ -15,6 +16,8 @@ const IssuePage = () => {
   const [departmentItems, setDepartmentItems] = useState([]);
   const [error, setError] = useState("");
   const [issueId, setIssueId] = useState("");
+  const [quantity, setQuantity] = useState();
+
 
   useEffect(() => {
     fetchDepartments();
@@ -64,23 +67,23 @@ const IssuePage = () => {
         productId,
         productQuantities[productId].quantity
       );
-      
+
       if (response.status === 200) {
         // Update product quantities in the main list
-        setProducts(prevProducts => 
-          prevProducts.map(product => 
-            product.id === productId 
+        setProducts(prevProducts =>
+          prevProducts.map(product =>
+            product.id === productId
               ? { ...product, quantity: product.quantity - productQuantities[productId].quantity }
               : product
           )
         );
-        
+
         // Reset the input field for the added product
         setProductQuantities(prev => ({
           ...prev,
           [productId]: { ...prev[productId], quantity: 0 }
         }));
-        
+
         // Refresh the department items
         await fetchIssuedItemsByDept(selectedDept);
       }
@@ -159,31 +162,108 @@ const IssuePage = () => {
       const response = await removeProductFromIssue(issueId, productId);
       if (response.status === 200) {
         // Update product quantities in the main list
-        setProducts(prevProducts => 
-          prevProducts.map(product => 
-            product.id === productId 
-              ? { ...product, quantity: product.quantity + quantity }
-              : product
-          )
-        );
+        // setProducts(prevProducts =>
+        //   prevProducts.map(product =>
+        //     product.id === productId
+        //       ? { ...product, quantity: product.quantity + quantity }
+        //       : product
+        //   )
+        // );
         // Refresh department items
         await fetchIssuedItemsByDept(selectedDept);
+        fetchProducts()
       }
     } catch (e) {
       console.error("Failed to remove product:", e);
       setError("Failed to remove product from issue");
     }
   };
-    const handleViewIssueClicked = ()=>{
+  const handleViewIssueClicked = () => {
     // navigate('/add-product')
     navigate('/view-issues')
   }
+  const updateQty = (productId, newQty) => {
+    // Update local state only
+    const updatedItems = departmentItems.issueItems.map(item =>
+      item.product.id === productId
+        ? { ...item, quantityIssued: newQty }
+        : item
+    );
+
+    setDepartmentItems(prev => ({
+      ...prev,
+      issueItems: updatedItems,
+    }));
+  };
+
+  const handleIncrement = async (issueId, productId, currentQty) => {
+    try {
+      if (currentQty < 2) {
+        setError('Quantity must be at least 2 to increment');
+        return;
+      }
+
+      const selectedItem = departmentItems.issueItems.find(item => item.product.id === productId);
+      const availableProduct = products.find(p => p.id === productId);
+
+      if (!selectedItem || !availableProduct) {
+        setError('Product not found');
+        return;
+      }
+
+      const newQty = currentQty + 1;
+
+      // Check if we have enough available quantity
+      if (availableProduct.quantity <= 1) {
+        setError(`Only ${availableProduct.quantity} items available`);
+        return;
+      }
+
+      updateQty(productId, newQty);
+
+      const response = await updateProduct(issueId, productId, newQty);
+      if (response.status === 200) {
+        await fetchProducts();
+        setError('');
+      } else {
+        updateQty(productId, currentQty);
+        setError('Failed to update quantity');
+      }
+    } catch (e) {
+      console.error('Failed to update product:', e);
+      setError('Failed to update product quantity');
+    }
+  };
+
+  const handleDecrement = async (issueId, productId, currentQty) => {
+    if (currentQty <= 1) return; // prevent qty < 1
+
+    try {
+      const newQty = currentQty - 1;
+
+      updateQty(productId, newQty);
+
+      const response = await updateProduct(issueId, productId, newQty);
+      if (response.status === 200) {
+        await fetchProducts();
+        setError('');
+      } else {
+        // Rollback if API call fails
+        updateQty(productId, currentQty);
+        setError('Failed to update quantity');
+      }
+    } catch (e) {
+      console.error('Failed to update product:', e);
+      setError('Failed to update product quantity');
+    }
+  };
+
 
   return (
     <div className="flex h-screen">
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="main-container-box !mr-0">
-        <button className="nav-item"  onClick={handleViewIssueClicked}>View Previous Hisotory</button>
+          <button className="nav-item" onClick={handleViewIssueClicked}>View Previous Hisotory</button>
 
           <div className="view-container overflow-x-auto">
             <h2 className="text-xl font-bold mb-4">Issue Products</h2>
@@ -208,10 +288,9 @@ const IssuePage = () => {
                     <td className="px-4 py-3 font-medium text-gray-900">{prod.name}</td>
                     <td className="px-4 py-3 text-gray-600">{prod.description || "-"}</td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        prod.quantity > 10 ? 'bg-green-100 text-green-800' :
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${prod.quantity > 10 ? 'bg-green-100 text-green-800' :
                         prod.quantity > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
-                      }`}>
+                        }`}>
                         {prod.quantity}
                       </span>
                     </td>
@@ -280,7 +359,7 @@ const IssuePage = () => {
           {selectedDept ? (
             <div className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Selected Products</h3>
-              
+
               {departmentItems.issueItems?.length > 0 ? (
                 <div className="space-y-4">
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -297,23 +376,24 @@ const IssuePage = () => {
 
                   <div className="space-y-3">
                     {departmentItems.issueItems.map((item) => (
-                      <div key={item.product.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900 mb-2">{item.product.name}</h4>
-                            <div className="flex items-center space-x-3">
-                              <span className="text-sm text-gray-600">Qty: {item.quantityIssued}</span>
-                            </div>
-                          </div>
-                          <button
-                            className="ml-4 w-8 h-8 flex items-center justify-center  hover:bg-red-50 hover:text-red-500  rounded-full transition-colors duration-200"
-                            title="Remove product"
-                            onClick={() => handleRemoveItem(item.product.id, item.quantityIssued)}
-                          >
-                            ×
-                          </button>
-                        </div>
-                      </div>
+                      // <div key={item.product.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      //   <div className="flex items-start justify-between">
+                      //     <div className="flex-1">
+                      //       <h4 className="font-medium text-gray-900 mb-2">{item.product.name}</h4>
+                      //       <div className="flex items-center space-x-3">
+                      //         <span className="text-sm text-gray-600">Qty: {item.quantityIssued}</span>
+                      //       </div>
+                      //     </div>
+                      //     <button
+                      //       className="ml-4 w-8 h-8 flex items-center justify-center  hover:bg-red-50 hover:text-red-500  rounded-full transition-colors duration-200"
+                      //       title="Remove product"
+                      //       onClick={() => handleRemoveItem(item.product.id, item.quantityIssued)}
+                      //     >
+                      //       ×
+                      //     </button>
+                      //   </div>
+                      // </div>
+                      <QuantityCard handleRemoveItem={handleRemoveItem} item={item} issueId={issueId} handleDecrement={handleDecrement} handleIncrement={handleIncrement} />
                     ))}
                   </div>
 
