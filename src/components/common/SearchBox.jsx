@@ -5,12 +5,12 @@ const SearchBox = ({ handleSearchFilter, label }) => {
         <FaSearch className="text-gray-500 mr-2 " />
         <input
             type="text"
+            placeholder={`Enter ${label} details`}
             className="flex-1 !outline-none !border-none m-0 p-0"
-            placeholder={`Enter ${label} name`}
-            onChange={(e) => {
-                handleSearchFilter(e.target.value)
-            }}
+
+            onChange={(e) => handleSearchFilter(e.target.value)}
         />
+
     </div>
 }
 export default SearchBox;
