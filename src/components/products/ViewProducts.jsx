@@ -5,6 +5,8 @@ import '../../styles/view.scss';
 import AddProduct from './AddProduct';
 import EditProduct from './EditProduct';
 import { Fa500Px, FaBed, FaSearch, FaUser } from 'react-icons/fa';
+import SearchBox from '../common/SearchBox';
+import { Label } from 'recharts';
 const ViewProducts = () => {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
@@ -12,6 +14,8 @@ const ViewProducts = () => {
   const [isAddModelOpened, setIsAddModelOpened] = useState(false);
   const [isEditModelOpened, setIsEditModelOpened] = useState(false);
   const [productId, setProductId] = useState('');
+  const [originalProducts, setOriginalProducts] = useState([]);
+
 
   // Fetch products on load
   useEffect(() => {
@@ -22,6 +26,8 @@ const ViewProducts = () => {
     try {
       const res = await getAllProducts();
       setProducts(res.data);
+      setOriginalProducts(res.data); // store the original list
+
     } catch (err) {
       console.error("Error fetching products:", err.message);
       setError("Failed to load products");
@@ -65,27 +71,40 @@ const ViewProducts = () => {
   //   setProducts(filteredProduct)
 
   // }
-const handleSearchFilter = (details) => {
-  console.log(details);
+  // const handleSearchFilter = (details) => {
+  //   console.log(details);
 
-  if (!details) {
-      if (!details) {
-    // If input is empty, reset to original full list
-    setProducts(products);
-    return;
-  }
+  //   if (!details) {
+  //     if (!details) {
+  //       // If input is empty, reset to original full list
+  //       setProducts(products);
+  //       return;
+  //     }
+  //   };
+  //   let filteredProduct = products;
+
+  //   filteredProduct = filteredProduct.filter(item =>
+  //     item.name.toLowerCase().startsWith(details.toLowerCase()) ||
+  //     item.description.toLowerCase().startsWith(details.toLowerCase())
+  //   );
+
+  //   console.log(filteredProduct);
+  //   setProducts(filteredProduct);
+  // };
+
+  const handleSearchFilter = (details) => {
+    if (!details) {
+      setProducts(originalProducts);
+      return;
+    }
+
+    const filteredProduct = originalProducts.filter(item =>
+      item.name.toLowerCase().startsWith(details.toLowerCase()) ||
+      item.description.toLowerCase().startsWith(details.toLowerCase())
+    );
+    console.log(filteredProduct)
+    setProducts(filteredProduct);
   };
- let filteredProduct = products;
-
-   filteredProduct = filteredProduct.filter(item =>
-    item.name.toLowerCase().startsWith(details.toLowerCase()) ||
-    item.description.toLowerCase().startsWith(details.toLowerCase())
-  );
-
-  console.log(filteredProduct);
-  setProducts(filteredProduct);
-};
-
 
 
   return (
@@ -98,8 +117,8 @@ const handleSearchFilter = (details) => {
       >
         <div className='flex  justify-between '>
           <h2>Product List</h2>
-
-          {/* <input type="text" className='w-[20%]' prefix="hidlkfsdlkfjsdlfkjsdlfkjsdflkj" /> */}
+          <SearchBox handleSearchFilter={handleSearchFilter} label={'Product'}/>
+          {/* <input type="text" className='w-[20%]' prefix="hidlkfsdlkfjsdlfkjsdlfkjsdflkj" />
           <div className="flex items-center justify-center border border-gray-300 rounded px-2 w-[20%]">
             <FaSearch className="text-gray-500 mr-2 " />
             <input
@@ -110,7 +129,7 @@ const handleSearchFilter = (details) => {
                 handleSearchFilter(e.target.value)
               }}
             />
-          </div>
+          </div> */}
 
 
         </div>        {error && <p className="error-msg">{error}</p>}
