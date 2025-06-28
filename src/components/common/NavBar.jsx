@@ -10,88 +10,95 @@ import {
   FaLayerGroup,
   FaEllipsisH,
 } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import '../../styles/navbar.scss';
 import { isLoggedIn } from '../../utils/tokenutils';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [showMore, setShowMore] = useState(false);
-
-  const checkLoggedin = () => {
-    const isUserLoggedIn = isLoggedIn();
-    setLoggedIn(isUserLoggedIn);
-  };
+  const navigate = useNavigate();
 
   useEffect(() => {
-    checkLoggedin();
+    setLoggedIn(isLoggedIn());
   }, []);
 
-  const menuItems = [
-    { name: 'Dashboard', href: '/', icon: <FaHome /> },
-    { name: 'Product', href: '/view-products', icon: <FaBox /> },
-    { name: 'Issue Product', href: '/issue-products', icon: <FaLayerGroup /> },
-    { name: 'Category', href: '/view-category', icon: <FaLayerGroup /> },
-    { name: 'Staff', href: '/view-users', icon: <FaUsers /> },
-    { name: 'Department', href: '/view-departments', icon: <FaBuilding /> },
-  ];
-
-  const renderMenuLinks = (isMobile = false) => (
-    <div className={`nav-links ${isMobile ? 'flex-col' : 'flex'}`}>
-      {loggedIn && menuItems.slice(0, 5).map((item, index) => (
-        <Link key={index} className="nav-item flex items-center gap-2" to={item.href}>
-          {item.icon}
-          {item.name}
-        </Link>
-      ))}
-
-      { loggedIn && menuItems.length > 3 && (
-        <div className="relative">
-          <button
-            onClick={() => setShowMore(!showMore)}
-            className="nav-item w-[100px] flex items-center gap-2 justify-center mt-[15px]"
-          >
-            <FaEllipsisH /> {showMore ? 'Less' : 'More'}
-          </button>
-
-
-          {showMore && (
-            <div
-              className={`absolute ${isMobile ? 'static mt-2' : 'right-0 mt-2'} bg-primary rounded-md shadow-lg z-50`}
-            >
-              <div className="flex flex-col gap-3 p-3">
-                {menuItems.slice(5).map((item, index) => (
-                  <Link
-                    key={`more-${index}`}
-                    className="nav-item flex items-center gap-2 whitespace-nowrap"
-                    to={item.href}
-                    onClick={() => setShowMore(false)}
-                  >
-                    {item.icon}
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {!loggedIn && (
-        <Link className="nav-item flex items-center gap-2" to="/login">
-          <FaSignInAlt /> Login
-        </Link>
-      )}
-    </div>
-  );
+  const handleNavigate = (path) => {
+    navigate(path);
+    setMenuOpen(false);
+    setShowMore(false);
+  };
 
   return (
-    <div className="main-nav flex items-center justify-center  p-0 fixed w-full z-[100]">
-      <div className="navbar flex justify-between items-center  shadow-md relative w-[100%] p-4 text-white bg-primary z-[10000]">
-        <div className="nav-logo text-[1.5rem] font-bold">Welcome to IMS</div>
+    <div className="main-nav flex items-center justify-center fixed w-full z-[100]">
+      <div className="navbar flex justify-between items-center rounded-sm shadow-md relative w-full py-8 px-16 text-white bg-primary z-[10000] ">
+        <div className="nav-logo text-[2.5rem] font-bold">Welcome to IMS</div>
 
-        <div className="hidden md:flex items-center relative">
-          {renderMenuLinks(false)}
+        <div className="hidden md:flex items-center relative nav-links gap-16">
+          {loggedIn ? (
+            <>
+              <button
+                className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-105 rounded"
+                onClick={() => handleNavigate('/')}
+              >
+                <FaHome /> Dashboard
+              </button>
+              <button
+                className="nav-item flex items-center gap-2 transition duration-300 ease-in-out  hover:scale-105 rounded"
+                onClick={() => handleNavigate('/view-products')}
+              >
+                <FaBox /> Product
+              </button>
+              <button
+                className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-105 rounded"
+                onClick={() => handleNavigate('/issue-products')}
+              >
+                <FaLayerGroup /> Issue Product
+              </button>
+
+              <div className=" transition duration-300 ease-in-out hover:scale-105 rounded  text-[25px]">
+                <button
+                  onClick={() => setShowMore(!showMore)}
+                  className="w-[150px] flex items-center gap-3 justify-lefttransition duration-300 ease-in-out rounded mb-[20px]"
+                >
+                  <FaEllipsisH /> {showMore ? 'Less' : 'More'}
+                </button>
+
+                {showMore && (
+                  <div className="absolute right-0 mt-2 bg-primary rounded-md shadow-lg z-50">
+                    <div className="flex flex-col gap-3 ">
+                      <button
+                        className="nav-item flex items-center gap-2 whitespace-nowrap transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                        onClick={() => handleNavigate('/view-category')}
+                      >
+                        <FaLayerGroup /> Category
+                      </button>
+                      <button
+                        className="nav-item flex items-center gap-2 whitespace-nowrap transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                        onClick={() => handleNavigate('/view-users')}
+                      >
+                        <FaUsers /> Staff
+                      </button>
+                      <button
+                        className="nav-item flex items-center gap-2 whitespace-nowrap transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                        onClick={() => handleNavigate('/view-departments')}
+                      >
+                        <FaBuilding /> Department
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <button
+              className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+              onClick={() => handleNavigate('/login')}
+            >
+              <FaSignInAlt /> Login
+            </button>
+          )}
         </div>
 
         <div className="md:hidden z-50 cursor-pointer" onClick={() => setMenuOpen(!menuOpen)}>
@@ -99,8 +106,54 @@ const Navbar = () => {
         </div>
 
         {menuOpen && (
-          <div className="absolute top-full left-0 w-full bg-primary flex flex-col items-center gap-4 py-4 px-4 md:hidden z-40">
-            {renderMenuLinks(true)}
+          <div className="absolute top-full left-0 w-full bg-primary flex flex-col items-center gap-4 py-4 px-4 md:hidden z-40 nav-links">
+            {loggedIn ? (
+              <>
+                <button
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                  onClick={() => handleNavigate('/')}
+                >
+                  <FaHome /> Dashboard
+                </button>
+                <button
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                  onClick={() => handleNavigate('/view-products')}
+                >
+                  <FaBox /> Product
+                </button>
+                <button
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                  onClick={() => handleNavigate('/issue-products')}
+                >
+                  <FaLayerGroup /> Issue Product
+                </button>
+                <button
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                  onClick={() => handleNavigate('/view-category')}
+                >
+                  <FaLayerGroup /> Category
+                </button>
+                <button
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                  onClick={() => handleNavigate('/view-users')}
+                >
+                  <FaUsers /> Staff
+                </button>
+                <button
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                  onClick={() => handleNavigate('/view-departments')}
+                >
+                  <FaBuilding /> Department
+                </button>
+              </>
+            ) : (
+              <button
+                className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                onClick={() => handleNavigate('/login')}
+              >
+                <FaSignInAlt /> Login
+              </button>
+            )}
           </div>
         )}
       </div>
