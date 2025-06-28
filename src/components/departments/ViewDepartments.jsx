@@ -39,9 +39,9 @@ const ViewAllDepartments = () => {
             await deleteDepartmentById(id);
             alert('Department deleted successfully.');
             // const department = departments.
-             setDepartments(departments =>
-      departments.filter(dept => dept.id !== id)
-    );
+            setDepartments(departments =>
+                departments.filter(dept => dept.id !== id)
+            );
             // navigate('/view-departments');
         } catch (error) {
             console.error('Error deleting department:', error);
@@ -55,33 +55,33 @@ const ViewAllDepartments = () => {
         navigate('/add-department')
     }
 
-  const handleSearchFilter = (details) => {
-    if (!details || details.trim() === '') {
-      setDepartments(originalDepartment);
-      return;
-    }
+    const handleSearchFilter = (details) => {
+        if (!details || details.trim() === '') {
+            setDepartments(originalDepartment);
+            return;
+        }
 
-    const lowerDetails = details.trim().toLowerCase();
+        const lowerDetails = details.trim().toLowerCase();
 
 
 
-    const filteredDepartments = originalDepartment.filter(item =>
-      item.name.toLowerCase().includes(lowerDetails) ||
-      item.description.toLowerCase().includes(lowerDetails)
-    );
+        const filteredDepartments = originalDepartment.filter(item =>
+            item.name.toLowerCase().includes(lowerDetails) ||
+            item.description.toLowerCase().includes(lowerDetails)
+        );
 
-    setDepartments(filteredDepartments);
-  };
+        setDepartments(filteredDepartments);
+    };
 
     return <div className="main-container-box">
         <button onClick={handleAddButtonClicked} className="nav-item" >+ Add New Department</button>
         <div className="view-container">
-                 <div className="flex justify-between">
+            <div className="flex justify-between">
 
-            <h2>View All Departments</h2>
-          <SearchBox handleSearchFilter={handleSearchFilter} label={'User '} />
+                <h2>View All Departments</h2>
+                <SearchBox handleSearchFilter={handleSearchFilter} label={'User '} />
 
-        </div>
+            </div>
 
             {loading && <p>Loading ...</p>}
             {error && <p className="error-msg">{error}</p>}

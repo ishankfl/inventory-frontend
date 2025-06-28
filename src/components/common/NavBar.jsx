@@ -11,7 +11,6 @@ import {
   FaEllipsisH,
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import '../../styles/navbar.scss';
 import { isLoggedIn } from '../../utils/tokenutils';
 
 const Navbar = () => {
@@ -39,7 +38,7 @@ const Navbar = () => {
 
   const renderMenuLinks = (isMobile = false) => (
     <div className={`nav-links ${isMobile ? 'flex-col' : 'flex'}`}>
-      {loggedIn && menuItems.slice(0, 3).map((item, index) => (
+      {loggedIn && menuItems.slice(0, 5).map((item, index) => (
         <Link key={index} className="nav-item flex items-center gap-2" to={item.href}>
           {item.icon}
           {item.name}
@@ -61,7 +60,7 @@ const Navbar = () => {
               className={`absolute ${isMobile ? 'static mt-2' : 'right-0 mt-2'} bg-primary rounded-md shadow-lg z-50`}
             >
               <div className="flex flex-col gap-3 p-3">
-                {menuItems.slice(3).map((item, index) => (
+                {menuItems.slice(5).map((item, index) => (
                   <Link
                     key={`more-${index}`}
                     className="nav-item flex items-center gap-2 whitespace-nowrap"
@@ -87,8 +86,8 @@ const Navbar = () => {
   );
 
   return (
-    <div className="main-nav flex items-center justify-center p-8 fixed w-full z-[100]">
-      <div className="navbar flex justify-between items-center rounded-lg shadow-md relative w-[80%] p-4 text-white bg-primary z-[10000]">
+    <div className="main-nav flex items-center justify-center  p-0 fixed w-full z-[100]">
+      <div className="navbar flex justify-between items-center  shadow-md relative w-[100%] p-4 text-white bg-primary z-[10000]">
         <div className="nav-logo text-[1.5rem] font-bold">Welcome to IMS</div>
 
         <div className="hidden md:flex items-center relative">
