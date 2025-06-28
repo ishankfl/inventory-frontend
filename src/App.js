@@ -5,14 +5,17 @@ import './styles/main.scss'
 import { useState,useEffect } from 'react';
 import { IoChatbox } from 'react-icons/io5';
 import CurrentActivityBox from './components/common/CurrentActivityBox';
+import { isLoggedIn } from './utils/tokenutils';
 function App() {
   
+  const isUserLoggedin = isLoggedIn();
   return (
     <BrowserRouter >
       <Navbar/>
       <div className='main-container pt-[180px] px-6 no-scrollbar'>
           <CustomRouter/>
-      <CurrentActivityBox/>
+      {isUserLoggedin?  (<CurrentActivityBox/>):(<div></div>) }
+    
       </div>
 
     </BrowserRouter>
