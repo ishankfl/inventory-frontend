@@ -17,7 +17,7 @@ add-btn .input-text {
 
 
 .nav-item {
-  @apply text-white no-underline font-medium text-[25px] px-4 rounded transition duration-300 hover:bg-primary-dark;
+  @apply text-white no-underline font-medium text-[1.5rem] px-4 rounded transition duration-300 hover:bg-primary;
 }
 
 .container {
@@ -61,7 +61,7 @@ form select {
 
 /* Tailwind css for view pages */
 .main-container-box {
-  @apply p-8 min-h-[75vh] flex flex-col items-start 
+  @apply p-8 min-h-[75vh] flex flex-col items-start mx-[10%];
 }
 
 .view-container {

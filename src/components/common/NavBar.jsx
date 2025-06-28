@@ -32,42 +32,54 @@ const Navbar = () => {
 
   return (
     <div className="main-nav flex items-center justify-center fixed w-full z-[100]">
-      <div className="navbar flex justify-between items-center rounded-sm shadow-md relative w-full py-8 px-16 text-white bg-primary z-[10000] ">
-        <div className="nav-logo text-[2.5rem] font-bold">Welcome to IMS</div>
+      <div className="navbar flex justify-between items-center rounded-sm shadow-md relative w-full py-8 px-16 text-white bg-primary z-[10000]">
+        <div className="nav-logo text-[2.0rem] font-bold">Welcome to IMS</div>
 
-        <div className="hidden md:flex items-center relative nav-links gap-16">
+        <div className="hidden md:flex items-center relative gap-12">
           {loggedIn ? (
             <>
-              <button
-                className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-105 rounded"
-                onClick={() => handleNavigate('/')}
-              >
-                <FaHome /> Dashboard
-              </button>
-              <button
-                className="nav-item flex items-center gap-2 transition duration-300 ease-in-out  hover:scale-105 rounded"
-                onClick={() => handleNavigate('/view-products')}
-              >
-                <FaBox /> Product
-              </button>
-              <button
-                className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-105 rounded"
-                onClick={() => handleNavigate('/issue-products')}
-              >
-                <FaLayerGroup /> Issue Product
-              </button>
+              <div className="flex flex-col items-center group">
+                <button
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-105 hover:bg-primary"
+                  onClick={() => handleNavigate('/')}
+                >
+                  <FaHome /> Dashboard
+                </button>
+                <span className="w-3/4 bg-green-100 h-1 mt-1 rounded transform scale-x-0 group-hover:scale-x-100 origin-left transition-all duration-300"></span>
+              </div>
 
-              <div className=" transition duration-300 ease-in-out hover:scale-105 rounded  text-[25px]">
+              <div className="flex flex-col items-center group">
+                <button
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-105"
+                  onClick={() => handleNavigate('/view-products')}
+                >
+                  <FaBox /> Product
+                </button>
+                <span className="w-3/4 bg-green-100 h-1 mt-1 rounded transform scale-x-0 group-hover:scale-x-100 origin-left transition-all duration-300"></span>
+              </div>
+
+              <div className="flex flex-col items-center group">
+                <button
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-105"
+                  onClick={() => handleNavigate('/issue-products')}
+                >
+                  <FaLayerGroup /> Issue Product
+                </button>
+                <span className="w-3/4 bg-green-100 h-1 mt-1 rounded transform scale-x-0 group-hover:scale-x-100 origin-left transition-all duration-300"></span>
+              </div>
+
+              <div className="relative flex flex-col items-center group">
                 <button
                   onClick={() => setShowMore(!showMore)}
-                  className="w-[150px] flex items-center gap-3 justify-lefttransition duration-300 ease-in-out rounded mb-[20px]"
+                  className="flex nav-item items-center gap-3 transition duration-300 ease-in-out hover:scale-105 text-[1.5rem] w-120px"
                 >
                   <FaEllipsisH /> {showMore ? 'Less' : 'More'}
                 </button>
+                <span className="w-3/4 bg-green-100 h-1 mt-1 rounded transform scale-x-0 group-hover:scale-x-100 origin-left transition-all duration-300"></span>
 
                 {showMore && (
-                  <div className="absolute right-0 mt-2 bg-primary rounded-md shadow-lg z-50">
-                    <div className="flex flex-col gap-3 ">
+                  <div className="absolute right-0 mt-20 bg-primary rounded-md shadow-lg z-50">
+                    <div className="flex flex-col gap-3 p-3">
                       <button
                         className="nav-item flex items-center gap-2 whitespace-nowrap transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
                         onClick={() => handleNavigate('/view-category')}
@@ -92,12 +104,15 @@ const Navbar = () => {
               </div>
             </>
           ) : (
-            <button
-              className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
-              onClick={() => handleNavigate('/login')}
-            >
-              <FaSignInAlt /> Login
-            </button>
+            <div className="flex flex-col items-center group">
+              <button
+                className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                onClick={() => handleNavigate('/login')}
+              >
+                <FaSignInAlt /> Login
+              </button>
+              <span className="w-3/4 bg-green-100 h-1 mt-1 rounded transform scale-x-0 group-hover:scale-x-100 origin-left transition-all duration-300"></span>
+            </div>
           )}
         </div>
 
