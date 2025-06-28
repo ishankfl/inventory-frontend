@@ -63,23 +63,33 @@ const ViewAllUsers = () => {
   const handleAddNewUser = () => {
     navigate('/add-user');
   };
+
   const handleSearchFilter = (details) => {
     if (!details || details.trim() === '') {
       setUsers(originalUsers);
       return;
     }
 
-    const lowerDetails = details.toLowerCase();
-    const role = lowerDetails.startsWith('admin') ? 0 : lowerDetails.startsWith('staff') ? 1 : null;
+    const lowerDetails = details.trim().toLowerCase();
+    let role = null;
+
+    if (lowerDetails.startsWith('a') || lowerDetails.startsWith('admin')) {
+      role = 0;
+    } else if (lowerDetails.startsWith('s') || lowerDetails.startsWith('staff')) {
+      role = 1;
+    }
 
     const filteredUsers = originalUsers.filter(item =>
-      item.fullName.toLowerCase().startsWith(lowerDetails) ||
-      item.email.toLowerCase().startsWith(lowerDetails) ||
+      item.fullName.toLowerCase().includes(lowerDetails) ||
+      item.email.toLowerCase().includes(lowerDetails) ||
       (role !== null && item.role === role)
     );
 
     setUsers(filteredUsers);
   };
+
+
+
 
   return (
     <div className="main-container-box">

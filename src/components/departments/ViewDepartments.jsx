@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { deleteDepartmentById, getAllDepartments } from "../../api/departments";
+import SearchBox from "../common/SearchBox";
 const ViewAllDepartments = () => {
     const [departments, setDepartments] = useState([])
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
+    const [originalDepartment, setOriginalDepartments] = useState(true);
     const navigate = useNavigate();
     const fetchDepartments = async () => {
         try {
@@ -12,6 +14,7 @@ const ViewAllDepartments = () => {
             if (response.status == 200) {
                 console.log(response.data)
                 setDepartments(response.data);
+                setOriginalDepartments(response.data);
             } else {
                 setError("Faild to fetch data")
             }
@@ -51,10 +54,35 @@ const ViewAllDepartments = () => {
     const handleAddButtonClicked = () => {
         navigate('/add-department')
     }
+
+  const handleSearchFilter = (details) => {
+    if (!details || details.trim() === '') {
+      setDepartments(originalDepartment);
+      return;
+    }
+
+    const lowerDetails = details.trim().toLowerCase();
+
+
+
+    const filteredDepartments = originalDepartment.filter(item =>
+      item.name.toLowerCase().includes(lowerDetails) ||
+      item.description.toLowerCase().includes(lowerDetails)
+    );
+
+    setDepartments(filteredDepartments);
+  };
+
     return <div className="main-container-box">
         <button onClick={handleAddButtonClicked} className="nav-item" >+ Add New Department</button>
         <div className="view-container">
+                 <div className="flex justify-between">
+
             <h2>View All Departments</h2>
+          <SearchBox handleSearchFilter={handleSearchFilter} label={'User '} />
+
+        </div>
+
             {loading && <p>Loading ...</p>}
             {error && <p className="error-msg">{error}</p>}
             {!loading && !error && departments.length === 0 && <p>No users found.</p>}
