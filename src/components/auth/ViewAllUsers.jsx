@@ -3,9 +3,11 @@ import { getAllUsers, deleteUser } from '../../api/user'; // Adjust API path as 
 import { useNavigate } from 'react-router-dom';
 
 import '../../styles/view.scss';
+import SearchBox from '../common/SearchBox';
 
 const ViewAllUsers = () => {
   const [users, setUsers] = useState([]);
+  const [originalUsers, setOriginalUsers] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -17,10 +19,11 @@ const ViewAllUsers = () => {
   const fetchUsers = async () => {
     try {
       const response = await getAllUsers();
-            console.log(response.data)
+      console.log(response.data)
 
       if (response.status === 200) {
         setUsers(response.data);
+        setOriginalUsers(response.data)
       } else {
         setError('Failed to fetch users.');
       }
@@ -46,7 +49,7 @@ const ViewAllUsers = () => {
 
       if (response.status === 200 || response.status === 204) {
         alert('User deleted successfully.');
-        fetchUsers(); 
+        fetchUsers();
       } else {
         alert('Failed to delete user. Please try again.');
         console.error('Delete failed with status:', response.status);
@@ -60,13 +63,34 @@ const ViewAllUsers = () => {
   const handleAddNewUser = () => {
     navigate('/add-user');
   };
+  const handleSearchFilter = (details) => {
+    if (!details || details.trim() === '') {
+      setUsers(originalUsers);
+      return;
+    }
+
+    const lowerDetails = details.toLowerCase();
+    const role = lowerDetails.startsWith('admin') ? 0 : lowerDetails.startsWith('staff') ? 1 : null;
+
+    const filteredUsers = originalUsers.filter(item =>
+      item.fullName.toLowerCase().startsWith(lowerDetails) ||
+      item.email.toLowerCase().startsWith(lowerDetails) ||
+      (role !== null && item.role === role)
+    );
+
+    setUsers(filteredUsers);
+  };
 
   return (
     <div className="main-container-box">
       <button className='nav-item' onClick={handleAddNewUser}>+ Add New User</button>
 
       <div className="view-container">
-        <h2>View All Users</h2>
+        <div className="flex justify-between">
+          <h2>View All Users</h2>
+          <SearchBox handleSearchFilter={handleSearchFilter} label={'User '} />
+
+        </div>
 
         {loading && <p>Loading...</p>}
         {error && <p className="error-msg">{error}</p>}
@@ -90,7 +114,7 @@ const ViewAllUsers = () => {
                   <td>{index + 1}</td>
                   <td>{user.fullName || user.name}</td>
                   <td>{user.email}</td>
-                  <td>{user.role==1?"Staff":"Admin" || 'User'}</td>
+                  <td>{user.role == 1 ? "Staff" : "Admin" || 'User'}</td>
                   <td>
                     <button onClick={() => handleEdit(user.id)}>Edit</button>
                     <button onClick={() => handleDelete(user.id)} style={{ marginLeft: '10px' }}>
