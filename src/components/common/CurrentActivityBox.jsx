@@ -13,8 +13,8 @@ const CurrentActivityBox = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isOpen, setIsOpen] = useState(false);
   const [activities, setActivities] = useState([]);
-    const scrollRef = useRef(null);  // 
-const scrollToBottom = () => {
+  const scrollRef = useRef(null);  // 
+  const scrollToBottom = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
@@ -43,55 +43,13 @@ const scrollToBottom = () => {
     }
 
   }
-  // useEffect(()=>{
-  // },[])
-  // Sample activity data
-  const acstivities = [
 
-    {
-      id: 3,
-      type: 'inventory',
-      user: 'System',
-      action: 'low stock alert for',
-      item: 'Widget ABC-789',
-      time: '8 minutes ago',
-      status: 'warning',
-      icon: FaBox,
-    },
-    {
-      id: 4,
-      type: 'document',
-      user: 'Mike Johnson',
-      action: 'uploaded new document',
-      item: 'Monthly Report.pdf',
-      time: '12 minutes ago',
-      status: 'success',
-      icon: FaFileAlt,
-    },
-    {
-      id: 5,
-      type: 'login',
-      user: 'Admin User',
-      action: 'logged into dashboard',
-      item: null,
-      time: '15 minutes ago',
-      status: 'info',
-      icon: FaSignInAlt,
-    },
-  ];
 
   useEffect(() => {
-    // Simulate real-time updates
-    // setActivities(activities);
 
-    // Update current time every minute
     fetchAllActivity()
 
-    // const timeInterval = setInterval(() => {
-    //   setCurrentTime(new Date());
-    // }, 60000);
 
-    // return () => clearInterval(timeInterval);
   }, []);
 
   const getStatusColor = (status) => {
@@ -126,7 +84,7 @@ const scrollToBottom = () => {
   const handleCrossButton = () => {
     setIsOpen(isOpen ? false : true);
   }
-  return <div className="bg-slate-800 w-[500px] fixed top-[70vh] left-[98vw] transform -translate-x-full -translate-y-1/2 text-white shadow-2xl rounded-lg overflow-hidden border border-slate-700 ">
+  return isOpen ? (<div className="bg-slate-800 w-[400px] fixed top-[70vh] left-[98vw] transform -translate-x-full -translate-y-1/2 text-white shadow-2xl rounded-lg overflow-hidden border border-slate-700 ">
     {/* Header */}
     <div className="bg-blue-600 text-white px-4 py-3 text-lg font-semibold flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -145,7 +103,7 @@ const scrollToBottom = () => {
     </div>
 
     {/* Activity List */}
-    <div className="p-4 max-h-90  max-h-[400px] overflow-y-scroll !scrollbar-hide"   ref={scrollRef}>
+    <div className="p-4 max-h-90  max-h-[400px] overflow-y-scroll !scrollbar-hide" ref={scrollRef}>
       {activities.length > 0 ? (
         <div className="space-y-3">
           {activities.reverse().map((activity) => {
@@ -204,7 +162,13 @@ const scrollToBottom = () => {
         View All Activities →
       </button>
     </div>
+  </div>) : ((<div className="fixed bottom-[20px] right-[10px] h-16 w-16 rounded-xl bg-primary flex items-center justify-center shadow-2xl border border-slate-700 text-white"
+    onClick={handleCrossButton}
+
+  >
+    <FaBell className="text-4xl" />
   </div>
+  ))
 };
 
 export default CurrentActivityBox;
