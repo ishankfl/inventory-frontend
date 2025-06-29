@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { addStaff } from '../../api/user';
 import { useNavigate } from 'react-router-dom';
-const AddStaff = () => {
+const AddStaff = ({closeModal}) => {
     const navigate = useNavigate();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -75,6 +75,7 @@ const AddStaff = () => {
 
                 <div>
                     <button type="submit">Add</button>
+                    <button type="submit" onClick={closeModal}>Cancel</button>
                 </div>
             </form>
         </div>

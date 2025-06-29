@@ -23,6 +23,7 @@ const EditProduct = ({onClose, productId}) => {
     const fetchCategories = async () => {
       try {
         const res = await getAllCategories();
+
         setCategories(res.data);
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -59,7 +60,12 @@ const EditProduct = ({onClose, productId}) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updateProduct(id, name, description, quantity, price, categoryId, userId);
+     const response =  await updateProduct(id, name, description, quantity, price, categoryId, userId);
+     console.log(response.status)
+     
+     if(response.status==200){
+      onClose()
+     }
       navigate('/view-products');
     } catch (err) {
       console.error("Error updating product:", err.message);

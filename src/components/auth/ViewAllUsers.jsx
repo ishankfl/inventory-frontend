@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import '../../styles/view.scss';
 import SearchBox from '../common/SearchBox';
+import AddStaff from './AddStaff';
 
 const ViewAllUsers = () => {
   const [users, setUsers] = useState([]);
@@ -11,6 +12,7 @@ const ViewAllUsers = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [addStaffIsOpened, setAddStaffIsOpened] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -61,7 +63,9 @@ const ViewAllUsers = () => {
   };
 
   const handleAddNewUser = () => {
-    navigate('/add-user');
+    setAddStaffIsOpened(true);
+
+    // navigate('/add-user');
   };
 
   const handleSearchFilter = (details) => {
@@ -88,6 +92,9 @@ const ViewAllUsers = () => {
     setUsers(filteredUsers);
   };
 
+  const closeModal = () => {
+    setAddStaffIsOpened(false);
+  }
 
 
 
@@ -95,7 +102,7 @@ const ViewAllUsers = () => {
     <div className="main-container-box">
       <button className='nav-item' onClick={handleAddNewUser}>+ Add New User</button>
 
-      <div className="view-container">
+      <div className={`view-container ${addStaffIsOpened ? "blur-sm pointer-events-none select-none" : ""}`}>
         <div className="flex justify-between">
           <h2>View All Users</h2>
           <SearchBox handleSearchFilter={handleSearchFilter} label={'User '} />
@@ -137,7 +144,17 @@ const ViewAllUsers = () => {
           </table>
         )}
       </div>
+
+      {addStaffIsOpened && (<div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[101]" onClick={closeModal}>
+        <div
+          className="bg-white p-6 rounded shadow-lg max-w-lg w-0"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <AddStaff closeModal = {closeModal} />
+        </div>
+      </div>)}
     </div>
+
   );
 };
 
