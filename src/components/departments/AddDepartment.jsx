@@ -4,7 +4,6 @@ import { addDepartment } from '../../api/departments';
 import '../../styles/form.scss';
 
 const AddDepartment = ({ onClose, fetchAllDepartments }) => {
-  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [errors, setErrors] = useState({});
