@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { addDepartment } from '../../api/departments';
 import '../../styles/form.scss';
 
-const AddDepartment = () => {
+const AddDepartment = ({ onClose, fetchAllDepartments }) => {
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -27,7 +27,9 @@ const AddDepartment = () => {
       const response = await addDepartment(name, description);
       if (response.status === 201 || response.status === 200) {
         alert('Department added successfully!');
-        navigate('/view-departments');
+        onClose();
+        fetchAllDepartments()
+        // navigate('/view-departments');
       } else {
         setErrors({ api: 'Failed to add department.' });
       }

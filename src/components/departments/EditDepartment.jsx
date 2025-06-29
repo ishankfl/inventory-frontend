@@ -3,8 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getDepartmentById, updateDepartment } from '../../api/departments';
 import '../../styles/form.scss';
 
-const EditDepartment = () => {
-  const { id } = useParams();
+const EditDepartment = ({ onClose, id, fetchAllDepartments }) => {
+  // const { id } = useParams();
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -50,7 +50,9 @@ const EditDepartment = () => {
       const response = await updateDepartment(id, name, description);
       if (response.status === 200) {
         alert('Department updated successfully!');
-        navigate('/view-departments'); // redirect after update
+        fetchAllDepartments();
+        onClose();
+        // navigate('/view-departments'); // redirect after update
       } else {
         setErrors({ api: 'Failed to update department.' });
       }
