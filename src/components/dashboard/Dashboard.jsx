@@ -128,7 +128,7 @@ const Dashboard = () => {
     datasets: [{
       label: 'Inventory Quantity',
       data: top10Items.map(item => item.quantity),
-      backgroundColor: 'rgba(59, 130, 246, 0.7)', // blue-500
+      backgroundColor: 'rgba(59, 130, 246, 0.7)',
       borderColor: 'rgba(59, 130, 246, 1)',
       borderWidth: 1,
       borderRadius: 4
@@ -141,7 +141,7 @@ const Dashboard = () => {
     datasets: [{
       label: 'Issued Quantity',
       data: topIssuedItems.map(item => item.quantity),
-      backgroundColor: 'rgba(16, 185, 129, 0.7)', // green-500
+      backgroundColor: 'rgba(16, 185, 129, 0.7)', 
       borderColor: 'rgba(16, 185, 129, 1)',
       borderWidth: 1,
       borderRadius: 4

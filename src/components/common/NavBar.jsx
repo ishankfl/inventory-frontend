@@ -53,7 +53,7 @@ const Navbar = () => {
                   className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-105"
                   onClick={() => handleNavigate('/view-products')}
                 >
-                  <FaBox /> Product
+                  <FaBox /> ReceiptProduct
                 </button>
                 <span className="w-3/4 bg-green-100 h-1 mt-1 rounded transform scale-x-0 group-hover:scale-x-100 origin-left transition-all duration-300"></span>
               </div>

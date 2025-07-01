@@ -11,21 +11,21 @@ const QuantityCard = ({ handleRemoveItem, item, issueId, handleDecrement, handle
                 <div className="flex-1">
                     <h4 className="font-medium text-gray-900 mb-2">{item.product.name}</h4>
                     <div className="flex items-center space-x-3">
-                        <button
-                            className="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 transition"
+                        <div
+                            className="px-3 py-2 rounded-[100%]  text-black text-bold hover:bg-gray-300 transition"
                             onClick={() => { handleDecrement(issueId, item.product.id, item.quantityIssued) }}
                             title="Decrease quantity"
                         >
                             -
-                        </button>
+                        </div>
                         <span className="text-sm text-gray-600">Qty: {item.quantityIssued}</span>
-                        <button
-                            className="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 transition"
+                        <div
+                            className="px-3 py-2  rounded-[100%] text-black text-bold  hover:bg-gray-300 transition"
                             onClick={() => { handleIncrement(issueId, item.product.id, item.quantityIssued) }}
                             title="Increase quantity"
                         >
                             +
-                        </button>
+                        </div>
                     </div>
                 </div>
                 <button

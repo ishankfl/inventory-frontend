@@ -25,6 +25,7 @@ const ViewProducts = () => {
   const fetchProducts = async () => {
     try {
       const res = await getAllProducts();
+      console.log(res.data)
       setProducts(res.data);
       setOriginalProducts(res.data); // store the original list
 

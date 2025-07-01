@@ -18,6 +18,7 @@ import AddDepartment from "./components/departments/AddDepartment";
 import { useNavigate } from "react-router-dom";
 import { isLoggedIn } from './utils/tokenutils';
 import { useState,useEffect } from "react";
+import Receipt from "./components/Receipt/Receipt";
 const CustomRouter = (c) => {
 const navigate = useNavigate();
   const [userLoggedinStatus,setUserLoggedinStatus]= useState(false);
@@ -52,6 +53,7 @@ const navigate = useNavigate();
       <Route path="/issue-products" element={<IssuePage />} />
       <Route path="/view-issues" element={<ViewIssue />} />
       <Route path="/" element={<Dashboard />} />
+      <Route path="/receipt" element={<Receipt />} />
 
     </Routes>
   );
