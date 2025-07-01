@@ -1,8 +1,8 @@
 import { IconBase } from 'react-icons/lib';
-import { FiEye, FiPlus } from "react-icons/fi";
+import { FiCrosshair, FiEye, FiPlus } from "react-icons/fi";
 import { fetchAllVendors, fetchAllItems } from '../../api/receipt';
 import { React, useEffect, useState } from 'react';
-
+import AddItemForm from './AddItemForm';
 // --- DUMMY DATA (for populating dropdowns) ---
 const dummyStores = [{ id: 1, name: 'MAIN STORE' }, { id: 2, name: 'SUB STORE' }];
 
@@ -118,15 +118,15 @@ const Receipt = () => {
     // --- Reusable Form Field Component ---
     const FormField = ({ label, name, value, onChange, type = 'text', children, required = false, ...props }) => (
         <div>
-            <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+            <label htmlFor={name} className="block text-lg font-medium text-gray-700 text-lg">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
             {type === 'select' ? (
-                <select id={name} name={name} value={value} onChange={onChange} {...props} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm h-12">
+                <select id={name} name={name} value={value} onChange={onChange} {...props} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-lg h-12">
                     {children}
                 </select>
             ) : (
-                <input type={type} id={name} name={name} value={value} onChange={onChange} {...props} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm h-12 px-3" />
+                <input type={type} id={name} name={name} value={value} onChange={onChange} {...props} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-lg h-12 px-3" />
             )}
         </div>
     );
@@ -139,9 +139,68 @@ const Receipt = () => {
             <span className="text-blue-600 bg-blue-100 rounded-full p-1">{icon}</span>
         </div>
     );
+    // //       const [newItem, setNewItem] = useState({ name: '', unit: '' });
+    // //   const [isAddItemNameError, setIsAddItemNameError] = useState(false);
+    const [showForm, setShowForm] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // //   const handleNewItemChange = (e) => {
+    // //     const { name, value } = e.target;
+    // //     setNewItem(prev => ({ ...prev, [name]: value }));
+
+    // //     // Clear error when user starts typing
+    // //     if (isAddItemNameError && value.trim()) {
+    // //       setIsAddItemNameError(false);
+    // //     }
+    // //   };
+
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+
+    //     // Validation
+    //     if (!newItem.name.trim() || !newItem.unit.trim()) {
+    //         setIsAddItemNameError(true);
+    //         return;
+    //     }
+
+    //     setIsSubmitting(true);
+
+    //     try {
+    //         // Simulate API call
+    //         await new Promise(resolve => setTimeout(resolve, 1000));
+
+    //         // Reset form on success
+    //         setNewItem({ name: '', unit: '' });
+    //         setIsAddItemNameError(false);
+    //         console.log('Item added:', newItem);
+
+    //         // Optional: Close form after successful submission
+    //         // setShowForm(false);
+
+    //     } catch (error) {
+    //         console.error('Error adding item:', error);
+    //     } finally {
+    //         setIsSubmitting(false);
+    //     }
+    // };
+
+    const handleClose = () => {
+        setShowForm(false);
+        setNewItem({ name: '', unit: '' });
+        setIsAddItemNameError(false);
+    };
+    //    const handleOpenForm = () => {
+    //     setShowForm(true);
+    //     setNewItem({ name: '', unit: '' });
+    //     setIsAddItemNameError(false);
+    // };
+    
+
+ 
+
 
     return (
-        <div className="bg-gray-100 p-4 sm:p-6 lg:p-8 min-h-screen">
+        <div className="bg-gray-100 p-4 sm:p-6 lg:p-16 min-h-screen">
 
             <div className="max-w-screen-xl mx-auto">
                 <div className="header flex gap-12">
@@ -153,8 +212,8 @@ const Receipt = () => {
 
 
                 <form onSubmit={handleAddItem}>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 ">
-                        <div className="bg-gray-200 p-6 rounded-lg shadow-md ">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 py-12 ">
+                        <div className="bg-gray-200 py-24 px-4 rounded-lg shadow-md w-full">
                             <SectionHeader title="Primary Information" />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                                 <FormField label="Entry Of" name="entryOf" type="select" value={primaryInfo.entryOf} onChange={handlePrimaryChange} required> <option>PURCHASE</option> </FormField>
@@ -168,78 +227,23 @@ const Receipt = () => {
                             </div>
                         </div>
 
-                        <div className="bg-gray-200 p-6 rounded-lg shadow-md">
+                        <div className=" py-24 px-4 bg-gray-200 p-6 rounded-lg shadow-md">
 
-                            {/* <SectionHeader title="Add New Items" icon={<PlusIcon />} /> */}
-                            {true && (
-                                <div className="bg-white p-4 rounded-lg shadow-md absolute top-48 right-48 max-w-xs mx-auto flex flex-col z-[100000]">
-                                    <div className="flex flex-col items-center gap-2 w-[100%] bg-primary p-2 rounded-lg">
-                                        <label className="block text-sm font-semibold text-gray-700 py-1 bg-primary text-white">
-                                            Add Item <span className="text-red-500">*</span>
-                                        </label>
-
-                                        {isAddItemNameError && (
-                                            <div className="bg-red-100 text-red-700 border border-red-300 rounded-md z-50 px-3 py-2 shadow">
-                                                <p className="text-xs font-medium">
-                                                    All fields <span className="text-red-500">*</span> are mandatory.
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <form className="mt-4 grid grid-cols-1 gap-0">
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                                Item Name <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                name="name"
-                                                value={newItem.name}
-                                                onChange={handleNewItemChange}
-                                                required
-                                                className="w-full border border-gray-300 rounded-md px-2  focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm"
-                                                placeholder="Enter item name"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                                Unit <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                name="unit"
-                                                value={newItem.unit}
-                                                onChange={handleNewItemChange}
-                                                required
-                                                className="w-full border border-gray-300 rounded-md px-2  focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm"
-                                                placeholder="e.g., kg, pcs"
-                                            />
-                                        </div>
-
-                                        <div className="flex justify-end">
-                                            <button
-                                                type="submit"
-                                                className="inline-flex items-center bg-primary text-white font-semibold rounded-md px-4 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition text-sm"
-                                            >
-                                                Add Item
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
+                            {showForm && (
+                                <AddItemForm/>
+                               
                             )}
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                                 <FormField label="Currency" name="currency" value={newItem.currency} onChange={handleNewItemChange} required readOnly className="bg-gray-100" />
 
                                 <div className="relative">
-                                    <label className="block text-sm font-medium text-gray-700">Item Name <span className="text-red-500">*</span></label>
-                                    <select name="itemId" value={newItem.itemId} onChange={handleNewItemChange} className="mt-1 block w-full rounded-md border-green-500 shadow-sm focus:border-green-500 focus:ring-green-500 text-sm h-12 ring-2 ring-green-200 pr-10">
+                                    <label className="block text-lg font-medium text-gray-700">Item Name <span className="text-red-500">*</span></label>
+                                    <select name="itemId" value={newItem.itemId} onChange={handleNewItemChange} className="mt-1 block w-full rounded-md border-green-500 shadow-sm focus:border-green-500 focus:ring-green-500 text-lg h-12 ring-2 ring-green-200 pr-10 ">
                                         <option value="">Choose Item</option>
                                         {items.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
                                     </select>
-                                    <button type="button" className="absolute right-7 top-9 p-1 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200"><PlusIcon /></button>
+                                    <button type="button" className="absolute right-7 top-9 p-1 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200" onClick={handleOpenForm}><PlusIcon /></button>
 
 
                                 </div>
