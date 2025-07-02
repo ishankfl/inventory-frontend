@@ -1,13 +1,9 @@
-import { IconBase } from 'react-icons/lib';
-import { FiCrosshair, FiEye, FiPlus } from "react-icons/fi";
+import { FiEye, FiPlus } from "react-icons/fi";
 import { fetchAllVendors, fetchAllItems } from '../../api/receipt';
-import { React, useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import AddItemForm from './AddItemForm';
-// --- DUMMY DATA (for populating dropdowns) ---
-const dummyStores = [{ id: 1, name: 'MAIN STORE' }, { id: 2, name: 'SUB STORE' }];
+import { createReceipt } from '../../api/receipt';
 
-
-// --- Reusable SVG Icons ---
 const PlusIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -20,244 +16,438 @@ const TrashIcon = () => (
     </svg>
 );
 
-// --- Main Form Component ---
 const Receipt = () => {
-    const [vendors, setVendors] = useState([])
+    const [vendors, setVendors] = useState([]);
     const [items, setItems] = useState([]);
-    const [openItemForm, setOpenItemForm] = useState(true);
-    const [isAddItemNameError, setIsAddItemNameError] = useState(true);
-    const getVendors = async () => {
-        try {
-            const response = await fetchAllVendors();
-            console.log(response.data);
-            console.log(response.status);
-            if (response.status == 200) {
-                setVendors(response.data);
-            }
+    const [showForm, setShowForm] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const quantityRef = useRef(null);
+    const rateRef = useRef(null);
 
-        } catch (e) {
-            console.log(e);
-        }
-    }
-    const getItems = async () => {
-        try {
-            const response = await fetchAllItems();
-            console.log(response.data);
-            console.log(response.status);
-            if (response.status == 200) {
-                setItems(response.data);
-            }
-
-        } catch (e) {
-            console.log(e);
-        }
-    }
-    useEffect(() => { getVendors(); getItems() }, [])
     const initialPrimaryInfo = {
-        entryOf: 'PURCHASE', stockFlowTo: 'STORE', receiptNo: '',
-        receiptDateAD: '23/03/2025', receiptDateBS: '', fiscalYear: '2081-2082',
-        purchaseType: 'CREDIT', billNo: '101', billDateAD: '23/03/2025',
-        billDateBS: '20811210', vendor: '1',
+        entryOf: 'PURCHASE',
+        stockFlowTo: 'STORE',
+        receiptNo: '',
+        receiptDateAD: new Date().toLocaleDateString('en-GB'),
+        receiptDateBS: '',
+        fiscalYear: '2081-2082',
+        purchaseType: 'CREDIT',
+        billNo: '',
+        billDateAD: new Date().toLocaleDateString('en-GB'),
+        billDateBS: '',
+        vendor: '',
     };
 
     const initialNewItemState = {
         currency: 'NPR',
-        itemId: '', itemGroup: '', uom: '',
-        isComplimentary: 'NO', taxStructure: '', quantity: '',
-        rate: '', value: '', discountPercent: '', discountAmount: '0.00',
+        itemId: '',
+        itemGroup: '',
+        uom: '',
+        isComplimentary: 'NO',
+        taxStructure: '',
+        quantity: '',
+        rate: '',
+        value: '',
+        discountPercent: '',
+        discountAmount: '0.00',
     };
 
     const [primaryInfo, setPrimaryInfo] = useState(initialPrimaryInfo);
     const [newItem, setNewItem] = useState(initialNewItemState);
-    const [addedItems, setAddedItems] = useState([]); // This will hold the items for the table
+    const [addedItems, setAddedItems] = useState([]);
 
-    // --- HANDLERS ---
+    useEffect(() => {
+        getVendors();
+        getItems();
+    }, []);
+
+    const getVendors = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetchAllVendors();
+            if (response.status === 200) {
+                setVendors(response.data);
+                // Set default vendor if available
+                if (response.data.length > 0) {
+                    setPrimaryInfo(prev => ({
+                        ...prev,
+                        vendor: response.data[0].id.toString()
+                    }));
+                }
+            }
+        } catch (e) {
+            console.error("Error fetching vendors:", e);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const getItems = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetchAllItems();
+            if (response.status === 200) setItems(response.data);
+        } catch (e) {
+            console.error("Error fetching items:", e);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handlePrimaryChange = (e) => {
         setPrimaryInfo({ ...primaryInfo, [e.target.name]: e.target.value });
     };
 
-    const handleNewItemChange = (e) => {
+    const handleItemChange = (e) => {
         const { name, value } = e.target;
-        let updatedItem = { ...newItem, [name]: value };
+        setNewItem(prev => {
+            const updatedItem = { ...prev, [name]: value };
 
-        // Auto-fill Item Group and UOM when an item is selected
-        if (name === 'itemId' && value) {
-            const selectedItem = items.find(item => item.id.toString() === value);
-            if (selectedItem) {
-                updatedItem.itemGroup = selectedItem.itemGroup;
-                updatedItem.uom = selectedItem.uom;
+            // If item is changed, update related fields
+            if (name === 'itemId') {
+                const selectedItem = items.find(i => i.id.toString() === value);
+                if (selectedItem) {
+                    updatedItem.itemGroup = selectedItem.itemGroup || '';
+                    updatedItem.uom = selectedItem.uom || '';
+                    updatedItem.taxStructure = selectedItem.taxStructure || '';
+                }
             }
-        }
 
-        // Auto-calculate Value if rate and quantity are present
-        if (['quantity', 'rate'].includes(name)) {
-            const qty = name === 'quantity' ? parseFloat(value) : parseFloat(updatedItem.quantity);
-            const rt = name === 'rate' ? parseFloat(value) : parseFloat(updatedItem.rate);
-            if (!isNaN(qty) && !isNaN(rt)) {
-                updatedItem.value = (qty * rt).toFixed(2);
-            }
-        }
+            return updatedItem;
+        });
+    };
 
-        setNewItem(updatedItem);
+    const handleQuantityOrRateChange = () => {
+        const qty = parseFloat(quantityRef.current?.value) || 0;
+        const rate = parseFloat(rateRef.current?.value) || 0;
+
+        setNewItem(prev => ({
+            ...prev,
+            quantity: quantityRef.current?.value || '',
+            rate: rateRef.current?.value || '',
+            value: (qty * rate).toFixed(2),
+        }));
     };
 
     const handleAddItem = (e) => {
         e.preventDefault();
-        if (!newItem.itemId || !newItem.quantity || !newItem.rate) {
-            alert("Please fill Item Name, Quantity, and Rate.");
+
+        const qty = parseFloat(newItem.quantity);
+        const rate = parseFloat(newItem.rate);
+
+        if (!newItem.itemId) {
+            alert("Please select an item");
             return;
         }
-        setAddedItems([...addedItems, { ...newItem, tempId: Date.now() }]);
+
+        if (isNaN(qty)) {
+            alert("Please enter a valid quantity");
+            return;
+        }
+
+        if (isNaN(rate)) {
+            alert("Please enter a valid rate");
+            return;
+        }
+
+        const selectedItem = items.find(i => i.id.toString() === newItem.itemId);
+        if (!selectedItem) {
+            alert("Selected item not found");
+            return;
+        }
+
+        const itemToAdd = {
+            ...newItem,
+            tempId: Date.now(),
+            itemName: selectedItem.name,
+            value: (qty * rate).toFixed(2)
+        };
+
+        setAddedItems([...addedItems, itemToAdd]);
         setNewItem(initialNewItemState);
+
+        // Reset refs
+        if (quantityRef.current) quantityRef.current.value = "";
+        if (rateRef.current) rateRef.current.value = "";
     };
 
     const handleRemoveItem = (tempId) => {
         setAddedItems(addedItems.filter(item => item.tempId !== tempId));
     };
 
-    // --- Reusable Form Field Component ---
-    const FormField = ({ label, name, value, onChange, type = 'text', children, required = false, ...props }) => (
-        <div>
-            <label htmlFor={name} className="block text-lg font-medium text-gray-700 text-lg">
-                {label} {required && <span className="text-red-500">*</span>}
-            </label>
-            {type === 'select' ? (
-                <select id={name} name={name} value={value} onChange={onChange} {...props} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-lg h-12">
-                    {children}
-                </select>
-            ) : (
-                <input type={type} id={name} name={name} value={value} onChange={onChange} {...props} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-lg h-12 px-3" />
-            )}
-        </div>
-    );
+    const handleOpenForm = () => setShowForm(true);
+    const handleCloseForm = () => setShowForm(false);
 
+    const handleItemAdded = async () => {
+        await getItems(); // Refresh items list
+        handleCloseForm();
+    };
+
+    const calculateTotal = () => {
+        return addedItems.reduce((sum, item) => {
+            return sum + (parseFloat(item.value) || 0);
+        }, 0).toFixed(2);
+    };
+
+  const handleSubmitReceipt = async (e) => {
+    e.preventDefault();
+
+    // Validate form
+    if (addedItems.length === 0) {
+        alert("Please add at least one item");
+        return;
+    }
+
+    if (!primaryInfo.vendor) {
+        alert("Please select a vendor");
+        return;
+    }
+
+    // Prepare the data in the format expected by the backend
+    const receiptData = {
+        receiptDate: new Date(primaryInfo.receiptDateAD).toISOString(),
+        billNo: primaryInfo.billNo,
+        vendorId: primaryInfo.vendor,
+        receiptDetails: addedItems.map(item => ({
+            itemId: item.itemId,
+            quantity: parseFloat(item.quantity),
+            rate: parseFloat(item.rate)
+        }))
+    };
+    console.log(receiptData);
+
+    try {
+        // Show loading state
+        setIsLoading(true);
+
+        // Call the API to save the receipt
+        const response = await createReceipt(receiptData);
+
+        // Handle success
+        if (response.data) {
+            alert("Receipt saved successfully!");
+            console.log("Receipt created:", response.data);
+            
+            // Reset form
+            setPrimaryInfo(initialPrimaryInfo);
+            setAddedItems([]);
+            
+            // Optional: Redirect or refresh receipt list
+            // history.push('/receipts');
+        } else {
+            throw new Error("No data received from server");
+        }
+    } catch (error) {
+        console.error("Error saving receipt:", error);
+        
+        // Show detailed error message if available
+        const errorMessage = error.response?.data?.message || 
+                           error.message || 
+                           "Failed to save receipt";
+        alert(`Error: ${errorMessage}`);
+    } finally {
+        // Hide loading state
+        setIsLoading(false);
+    }
+};
     const SectionHeader = ({ title, icon }) => (
         <div className="flex items-start gap-4 mb-4">
-            <div>
-                <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
-            </div>
-            <span className="text-blue-600 bg-blue-100 rounded-full p-1">{icon}</span>
+            <h2 className="text-sm font-semibold text-gray-800">{title}</h2>
+            {icon && <span className="text-blue-600 bg-blue-100 rounded-full p-1">{icon}</span>}
         </div>
     );
-    // //       const [newItem, setNewItem] = useState({ name: '', unit: '' });
-    // //   const [isAddItemNameError, setIsAddItemNameError] = useState(false);
-    const [showForm, setShowForm] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // //   const handleNewItemChange = (e) => {
-    // //     const { name, value } = e.target;
-    // //     setNewItem(prev => ({ ...prev, [name]: value }));
-
-    // //     // Clear error when user starts typing
-    // //     if (isAddItemNameError && value.trim()) {
-    // //       setIsAddItemNameError(false);
-    // //     }
-    // //   };
-
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-
-    //     // Validation
-    //     if (!newItem.name.trim() || !newItem.unit.trim()) {
-    //         setIsAddItemNameError(true);
-    //         return;
-    //     }
-
-    //     setIsSubmitting(true);
-
-    //     try {
-    //         // Simulate API call
-    //         await new Promise(resolve => setTimeout(resolve, 1000));
-
-    //         // Reset form on success
-    //         setNewItem({ name: '', unit: '' });
-    //         setIsAddItemNameError(false);
-    //         console.log('Item added:', newItem);
-
-    //         // Optional: Close form after successful submission
-    //         // setShowForm(false);
-
-    //     } catch (error) {
-    //         console.error('Error adding item:', error);
-    //     } finally {
-    //         setIsSubmitting(false);
-    //     }
-    // };
-
-    const handleClose = () => {
-        setShowForm(false);
-        setNewItem({ name: '', unit: '' });
-        setIsAddItemNameError(false);
-    };
-    //    const handleOpenForm = () => {
-    //     setShowForm(true);
-    //     setNewItem({ name: '', unit: '' });
-    //     setIsAddItemNameError(false);
-    // };
-    
-
- 
-
 
     return (
-        <div className="bg-gray-100 p-4 sm:p-6 lg:p-16 min-h-screen">
-
-            <div className="max-w-screen-xl mx-auto">
+        <div className="bg-gray-100 p-2 sm:p-2 lg:p-4 min-h-screen">
+            <div className="max-w-screen-lg mx-auto">
                 <div className="header flex gap-12">
-
-                    <SectionHeader title="Receipt Products " icon={<FiPlus size={20} />} />
-                    <SectionHeader title="" icon={<FiEye size={20} className='ml-[15px] pr-[5px]' />} />
-
+                    <SectionHeader title="Receipt Products" icon={<FiPlus size={20} />} />
+                    <SectionHeader title="" icon={<FiEye size={20} className="ml-4 pr-1" />} />
                 </div>
 
+                {showForm && (
+                    <AddItemForm
+                        onClose={handleCloseForm}
+                        onItemAdded={handleItemAdded}
+                    />
+                )}
 
                 <form onSubmit={handleAddItem}>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 py-12 ">
-                        <div className="bg-gray-200 py-24 px-4 rounded-lg shadow-md w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 py-4 justify-items-center">
+                        <div className="bg-gray-200 py-8 px-4 rounded-lg shadow-md w-[80%]">
                             <SectionHeader title="Primary Information" />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                                <FormField label="Entry Of" name="entryOf" type="select" value={primaryInfo.entryOf} onChange={handlePrimaryChange} required> <option>PURCHASE</option> </FormField>
-
-                                <FormField label="Receipt #" name="receiptNo" value={primaryInfo.receiptNo} onChange={handlePrimaryChange} />
-                                <FormField label="Receipt Date (AD)" name="receiptDateAD" value={primaryInfo.receiptDateAD} onChange={handlePrimaryChange} required />
-                                <FormField label="Bill Number" name="billNo" value={primaryInfo.billNo} onChange={handlePrimaryChange} required />
-                                <FormField label="Bill Date (BS)" name="billDateBS" value={primaryInfo.billDateBS} onChange={handlePrimaryChange} required />
-                                <FormField label="Vendor" name="vendor" type="select" value={primaryInfo.vendor} onChange={handlePrimaryChange} required> {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)} </FormField>
-
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Entry Of</label>
+                                    <select
+                                        name="entryOf"
+                                        value={primaryInfo.entryOf}
+                                        onChange={handlePrimaryChange}
+                                        required
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12"
+                                    >
+                                        <option value="PURCHASE">PURCHASE</option>
+                                        <option value="SALE">SALE</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Receipt #</label>
+                                    <input
+                                        type="text"
+                                        name="receiptNo"
+                                        value={primaryInfo.receiptNo}
+                                        onChange={handlePrimaryChange}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Receipt Date (AD)</label>
+                                    <input
+                                        type="date"
+                                        name="receiptDateAD"
+                                        value={primaryInfo.receiptDateAD}
+                                        onChange={handlePrimaryChange}
+                                        required
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Bill Number</label>
+                                    <input
+                                        type="text"
+                                        name="billNo"
+                                        value={primaryInfo.billNo}
+                                        onChange={handlePrimaryChange}
+                                        required
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Bill Date (BS)</label>
+                                    <input
+                                        type="text"
+                                        name="billDateBS"
+                                        value={primaryInfo.billDateBS}
+                                        onChange={handlePrimaryChange}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
+                                        placeholder="YYYYMMDD"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Vendor</label>
+                                    <select
+                                        name="vendor"
+                                        value={primaryInfo.vendor}
+                                        onChange={handlePrimaryChange}
+                                        required
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12"
+                                    >
+                                        <option value="">Select Vendor</option>
+                                        {vendors.map(v => (
+                                            <option key={v.id} value={v.id}>{v.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
-                        <div className=" py-24 px-4 bg-gray-200 p-6 rounded-lg shadow-md">
-
-                            {showForm && (
-                                <AddItemForm/>
-                               
-                            )}
-
+                        <div className="py-8 px-4 bg-gray-200 rounded-lg shadow-md w-[80%]">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                                <FormField label="Currency" name="currency" value={newItem.currency} onChange={handleNewItemChange} required readOnly className="bg-gray-100" />
-
-                                <div className="relative">
-                                    <label className="block text-lg font-medium text-gray-700">Item Name <span className="text-red-500">*</span></label>
-                                    <select name="itemId" value={newItem.itemId} onChange={handleNewItemChange} className="mt-1 block w-full rounded-md border-green-500 shadow-sm focus:border-green-500 focus:ring-green-500 text-lg h-12 ring-2 ring-green-200 pr-10 ">
-                                        <option value="">Choose Item</option>
-                                        {items.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Currency</label>
+                                    <select
+                                        name="currency"
+                                        value={newItem.currency}
+                                        onChange={handleItemChange}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12"
+                                    >
+                                        <option value="NPR">NPR</option>
+                                        <option value="USD">USD</option>
+                                        <option value="EUR">EUR</option>
                                     </select>
-                                    <button type="button" className="absolute right-7 top-9 p-1 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200" onClick={handleOpenForm}><PlusIcon /></button>
-
-
                                 </div>
-                                <FormField label="Quantity" name="quantity" type="number" value={newItem.quantity} onChange={handleNewItemChange} required />
-                                <FormField label="Rate" name="rate" type="number" placeholder="Enter Rate" value={newItem.rate} onChange={handleNewItemChange} required />
-
+                                <div className="relative">
+                                    <label className="block text-sm font-medium text-gray-700">Item Name <span className="text-red-500">*</span></label>
+                                    <select
+                                        name="itemId"
+                                        value={newItem.itemId}
+                                        onChange={handleItemChange}
+                                        className="mt-1 block w-full rounded-md border-green-500 shadow-sm h-12 ring-2 ring-green-200 pr-10"
+                                        required
+                                    >
+                                        <option value="">Choose Item</option>
+                                        {items.map(i => (
+                                            <option key={i.id} value={i.id}>
+                                                {i.name} ({i.uom})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        type="button"
+                                        className="absolute right-7 top-9 p-1 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200"
+                                        onClick={handleOpenForm}
+                                    >
+                                        <PlusIcon />
+                                    </button>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Quantity <span className="text-red-500">*</span></label>
+                                    <input
+                                        name="quantity"
+                                        ref={quantityRef}
+                                        type="number"
+                                        placeholder="Quantity"
+                                        onChange={handleQuantityOrRateChange}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
+                                        min="0.01"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Rate <span className="text-red-500">*</span></label>
+                                    <input
+                                        name="rate"
+                                        ref={rateRef}
+                                        type="number"
+                                        placeholder="Rate"
+                                        onChange={handleQuantityOrRateChange}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
+                                        min="0.01"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Value</label>
+                                    <input
+                                        type="text"
+                                        value={newItem.value}
+                                        readOnly
+                                        className="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm h-12 px-3"
+                                    />
+                                </div>
                                 <div className="md:col-span-2 flex justify-end gap-3 mt-4">
-                                    <button type="button" className="px-4 py-2 rounded-md bg-gray-200 text-gray-800 font-semibold hover:bg-gray-300">Clear</button>
-                                    <button type="submit" className="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700">Add</button>
+                                    <button
+                                        type="button"
+                                        className="px-4 py-2 rounded-md bg-gray-200 text-gray-800 font-semibold hover:bg-gray-300"
+                                        onClick={() => setNewItem(initialNewItemState)}
+                                    >
+                                        Clear
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700"
+                                    >
+                                        Add Item
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </form>
+
                 {addedItems.length > 0 && (
                     <div className="mt-8 bg-white shadow-lg rounded-lg overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
@@ -273,24 +463,51 @@ const Receipt = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {addedItems.map(item => (
                                     <tr key={item.tempId}>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-800">{items.find(i => i.id.toString() === item.itemId)?.name}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{item.quantity}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{item.rate}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{item.value}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm">
-                                            <button onClick={() => handleRemoveItem(item.tempId)} className="text-red-500 hover:text-red-700"><TrashIcon /></button>
+                                        <td className="px-4 py-3 text-sm text-gray-800">{item.itemName || items.find(i => i.id.toString() === item.itemId)?.name}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-500">{item.quantity}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-500">{item.rate}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-500">{item.value}</td>
+                                        <td className="px-4 py-3 text-sm">
+                                            <button
+                                                onClick={() => handleRemoveItem(item.tempId)}
+                                                className="text-red-500 hover:text-red-700 bg-white hover:bg-white"
+                                            >
+                                                <TrashIcon />
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
+                            <tfoot className="bg-gray-50">
+                                <tr>
+                                    <td colSpan="4" className="px-4 py-3 text-right text-sm font-medium text-gray-700">Total</td>
+                                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{calculateTotal()}</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 )}
 
-                {/* Final Form Submission Buttons */}
                 <div className="mt-8 flex justify-end gap-4">
-                    <button className="px-6 py-2 rounded-md bg-gray-600 text-white font-semibold hover:bg-gray-700">Cancel</button>
-                    <button className="px-6 py-2 rounded-md bg-green-600 text-white font-semibold hover:bg-green-700">Save Receipt</button>
+                    <button
+                        type="button"
+                        className="px-6 py-2 rounded-md bg-gray-600 text-white font-semibold hover:bg-gray-700"
+                        onClick={() => {
+                            setPrimaryInfo(initialPrimaryInfo);
+                            setAddedItems([]);
+                        }}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        className="px-6 py-2 rounded-md bg-green-600 text-white font-semibold hover:bg-green-700"
+                        onClick={handleSubmitReceipt}
+                        disabled={addedItems.length === 0}
+                    >
+                        Save Receipt
+                    </button>
                 </div>
             </div>
         </div>

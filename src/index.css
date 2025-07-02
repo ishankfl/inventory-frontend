@@ -17,7 +17,7 @@ add-btn .input-text {
 
 
 .nav-item {
-  @apply text-white no-underline font-medium text-[1.5rem] px-4 rounded transition duration-300 hover:bg-primary;
+  @apply text-white no-underline font-medium text-[1rem] px-4 rounded transition duration-300 hover:bg-primary;
 }
 
 .container {

@@ -32,15 +32,15 @@ const Navbar = () => {
 
   return (
     <div className="main-nav flex items-center justify-center fixed w-full z-[100]">
-      <div className="navbar flex justify-between items-center rounded-sm shadow-md relative w-full py-8 px-16 text-white bg-primary z-[10000]">
-        <div className="nav-logo text-[2.0rem] font-bold">Welcome to IMS</div>
+      <div className="navbar flex justify-between items-center rounded-sm shadow-md relative w-full py-4 px-16 text-white bg-primary z-[10000]">
+        <div className="nav-logo text-[1.5rem] font-bold">Welcome to IMS</div>
 
         <div className="hidden md:flex items-center relative gap-12">
           {loggedIn ? (
             <>
               <div className="flex flex-col items-center group">
                 <button
-                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-105 hover:bg-primary"
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-102 hover:bg-primary"
                   onClick={() => handleNavigate('/')}
                 >
                   <FaHome /> Dashboard
@@ -50,7 +50,7 @@ const Navbar = () => {
 
               <div className="flex flex-col items-center group">
                 <button
-                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-105"
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-102"
                   onClick={() => handleNavigate('/view-products')}
                 >
                   <FaBox /> ReceiptProduct
@@ -60,7 +60,7 @@ const Navbar = () => {
 
               <div className="flex flex-col items-center group">
                 <button
-                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-105"
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-102"
                   onClick={() => handleNavigate('/issue-products')}
                 >
                   <FaLayerGroup /> Issue Product
@@ -71,7 +71,7 @@ const Navbar = () => {
               <div className="relative flex flex-col items-center group">
                 <button
                   onClick={() => setShowMore(!showMore)}
-                  className="flex nav-item items-center gap-3 transition duration-300 ease-in-out hover:scale-105 text-[1.5rem] w-120px"
+                  className="flex nav-item items-center gap-3 transition duration-300 ease-in-out hover:scale-102 text-[1.5rem] w-120px"
                 >
                   <FaEllipsisH /> {showMore ? 'Less' : 'More'}
                 </button>
@@ -81,19 +81,19 @@ const Navbar = () => {
                   <div className="absolute right-0 mt-20 bg-primary rounded-md shadow-lg z-50">
                     <div className="flex flex-col gap-3 p-3">
                       <button
-                        className="nav-item flex items-center gap-2 whitespace-nowrap transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                        className="nav-item flex items-center gap-2 whitespace-nowrap transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-102 rounded px-3 py-2"
                         onClick={() => handleNavigate('/view-category')}
                       >
                         <FaLayerGroup /> Category
                       </button>
                       <button
-                        className="nav-item flex items-center gap-2 whitespace-nowrap transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                        className="nav-item flex items-center gap-2 whitespace-nowrap transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-102 rounded px-3 py-2"
                         onClick={() => handleNavigate('/view-users')}
                       >
                         <FaUsers /> Staff
                       </button>
                       <button
-                        className="nav-item flex items-center gap-2 whitespace-nowrap transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                        className="nav-item flex items-center gap-2 whitespace-nowrap transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-102 rounded px-3 py-2"
                         onClick={() => handleNavigate('/view-departments')}
                       >
                         <FaBuilding /> Department
@@ -106,7 +106,7 @@ const Navbar = () => {
           ) : (
             <div className="flex flex-col items-center group">
               <button
-                className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-102 rounded px-3 py-2"
                 onClick={() => handleNavigate('/login')}
               >
                 <FaSignInAlt /> Login
@@ -125,37 +125,37 @@ const Navbar = () => {
             {loggedIn ? (
               <>
                 <button
-                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-102 rounded px-3 py-2"
                   onClick={() => handleNavigate('/')}
                 >
                   <FaHome /> Dashboard
                 </button>
                 <button
-                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-102 rounded px-3 py-2"
                   onClick={() => handleNavigate('/view-products')}
                 >
                   <FaBox /> Product
                 </button>
                 <button
-                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-102 rounded px-3 py-2"
                   onClick={() => handleNavigate('/issue-products')}
                 >
                   <FaLayerGroup /> Issue Product
                 </button>
                 <button
-                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-102 rounded px-3 py-2"
                   onClick={() => handleNavigate('/view-category')}
                 >
                   <FaLayerGroup /> Category
                 </button>
                 <button
-                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-102 rounded px-3 py-2"
                   onClick={() => handleNavigate('/view-users')}
                 >
                   <FaUsers /> Staff
                 </button>
                 <button
-                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                  className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-102 rounded px-3 py-2"
                   onClick={() => handleNavigate('/view-departments')}
                 >
                   <FaBuilding /> Department
@@ -163,7 +163,7 @@ const Navbar = () => {
               </>
             ) : (
               <button
-                className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-105 rounded px-3 py-2"
+                className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:bg-primary-dark hover:scale-102 rounded px-3 py-2"
                 onClick={() => handleNavigate('/login')}
               >
                 <FaSignInAlt /> Login
