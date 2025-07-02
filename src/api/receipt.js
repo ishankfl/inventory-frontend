@@ -66,7 +66,37 @@ export const updateReceiptDetail = async (receiptId, detailId, detailData) => {
 export const deleteReceiptDetail = async (receiptId, detailId) => {
     return await axios.delete(`${server}/api/Receipts/${receiptId}/details/${detailId}`);
 }
+// export const fetchAllReceipts = async () => {
+//     try {
+//         const response = await axios.get(`${server}/api/receipts`);
+//         return response.data;
+//     } catch (error) {
+//         console.error('Error fetching receipts:', error);
+//         throw error;
+//     }
+// };
 
+export const fetchReceiptById = async (id) => {
+    try {
+        const response = await axios.get(`${server}/api/receipts/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching receipt:', error);
+        throw error;
+    }
+};
+
+export const fetchReceiptsByDateRange = async (startDate, endDate) => {
+    try {
+        const response = await axios.get(`${server}/api/receipts`, {
+            params: { startDate, endDate }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching receipts by date range:', error);
+        throw error;
+    }
+};
 // // Utility function to handle errors consistently
 // const handleApiError = (error) => {
 //     if (error.response) {

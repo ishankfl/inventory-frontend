@@ -19,6 +19,8 @@ import { useNavigate } from "react-router-dom";
 import { isLoggedIn } from './utils/tokenutils';
 import { useState,useEffect } from "react";
 import Receipt from "./components/Receipt/Receipt";
+import ReceiptDetails from "./components/Receipt/ReceiptDetails";
+import ReceiptList from "./components/Receipt/ReceiptsList";
 const CustomRouter = (c) => {
 const navigate = useNavigate();
   const [userLoggedinStatus,setUserLoggedinStatus]= useState(false);
@@ -54,6 +56,8 @@ const navigate = useNavigate();
       <Route path="/view-issues" element={<ViewIssue />} />
       <Route path="/" element={<Dashboard />} />
       <Route path="/receipt" element={<Receipt />} />
+      <Route path="/receipt-details/:id" element={<ReceiptDetails />} />
+      <Route path="/receipt-list" element={<ReceiptList />} />
 
     </Routes>
   );
