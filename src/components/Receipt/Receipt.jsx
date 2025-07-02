@@ -385,19 +385,21 @@ const Receipt = () => {
                                     </select>
                                 </div>
                                 <div className="relative">
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Item Name <span className="text-red-500">*</span>
-                                    </label>
-                                    <Select
-                                        options={itemOptions}
-                                        value={itemOptions.find(opt => opt.value === newItem.itemId) || null}
-                                        onChange={(selected) =>
-                                            setNewItem((prev) => ({ ...prev, itemId: selected?.value || "" }))
-                                        }
-                                        className="mt-1"
-                                        placeholder="Choose Item"
-                                        isClearable
-                                    />
+                                    <label className="block text-sm font-medium text-gray-700">Item Name <span className="text-red-500">*</span></label>
+                                    <select
+                                        name="itemId"
+                                        value={newItem.itemId}
+                                        onChange={handleItemChange}
+                                        className="mt-1 block w-full rounded-md border-green-500 shadow-sm h-12 ring-2 ring-green-200 pr-10"
+                                        required
+                                    >
+                                        <option value="">Choose Item</option>
+                                        {items.map(i => (
+                                            <option key={i.id} value={i.id}>
+                                                {i.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                     <button
                                         type="button"
                                         className="absolute right-7 top-9 p-1 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200"
