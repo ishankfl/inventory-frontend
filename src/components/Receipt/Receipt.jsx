@@ -23,6 +23,7 @@ const Receipt = () => {
     const [isLoading, setIsLoading] = useState(false);
     const quantityRef = useRef(null);
     const rateRef = useRef(null);
+    const [randomForReceipt, setRandomForReceipt] = useState();
 
     const initialPrimaryInfo = {
         entryOf: 'PURCHASE',
@@ -59,6 +60,7 @@ const Receipt = () => {
     useEffect(() => {
         getVendors();
         getItems();
+        generateRandom();
     }, []);
 
     const getVendors = async () => {
@@ -189,73 +191,88 @@ const Receipt = () => {
         }, 0).toFixed(2);
     };
 
-  const handleSubmitReceipt = async (e) => {
-    e.preventDefault();
+    const handleSubmitReceipt = async (e) => {
+        e.preventDefault();
 
-    // Validate form
-    if (addedItems.length === 0) {
-        alert("Please add at least one item");
-        return;
-    }
-
-    if (!primaryInfo.vendor) {
-        alert("Please select a vendor");
-        return;
-    }
-
-    // Prepare the data in the format expected by the backend
-    const receiptData = {
-        receiptDate: new Date(primaryInfo.receiptDateAD).toISOString(),
-        billNo: primaryInfo.billNo,
-        vendorId: primaryInfo.vendor,
-        receiptDetails: addedItems.map(item => ({
-            itemId: item.itemId,
-            quantity: parseFloat(item.quantity),
-            rate: parseFloat(item.rate)
-        }))
-    };
-    console.log(receiptData);
-
-    try {
-        // Show loading state
-        setIsLoading(true);
-
-        // Call the API to save the receipt
-        const response = await createReceipt(receiptData);
-
-        // Handle success
-        if (response.data) {
-            alert("Receipt saved successfully!");
-            console.log("Receipt created:", response.data);
-            
-            // Reset form
-            setPrimaryInfo(initialPrimaryInfo);
-            setAddedItems([]);
-            
-            // Optional: Redirect or refresh receipt list
-            // history.push('/receipts');
-        } else {
-            throw new Error("No data received from server");
+        // Validate form
+        if (addedItems.length === 0) {
+            alert("Please add at least one item");
+            return;
         }
-    } catch (error) {
-        console.error("Error saving receipt:", error);
-        
-        // Show detailed error message if available
-        const errorMessage = error.response?.data?.message || 
-                           error.message || 
-                           "Failed to save receipt";
-        alert(`Error: ${errorMessage}`);
-    } finally {
-        // Hide loading state
-        setIsLoading(false);
-    }
-};
+
+        if (!primaryInfo.vendor) {
+            alert("Please select a vendor");
+            return;
+        }
+
+        // Prepare the data in the format expected by the backend
+        const receiptData = {
+            receiptDate: new Date(primaryInfo.receiptDateAD).toISOString(),
+            billNo: primaryInfo.billNo,
+            vendorId: primaryInfo.vendor,
+            receiptDetails: addedItems.map(item => ({
+                itemId: item.itemId,
+                quantity: parseFloat(item.quantity),
+                rate: parseFloat(item.rate)
+            }))
+        };
+        console.log(receiptData);
+
+        try {
+            // Show loading state
+            setIsLoading(true);
+
+            // Call the API to save the receipt
+            const response = await createReceipt(receiptData);
+
+            // Handle success
+            if (response.data) {
+                alert("Receipt saved successfully!");
+                console.log("Receipt created:", response.data);
+
+                // Reset form
+                setPrimaryInfo(initialPrimaryInfo);
+                setAddedItems([]);
+
+                // Optional: Redirect or refresh receipt list
+                // history.push('/receipts');
+            } else {
+                throw new Error("No data received from server");
+            }
+        } catch (error) {
+            console.error("Error saving receipt:", error);
+
+            // Show detailed error message if available
+            const errorMessage = error.response?.data?.message ||
+                error.message ||
+                "Failed to save receipt";
+            alert(`Error: ${errorMessage}`);
+        } finally {
+            // Hide loading state
+            setIsLoading(false);
+        }
+    };
     const SectionHeader = ({ title, icon }) => (
         <div className="flex items-start gap-4 mb-4">
             <h2 className="text-sm font-semibold text-gray-800">{title}</h2>
             {icon && <span className="text-blue-600 bg-blue-100 rounded-full p-1">{icon}</span>}
         </div>
     );
+    const generateRandom = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '#__';
+
+        for (let i = 0; i < 12; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        setRandomForReceipt(result);
+    }
+    const itemOptions = items.map((i) => ({
+        value: i.id,
+        label: i.name,
+    }));
+
+
 
     return (
         <div className="bg-gray-100 p-2 sm:p-2 lg:p-4 min-h-screen">
@@ -291,18 +308,18 @@ const Receipt = () => {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Receipt #</label>
+                                    <label className="block text-sm font-medium text-gray-700">Receipt # <span className="text-red-500">*</span></label>
                                     <input
                                         type="text"
                                         name="receiptNo"
-                                        value={primaryInfo.receiptNo}
+                                        value={randomForReceipt}
                                         onChange={handlePrimaryChange}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Receipt Date (AD)</label>
+                                    <label className="block text-sm font-medium text-gray-700">Receipt Date (AD)<span className="text-red-500">*</span></label>
                                     <input
                                         type="date"
                                         name="receiptDateAD"
@@ -313,7 +330,7 @@ const Receipt = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Bill Number</label>
+                                    <label className="block text-sm font-medium text-gray-700">Bill Number <span className="text-red-500">*</span></label>
                                     <input
                                         type="text"
                                         name="billNo"
@@ -335,7 +352,7 @@ const Receipt = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Vendor</label>
+                                    <label className="block text-sm font-medium text-gray-700">Vendor <span className="text-red-500">*</span></label>
                                     <select
                                         name="vendor"
                                         value={primaryInfo.vendor}
@@ -368,21 +385,19 @@ const Receipt = () => {
                                     </select>
                                 </div>
                                 <div className="relative">
-                                    <label className="block text-sm font-medium text-gray-700">Item Name <span className="text-red-500">*</span></label>
-                                    <select
-                                        name="itemId"
-                                        value={newItem.itemId}
-                                        onChange={handleItemChange}
-                                        className="mt-1 block w-full rounded-md border-green-500 shadow-sm h-12 ring-2 ring-green-200 pr-10"
-                                        required
-                                    >
-                                        <option value="">Choose Item</option>
-                                        {items.map(i => (
-                                            <option key={i.id} value={i.id}>
-                                                {i.name} ({i.uom})
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Item Name <span className="text-red-500">*</span>
+                                    </label>
+                                    <Select
+                                        options={itemOptions}
+                                        value={itemOptions.find(opt => opt.value === newItem.itemId) || null}
+                                        onChange={(selected) =>
+                                            setNewItem((prev) => ({ ...prev, itemId: selected?.value || "" }))
+                                        }
+                                        className="mt-1"
+                                        placeholder="Choose Item"
+                                        isClearable
+                                    />
                                     <button
                                         type="button"
                                         className="absolute right-7 top-9 p-1 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200"
@@ -502,7 +517,7 @@ const Receipt = () => {
                     </button>
                     <button
                         type="button"
-                        className="px-6 py-2 rounded-md bg-green-600 text-white font-semibold hover:bg-green-700"
+                        className="px-6 py-2 rounded-md text-white font-semibold"
                         onClick={handleSubmitReceipt}
                         disabled={addedItems.length === 0}
                     >

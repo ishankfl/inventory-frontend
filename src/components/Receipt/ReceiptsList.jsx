@@ -51,10 +51,35 @@ const ReceiptsList = () => {
     if (error) return <div className="text-center py-8 text-red-500">Error: {error}</div>;
 
     return (
-        <div className=" mx-auto px-4 py-8">
+        <div className="main-container-box !pt-[0px]  mt-[-50px]">
             
-            <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex justify-between items-center ">
+            <div className="view-container overflow-x-auto transition-all duration-300 ">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                        <h3 className="text-sm font-medium text-blue-800">Total Receipts</h3>
+                        <p className="mt-1 text-2xl font-semibold text-blue-600">
+                            {receipts.length}
+                        </p>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-lg">
+                        <h3 className="text-sm font-medium text-green-800">Total Items Purchased</h3>
+                        <p className="mt-1 text-2xl font-semibold text-green-600">
+                            {receipts.reduce((sum, receipt) => sum + receipt.receiptDetails.length, 0)}
+                        </p>
+                    </div>
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                        <h3 className="text-sm font-medium text-purple-800">Total Amount</h3>
+                        <p className="mt-1 text-2xl font-semibold text-purple-600">
+                            Rs. {receipts.reduce(
+                                (sum, receipt) => sum + receipt.receiptDetails.reduce(
+                                    (sum, item) => sum + (item.quantity * item.rate), 0
+                                ), 0
+                            ).toLocaleString()}
+                        </p>
+                    </div>
+                </div>
+                <br></br>
+                <div className=" flex justify-between items-center ">
                     <h1 className="text-2xl font-bold text-gray-800">Receipts Inventory</h1>
                     <div className="relative">
                         <input
@@ -74,7 +99,7 @@ const ReceiptsList = () => {
                             <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                strokeWidth={2}
+                                    strokeWidth={2}
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                             />
                         </svg>
@@ -82,18 +107,26 @@ const ReceiptsList = () => {
                 </div>
 
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bill No</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <table className="">
+                        <thead className='rounded-lg '>
+                            <tr className='rounded-lg font-semibold'>
+                                <th className="">Bill No</th>
+                                <th className="">Date</th>
+                                <th className="">Vendor</th>
+                                <th className="">Items</th>
+                                <th className="">Total Amount</th>
+                                <th className="">Actions</th>
+                            </tr>
+                            <tr className='bg-gray-100'>
+                                <th className=""><input className='!w-[80%] text-black !p-2 !m-0 ' type="text" /></th>
+                                <th className=""><input className='!w-[80%] text-black !p-2 !m-0 ' type="text" /></th>
+                                <th className=""><input className='!w-[80%] text-black !p-2 !m-0 ' type="text" /></th>
+                                <th className=""><input className='!w-[80%] text-black !p-2 !m-0 ' type="text" /></th>
+                                <th className=""><input className='!w-[80%] text-black !p-2 !m-0 ' type="text" /> </th>
+                                <th className=""><input className='!w-[80%] text-black !p-2 !m-0 ' type="text" /></th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="">
                             {currentReceipts.length > 0 ? (
                                 currentReceipts.map((receipt) => {
                                     const totalAmount = receipt.receiptDetails.reduce(
@@ -102,13 +135,13 @@ const ReceiptsList = () => {
                                     
                                     return (
                                         <tr key={receipt.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <td className="">
                                                 {receipt.billNo}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="">
                                                 {new Date(receipt.receiptDate).toLocaleDateString()}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="">
                                                 <div className="flex items-center">
                                                     <div className="flex-shrink-0 h-10 w-10">
                                                         <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
@@ -140,10 +173,10 @@ const ReceiptsList = () => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                                 Rs. {totalAmount.toLocaleString()}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="">
                                                 <div className="flex space-x-2">
                                                     <Link
-                                                        to={`/receipts/${receipt.id}`}
+                                                        to={`/receipt-details/${receipt.id}`}
                                                         className="text-blue-600 hover:text-blue-900"
                                                     >
                                                         <FiEye className="h-5 w-5" />
@@ -206,30 +239,7 @@ const ReceiptsList = () => {
                 )}
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                        <h3 className="text-sm font-medium text-blue-800">Total Receipts</h3>
-                        <p className="mt-1 text-2xl font-semibold text-blue-600">
-                            {receipts.length}
-                        </p>
-                    </div>
-                    <div className="bg-green-50 p-4 rounded-lg">
-                        <h3 className="text-sm font-medium text-green-800">Total Items Purchased</h3>
-                        <p className="mt-1 text-2xl font-semibold text-green-600">
-                            {receipts.reduce((sum, receipt) => sum + receipt.receiptDetails.length, 0)}
-                        </p>
-                    </div>
-                    <div className="bg-purple-50 p-4 rounded-lg">
-                        <h3 className="text-sm font-medium text-purple-800">Total Amount</h3>
-                        <p className="mt-1 text-2xl font-semibold text-purple-600">
-                            Rs. {receipts.reduce(
-                                (sum, receipt) => sum + receipt.receiptDetails.reduce(
-                                    (sum, item) => sum + (item.quantity * item.rate), 0
-                                ), 0
-                            ).toLocaleString()}
-                        </p>
-                    </div>
-                </div>
+                
             </div>
         </div>
     );

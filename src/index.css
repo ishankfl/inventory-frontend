@@ -12,7 +12,7 @@ add-btn .input-text {
 }
 
 .bg-col-primary {
-  @apply bg-primary;
+  /* @apply bg-primary; */
 }
 
 
@@ -21,11 +21,11 @@ add-btn .input-text {
 }
 
 .container {
-  @apply w-[500px] mx-auto my-[50px] p-[30px] border border-gray-300 rounded-lg bg-[#fdfdfd] shadow-md absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2
+  @apply w-[500px] mx-auto my-[50px] p-[30px] border border-gray-300 rounded-lg  shadow-md absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2
 }
 
 .container {
-  @apply w-[500px] mx-auto my-[50px] p-[30px] border border-gray-300 rounded-lg bg-[#fdfdfd] shadow-md absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2;
+  @apply w-[500px] mx-auto my-[50px] p-[30px] border border-gray-300 rounded-lg shadow-md absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2;
 }
 
 h2 {
