@@ -39,9 +39,6 @@ export const fetchAllReceipts = async () => {
     return await axios.get(`${server}/api/Receipts`);
 }
 
-export const getReceiptById = async (id) => {
-    return await axios.get(`${server}/api/Receipts/${id}`);
-}
 
 export const createReceipt = async (receiptData) => {
     return await axios.post(`${server}/api/Receipts`, receiptData);

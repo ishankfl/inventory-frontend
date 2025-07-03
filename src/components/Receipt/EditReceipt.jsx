@@ -1,9 +1,9 @@
 import { FiEye, FiPlus } from "react-icons/fi";
-import { fetchAllVendors, fetchAllItems } from '../../api/receipt';
+import { fetchAllVendors, fetchAllItems, fetchReceiptById, updateReceipt } from '../../api/receipt';
 import { useEffect, useState, useRef } from 'react';
 import AddItemForm from './AddItemForm';
-import { createReceipt } from '../../api/receipt';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
 const PlusIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -16,14 +16,14 @@ const TrashIcon = () => (
     </svg>
 );
 
-const Receipt = () => {
+const EditReceipt = () => {
+    const { id } = useParams();
     const [vendors, setVendors] = useState([]);
     const [items, setItems] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const quantityRef = useRef(null);
     const rateRef = useRef(null);
-    const [randomForReceipt, setRandomForReceipt] = useState();
     const navigate = useNavigate();
 
     const initialPrimaryInfo = {
@@ -61,8 +61,56 @@ const Receipt = () => {
     useEffect(() => {
         getVendors();
         getItems();
-        generateRandom();
-    }, []);
+        loadReceiptData();
+    }, [id]);
+
+    const loadReceiptData = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetchReceiptById(id);
+            if (response.status === 200) {
+                const receipt = response.data;
+                
+                // Set primary info
+                setPrimaryInfo({
+                    entryOf: 'PURCHASE',
+                    stockFlowTo: 'STORE',
+                    receiptNo: receipt.receiptNo,
+                    receiptDateAD: new Date(receipt.receiptDate).toLocaleDateString('en-GB'),
+                    receiptDateBS: receipt.receiptDateBS || '',
+                    fiscalYear: receipt.fiscalYear || '2081-2082',
+                    purchaseType: receipt.purchaseType || 'CREDIT',
+                    billNo: receipt.billNo,
+                    billDateAD: receipt.billDateAD || new Date().toLocaleDateString('en-GB'),
+                    billDateBS: receipt.billDateBS || '',
+                    vendor: receipt.vendor.id.toString(),
+                });
+
+                // Set items
+                const formattedItems = receipt.receiptDetails.map(item => ({
+                    tempId: Date.now() + Math.random(),
+                    itemId: item.item.id.toString(),
+                    itemName: item.item.name,
+                    currency: 'NPR',
+                    itemGroup: item.item.itemGroup || '',
+                    uom: item.item.uom || '',
+                    isComplimentary: 'NO',
+                    taxStructure: item.item.taxStructure || '',
+                    quantity: item.quantity.toString(),
+                    rate: item.rate.toString(),
+                    value: (item.quantity * item.rate).toFixed(2),
+                    discountPercent: '0',
+                    discountAmount: '0.00'
+                }));
+                
+                setAddedItems(formattedItems);
+            }
+        } catch (e) {
+            console.error("Error loading receipt:", e);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const getVendors = async () => {
         try {
@@ -70,13 +118,6 @@ const Receipt = () => {
             const response = await fetchAllVendors();
             if (response.status === 200) {
                 setVendors(response.data);
-                // Set default vendor if available
-                if (response.data.length > 0) {
-                    setPrimaryInfo(prev => ({
-                        ...prev,
-                        vendor: response.data[0].id.toString()
-                    }));
-                }
             }
         } catch (e) {
             console.error("Error fetching vendors:", e);
@@ -106,7 +147,6 @@ const Receipt = () => {
         setNewItem(prev => {
             const updatedItem = { ...prev, [name]: value };
 
-            // If item is changed, update related fields
             if (name === 'itemId') {
                 const selectedItem = items.find(i => i.id.toString() === value);
                 if (selectedItem) {
@@ -169,7 +209,6 @@ const Receipt = () => {
         setAddedItems([...addedItems, itemToAdd]);
         setNewItem(initialNewItemState);
 
-        // Reset refs
         if (quantityRef.current) quantityRef.current.value = "";
         if (rateRef.current) rateRef.current.value = "";
     };
@@ -182,7 +221,7 @@ const Receipt = () => {
     const handleCloseForm = () => setShowForm(false);
 
     const handleItemAdded = async () => {
-        await getItems(); // Refresh items list
+        await getItems();
         handleCloseForm();
     };
 
@@ -195,7 +234,6 @@ const Receipt = () => {
     const handleSubmitReceipt = async (e) => {
         e.preventDefault();
 
-        // Validate form
         if (addedItems.length === 0) {
             alert("Please add at least one item");
             return;
@@ -206,8 +244,8 @@ const Receipt = () => {
             return;
         }
 
-        // Prepare the data in the format expected by the backend
         const receiptData = {
+            id: id, // Include the receipt ID for update
             receiptDate: new Date(primaryInfo.receiptDateAD).toISOString(),
             billNo: primaryInfo.billNo,
             vendorId: primaryInfo.vendor,
@@ -217,78 +255,56 @@ const Receipt = () => {
                 rate: parseFloat(item.rate)
             }))
         };
-        console.log(receiptData);
 
         try {
-            // Show loading state
             setIsLoading(true);
+            const response = await updateReceipt(receiptData);
 
-            // Call the API to save the receipt
-            const response = await createReceipt(receiptData);
-
-            // Handle success
             if (response.data) {
-                alert("Receipt saved successfully!");
-                console.log("Receipt created:", response.data);
-
-                // Reset form
-                setPrimaryInfo(initialPrimaryInfo);
-                setAddedItems([]);
-
-                // Optional: Redirect or refresh receipt list
-                // history.push('/receipts');
+                alert("Receipt updated successfully!");
+                navigate('/receipt-list');
             } else {
                 throw new Error("No data received from server");
             }
         } catch (error) {
-            console.error("Error saving receipt:", error);
-
-            // Show detailed error message if available
+            console.error("Error updating receipt:", error);
             const errorMessage = error.response?.data?.message ||
                 error.message ||
-                "Failed to save receipt";
+                "Failed to update receipt";
             alert(`Error: ${errorMessage}`);
         } finally {
-            // Hide loading state
             setIsLoading(false);
         }
     };
+
     const SectionHeader = ({ title, icon }) => (
         <div className="flex items-start gap-4 mb-4">
             <h2 className="text-sm font-semibold text-gray-800">{title}</h2>
             {icon && <span className="text-blue-600 bg-blue-100 rounded-full p-1">{icon}</span>}
         </div>
     );
-    const generateRandom = () => {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '#__';
-
-        for (let i = 0; i < 12; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        setRandomForReceipt(result);
-    }
-    const itemOptions = items.map((i) => ({
-        value: i.id,
-        label: i.name,
-    }));
 
     const handleViewReceipt = () => {
         navigate('/receipt-list');
-        return;
     }
 
+    if (isLoading) {
+        return <div className="bg-gray-100 p-2 sm:p-2 lg:p-4 min-h-screen flex items-center justify-center">
+            <div className="text-center">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="sr-only">Loading...</span>
+                </div>
+                <p>Loading receipt data...</p>
+            </div>
+        </div>;
+    }
 
     return (
         <div className="bg-gray-100 p-2 sm:p-2 lg:p-4 min-h-screen">
-            <div className=" mx-auto">
+            <div className="mx-auto">
                 <div className="flex flex-col px-24 gap-8">
-                     <button onClick={handleViewReceipt} className="my-0 w-64">View Receipt</button>
-                                        <h1 className="text-2xl font-bold text-gray-800">Receipts Inventory</h1>
-                    {/* <SectionHeader title="Receipt Products" icon={<FiPlus size={20} />} /> */}
-                    {/* <SectionHeader title="" icon={<FiEye size={20} className="ml-4 pr-1" onClick={handleViewReceipt} />} /> */}
-                                       
-
+                    <button onClick={handleViewReceipt} className="my-0 w-64">Back to Receipts</button>
+                    <h1 className="text-2xl font-bold text-gray-800">Edit Receipt</h1>
                 </div>
 
                 {showForm && (
@@ -304,7 +320,7 @@ const Receipt = () => {
                             <SectionHeader title="Primary Information" />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                                 <div>
-                                    <label classnName="block text-sm font-medium text-gray-700">Entry Of</label>
+                                    <label className="block text-sm font-medium text-gray-700">Entry Of</label>
                                     <select
                                         name="entryOf"
                                         value={primaryInfo.entryOf}
@@ -317,14 +333,14 @@ const Receipt = () => {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Receipt # <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-medium text-gray-700">Receipt #</label>
                                     <input
                                         type="text"
                                         name="receiptNo"
-                                        value={randomForReceipt}
+                                        value={primaryInfo.receiptNo}
                                         onChange={handlePrimaryChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
-                                        required
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 bg-gray-100"
+                                        readOnly
                                     />
                                 </div>
                                 <div>
@@ -475,7 +491,7 @@ const Receipt = () => {
                 </form>
 
                 {addedItems.length > 0 && (
-                    <div className="!min-h-0 !min-w-0 mx-24 mt-8  shadow-lg rounded-lg overflow-x-auto flex align-center justify-center view-container">
+                    <div className="!min-h-0 !min-w-0 mx-24 mt-8 shadow-lg rounded-lg overflow-x-auto flex align-center justify-center view-container">
                         <table className="">
                             <thead className="">
                                 <tr>
@@ -515,24 +531,25 @@ const Receipt = () => {
                     </div>
                 )}
 
-                <div className="mt-8 flex justify-end gap-4  px-24 ">
+                <div className="mt-8 flex justify-end gap-4 px-24">
                     <button
                         type="button"
                         className="px-6 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700"
                         onClick={() => {
-                            setPrimaryInfo(initialPrimaryInfo);
-                            setAddedItems([]);
+                            if (window.confirm('Are you sure you want to discard changes?')) {
+                                navigate('/receipt-list');
+                            }
                         }}
                     >
                         Cancel
                     </button>
                     <button
                         type="button"
-                        className="px-6 py-2 rounded-md text-white font-semibold"
+                        className="px-6 py-2 rounded-md bg-green-600 text-white font-semibold hover:bg-green-700"
                         onClick={handleSubmitReceipt}
-                        disabled={addedItems.length === 0}
+                        disabled={addedItems.length === 0 || isLoading}
                     >
-                        Save Receipt
+                        {isLoading ? 'Updating...' : 'Update Receipt'}
                     </button>
                 </div>
             </div>
@@ -540,4 +557,4 @@ const Receipt = () => {
     );
 };
 
-export default Receipt;
+export default EditReceipt;

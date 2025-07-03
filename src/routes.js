@@ -21,6 +21,7 @@ import { useState,useEffect } from "react";
 import Receipt from "./components/Receipt/ReceiptForm";
 import ReceiptDetails from "./components/Receipt/ReceiptDetails";
 import ReceiptList from "./components/Receipt/ReceiptsList";
+import EditReceipt from "./components/Receipt/EditReceipt";
 const CustomRouter = (c) => {
 const navigate = useNavigate();
   const [userLoggedinStatus,setUserLoggedinStatus]= useState(false);
@@ -57,6 +58,7 @@ const navigate = useNavigate();
       <Route path="/" element={<Dashboard />} />
       <Route path="/receipt" element={<Receipt />} />
       <Route path="/receipt-details/:id" element={<ReceiptDetails />} />
+      <Route path="/receipt/edit/:id" element={<EditReceipt />} />
       <Route path="/receipt-list" element={<ReceiptList />} />
 
     </Routes>

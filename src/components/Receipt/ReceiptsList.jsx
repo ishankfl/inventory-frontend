@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAllReceipts } from '../../api/receipt';
-import { FiEye, FiPrinter, FiDownload } from 'react-icons/fi';
+import { FiEye, FiPrinter, FiDownload, FiEdit } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-
+import { useNavigate } from 'react-router-dom';
 const ReceiptsList = () => {
     const [receipts, setReceipts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -10,6 +10,7 @@ const ReceiptsList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const receiptsPerPage = 10;
+    const navigate = useNavigate();
 
     useEffect(() => {
         const loadReceipts = async () => {
@@ -50,6 +51,16 @@ const ReceiptsList = () => {
     if (loading) return <div className="text-center py-8">Loading receipts...</div>;
     if (error) return <div className="text-center py-8 text-red-500">Error: {error}</div>;
 
+    const handleAddReceipt = () => {
+        navigate('/receipt');
+        return;
+    }
+
+    const handleEditReceipt = (id) => {
+        navigate(`/receipt/edit/${id}`);
+        return;
+    }
+
     return (
         <div className="main-container-box !pt-[0px]  mt-[-50px]">
             
@@ -67,6 +78,7 @@ const ReceiptsList = () => {
                             {receipts.reduce((sum, receipt) => sum + receipt.receiptDetails.length, 0)}
                         </p>
                     </div>
+
                     <div className="bg-purple-50 p-4 rounded-lg">
                         <h3 className="text-sm font-medium text-purple-800">Total Amount</h3>
                         <p className="mt-1 text-2xl font-semibold text-purple-600">
@@ -79,8 +91,10 @@ const ReceiptsList = () => {
                     </div>
                 </div>
                 <br></br>
+                        <button onClick={handleAddReceipt}>Add Receipt</button>
                 <div className=" flex justify-between items-center ">
                     <h1 className="text-2xl font-bold text-gray-800">Receipts Inventory</h1>
+
                     <div className="relative">
                         <input
                             type="text"
@@ -184,12 +198,19 @@ const ReceiptsList = () => {
                                                     <button className="text-gray-600 hover:text-gray-900">
                                                         <FiPrinter className="h-5 w-5" />
                                                     </button>
-                                                    <button className="text-green-600 hover:text-green-900">
+                                                    <button className="text-white-600 hover:text-green-900">
                                                         <FiDownload className="h-5 w-5" />
+                                                    </button>
+                                                      <button className="text-red-600 hover:text-green-900" onClick={() => handleEditReceipt(receipt.id)}>
+                                                        <FiEdit className="h-5 w-5" />
                                                     </button>
                                                 </div>
                                             </td>
+                                            <td>
+                                                edit
+                                            </td>
                                         </tr>
+
                                     );
                                 })
                             ) : (

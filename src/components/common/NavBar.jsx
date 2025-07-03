@@ -51,7 +51,7 @@ const Navbar = () => {
               <div className="flex flex-col items-center group">
                 <button
                   className="nav-item flex items-center gap-2 transition duration-300 ease-in-out hover:scale-102"
-                  onClick={() => handleNavigate('/view-products')}
+                  onClick={() => handleNavigate('/receipt')}
                 >
                   <FaBox /> ReceiptProduct
                 </button>
