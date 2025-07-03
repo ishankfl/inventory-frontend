@@ -33,10 +33,10 @@ const ReceiptsList = () => {
         loadReceipts();
     }, []);
 
-    const filteredReceipts = receipts.filter(receipt => 
+    const filteredReceipts = receipts.filter(receipt =>
         receipt.billNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         receipt.vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        receipt.receiptDetails.some(item => 
+        receipt.receiptDetails.some(item =>
             item.item.name.toLowerCase().includes(searchTerm.toLowerCase())
         )
     );
@@ -63,23 +63,23 @@ const ReceiptsList = () => {
 
     return (
         <div className="main-container-box !pt-[0px]  mt-[-50px]">
-            
+
             <div className="view-container overflow-x-auto transition-all duration-300 ">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                        <h3 className="text-sm font-medium text-blue-800">Total Receipts</h3>
+                    <div className="bg-blue-100 p-4 rounded-lg">
+                        <h3 className="text-sm font-medium text-blue-700">Total Receipts</h3>
                         <p className="mt-1 text-2xl font-semibold text-blue-600">
                             {receipts.length}
                         </p>
                     </div>
-                    <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="bg-green-100 p-4 rounded-lg">
                         <h3 className="text-sm font-medium text-green-800">Total Items Purchased</h3>
                         <p className="mt-1 text-2xl font-semibold text-green-600">
                             {receipts.reduce((sum, receipt) => sum + receipt.receiptDetails.length, 0)}
                         </p>
                     </div>
 
-                    <div className="bg-purple-50 p-4 rounded-lg">
+                    <div className="bg-purple-100 p-4 rounded-lg">
                         <h3 className="text-sm font-medium text-purple-800">Total Amount</h3>
                         <p className="mt-1 text-2xl font-semibold text-purple-600">
                             Rs. {receipts.reduce(
@@ -91,7 +91,7 @@ const ReceiptsList = () => {
                     </div>
                 </div>
                 <br></br>
-                        <button onClick={handleAddReceipt}>Add Receipt</button>
+                <button onClick={handleAddReceipt}>Add Receipt</button>
                 <div className=" flex justify-between items-center ">
                     <h1 className="text-2xl font-bold text-gray-800">Receipts Inventory</h1>
 
@@ -113,7 +113,7 @@ const ReceiptsList = () => {
                             <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                    strokeWidth={2}
+                                strokeWidth={2}
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                             />
                         </svg>
@@ -146,7 +146,7 @@ const ReceiptsList = () => {
                                     const totalAmount = receipt.receiptDetails.reduce(
                                         (sum, item) => sum + (item.quantity * item.rate), 0
                                     );
-                                    
+
                                     return (
                                         <tr key={receipt.id}>
                                             <td className="">
@@ -189,24 +189,28 @@ const ReceiptsList = () => {
                                             </td>
                                             <td className="">
                                                 <div className="flex space-x-2">
-                                                    <Link
-                                                        to={`/receipt-details/${receipt.id}`}
-                                                        className="text-blue-600 hover:text-blue-900"
-                                                    >
-                                                        <FiEye className="h-5 w-5" />
-                                                    </Link>
                                                     <button className="text-gray-600 hover:text-gray-900">
+
+                                                        <Link
+                                                            to={`/receipt-details/${receipt.id}`}
+                                                            className="text-blue-600 hover:text-blue-900"
+                                                        >
+                                                            <FiEye className="h-5 w-5" />
+                                                        </Link>
+                                                    </button>
+
+                                                    {/* <button className="text-gray-600 hover:text-gray-900">
                                                         <FiPrinter className="h-5 w-5" />
                                                     </button>
                                                     <button className="text-white-600 hover:text-green-900">
                                                         <FiDownload className="h-5 w-5" />
-                                                    </button>
-                                                      <button className="text-red-600 hover:text-green-900" onClick={() => handleEditReceipt(receipt.id)}>
+                                                    </button> */}
+                                                    <button className="text-red-600 hover:text-green-900" onClick={() => handleEditReceipt(receipt.id)}>
                                                         <FiEdit className="h-5 w-5" />
                                                     </button>
                                                 </div>
                                             </td>
-                                    
+
                                         </tr>
 
                                     );
@@ -237,11 +241,10 @@ const ReceiptsList = () => {
                                 <button
                                     key={number}
                                     onClick={() => paginate(number)}
-                                    className={`px-3 py-1 border-t border-b border-gray-300 bg-white text-sm font-medium ${
-                                        currentPage === number
+                                    className={`px-3 py-1 border-t border-b border-gray-300 bg-white text-sm font-medium ${currentPage === number
                                             ? 'text-blue-600 bg-blue-50'
                                             : 'text-gray-700 hover:bg-gray-50'
-                                    }`}
+                                        }`}
                                 >
                                     {number}
                                 </button>
@@ -258,7 +261,7 @@ const ReceiptsList = () => {
                 )}
 
                 {/* Summary Cards */}
-                
+
             </div>
         </div>
     );

@@ -32,7 +32,7 @@ const Navbar = () => {
 
   return (
     <div className="main-nav flex items-center justify-center fixed w-full z-[100]">
-      <div className="navbar flex justify-between items-center rounded-sm shadow-md relative w-full py-4 px-16 text-white bg-primary z-[10000]">
+      <div className="navbar flex justify-between items-top rounded-sm shadow-md relative w-full pt-8 py-4 px-16 text-white bg-primary z-[10000]">
         <div className="nav-logo text-[1.5rem] font-bold">Welcome to IMS</div>
 
         <div className="hidden md:flex items-center relative gap-12">
