@@ -293,51 +293,7 @@ const EditReceipt = () => {
         }, 0).toFixed(2);
     };
 
-    // const handleSubmitReceipt = async (e) => {
-    //     e.preventDefault();
-
-    //     if (addedItems.length === 0) {
-    //         alert("Please add at least one item");
-    //         return;
-    //     }
-
-    //     if (!primaryInfo.vendor) {
-    //         alert("Please select a vendor");
-    //         return;
-    //     }
-
-    //     const receiptData = {
-    //         id: id, // Include the receipt ID for update
-    //         receiptDate: new Date(primaryInfo.receiptDateAD).toISOString(),
-    //         billNo: primaryInfo.billNo,
-    //         vendorId: primaryInfo.vendor,
-    //         receiptDetails: addedItems.map(item => ({
-    //             itemId: item.itemId,
-    //             quantity: parseFloat(item.quantity),
-    //             rate: parseFloat(item.rate)
-    //         }))
-    //     };
-
-    //     try {
-    //         setIsLoading(true);
-    //         const response = await updateReceipt(receiptData);
-
-    //         if (response.data) {
-    //             alert("Receipt updated successfully!");
-    //             navigate('/receipt-list');
-    //         } else {
-    //             throw new Error("No data received from server");
-    //         }
-    //     } catch (error) {
-    //         console.error("Error updating receipt:", error);
-    //         const errorMessage = error.response?.data?.message ||
-    //             error.message ||
-    //             "Failed to update receipt";
-    //         alert(`Error: ${errorMessage}`);
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // };
+   
 
     const SectionHeader = ({ title, icon }) => (
         <div className="flex items-start gap-4 mb-4">
