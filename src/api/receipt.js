@@ -45,8 +45,14 @@ export const createReceipt = async (receiptData) => {
 }
 
 export const updateReceipt = async (id, receiptData) => {
-    return await axios.put(`${server}/api/Receipts/${id}`, receiptData);
+    console.log("Updating receipt with ID:", id, "and data:", receiptData);
+    return await axios.put(`${server}/api/Receipts/${id}`, receiptData, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
 }
+
 
 export const deleteReceipt = async (id) => {
     return await axios.delete(`${server}/api/Receipts/${id}`);

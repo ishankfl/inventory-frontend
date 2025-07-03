@@ -74,11 +74,11 @@ const EditReceipt = () => {
             const response = await fetchReceiptById(id);
             if (response.data) {
                 const receipt = response.data;
-                
+
                 // Format date to YYYY-MM-DD for date input
                 const receiptDate = new Date(receipt.receiptDate);
                 const formattedDate = receiptDate.toISOString().split('T')[0];
-                
+
                 setPrimaryInfo({
                     entryOf: 'PURCHASE',
                     stockFlowTo: 'STORE',
@@ -110,7 +110,7 @@ const EditReceipt = () => {
                     discountPercent: '0',
                     discountAmount: '0.00'
                 }));
-                
+
                 setAddedItems(formattedItems);
             }
         } catch (e) {
@@ -121,7 +121,6 @@ const EditReceipt = () => {
     };
 
     // ... (other functions remain mostly the same, but update handleSubmitReceipt)
-
     const handleSubmitReceipt = async (e) => {
         e.preventDefault();
 
@@ -141,7 +140,7 @@ const EditReceipt = () => {
             billNo: primaryInfo.billNo,
             vendorId: primaryInfo.vendor,
             receiptDetails: addedItems.map(item => ({
-                id: item.id || undefined, // Include ID for existing items, undefined for new
+                id: item.id || undefined,
                 itemId: item.itemId,
                 quantity: parseFloat(item.quantity),
                 rate: parseFloat(item.rate)
@@ -150,7 +149,8 @@ const EditReceipt = () => {
 
         try {
             setIsLoading(true);
-            const response = await updateReceipt(receiptData);
+
+            const response = await updateReceipt(receiptData.id, receiptData);
 
             if (response.data) {
                 alert("Receipt updated successfully!");
@@ -172,7 +172,7 @@ const EditReceipt = () => {
         loadReceiptData();
     }, [id]);
 
-   
+
 
     const getVendors = async () => {
         try {
@@ -293,7 +293,7 @@ const EditReceipt = () => {
         }, 0).toFixed(2);
     };
 
-   
+
 
     const SectionHeader = ({ title, icon }) => (
         <div className="flex items-start gap-4 mb-4">
