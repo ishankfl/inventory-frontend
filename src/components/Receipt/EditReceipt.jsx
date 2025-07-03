@@ -1,8 +1,16 @@
-import { FiEye, FiPlus } from "react-icons/fi";
-import { fetchAllVendors, fetchAllItems, fetchReceiptById, updateReceipt } from '../../api/receipt';
+// import { FiEye, FiPlus } from "react-icons/fi";
+// import { fetchAllVendors, fetchAllItems, fetchReceiptById, updateReceipt } from '../../api/receipt';
+// import { useEffect, useState, useRef } from 'react';
+// import AddItemForm from './AddItemForm';
+// import { useNavigate, useParams } from "react-router-dom";
+
+
 import { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { fetchAllVendors, fetchAllItems, fetchReceiptById, updateReceipt } from '../../api/receipt';
 import AddItemForm from './AddItemForm';
-import { useNavigate, useParams } from "react-router-dom";
+import { FiPlus } from 'react-icons/fi';
+
 
 const PlusIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -18,24 +26,25 @@ const TrashIcon = () => (
 
 const EditReceipt = () => {
     const { id } = useParams();
+    //   const { id } = useParams();
+    const navigate = useNavigate();
     const [vendors, setVendors] = useState([]);
     const [items, setItems] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const quantityRef = useRef(null);
     const rateRef = useRef(null);
-    const navigate = useNavigate();
 
     const initialPrimaryInfo = {
         entryOf: 'PURCHASE',
         stockFlowTo: 'STORE',
         receiptNo: '',
-        receiptDateAD: new Date().toLocaleDateString('en-GB'),
+        receiptDateAD: '',
         receiptDateBS: '',
         fiscalYear: '2081-2082',
         purchaseType: 'CREDIT',
         billNo: '',
-        billDateAD: new Date().toLocaleDateString('en-GB'),
+        billDateAD: '',
         billDateBS: '',
         vendor: '',
     };
@@ -68,34 +77,38 @@ const EditReceipt = () => {
         try {
             setIsLoading(true);
             const response = await fetchReceiptById(id);
-            if (response.status === 200) {
+            if (response.data) {
                 const receipt = response.data;
                 
-                // Set primary info
+                // Format date to YYYY-MM-DD for date input
+                const receiptDate = new Date(receipt.receiptDate);
+                const formattedDate = receiptDate.toISOString().split('T')[0];
+                
                 setPrimaryInfo({
                     entryOf: 'PURCHASE',
                     stockFlowTo: 'STORE',
-                    receiptNo: receipt.receiptNo,
-                    receiptDateAD: new Date(receipt.receiptDate).toLocaleDateString('en-GB'),
-                    receiptDateBS: receipt.receiptDateBS || '',
-                    fiscalYear: receipt.fiscalYear || '2081-2082',
-                    purchaseType: receipt.purchaseType || 'CREDIT',
+                    receiptNo: receipt.id, // Using the receipt ID as receipt number
+                    receiptDateAD: formattedDate,
+                    receiptDateBS: '',
+                    fiscalYear: '2081-2082',
+                    purchaseType: 'CREDIT',
                     billNo: receipt.billNo,
-                    billDateAD: receipt.billDateAD || new Date().toLocaleDateString('en-GB'),
-                    billDateBS: receipt.billDateBS || '',
-                    vendor: receipt.vendor.id.toString(),
+                    billDateAD: formattedDate,
+                    billDateBS: '',
+                    vendor: receipt.vendorId,
                 });
 
-                // Set items
+                // Transform receipt details for the form
                 const formattedItems = receipt.receiptDetails.map(item => ({
-                    tempId: Date.now() + Math.random(),
-                    itemId: item.item.id.toString(),
-                    itemName: item.item.name,
+                    tempId: `${item.id}-${Date.now()}`, // Unique key for each item
+                    id: item.id, // Keep original ID for updates
+                    itemId: item.itemId,
+                    itemName: item.item?.name || 'Unknown Item',
                     currency: 'NPR',
-                    itemGroup: item.item.itemGroup || '',
-                    uom: item.item.uom || '',
+                    itemGroup: '',
+                    uom: item.item?.unit || '',
                     isComplimentary: 'NO',
-                    taxStructure: item.item.taxStructure || '',
+                    taxStructure: '',
                     quantity: item.quantity.toString(),
                     rate: item.rate.toString(),
                     value: (item.quantity * item.rate).toFixed(2),
@@ -111,6 +124,145 @@ const EditReceipt = () => {
             setIsLoading(false);
         }
     };
+
+    // ... (other functions remain mostly the same, but update handleSubmitReceipt)
+
+    const handleSubmitReceipt = async (e) => {
+        e.preventDefault();
+
+        if (addedItems.length === 0) {
+            alert("Please add at least one item");
+            return;
+        }
+
+        if (!primaryInfo.vendor) {
+            alert("Please select a vendor");
+            return;
+        }
+
+        const receiptData = {
+            id: id,
+            receiptDate: new Date(primaryInfo.receiptDateAD).toISOString(),
+            billNo: primaryInfo.billNo,
+            vendorId: primaryInfo.vendor,
+            receiptDetails: addedItems.map(item => ({
+                id: item.id || undefined, // Include ID for existing items, undefined for new
+                itemId: item.itemId,
+                quantity: parseFloat(item.quantity),
+                rate: parseFloat(item.rate)
+            }))
+        };
+
+        try {
+            setIsLoading(true);
+            const response = await updateReceipt(receiptData);
+
+            if (response.data) {
+                alert("Receipt updated successfully!");
+                navigate('/receipt-list');
+            }
+        } catch (error) {
+            console.error("Error updating receipt:", error);
+            alert(`Error: ${error.response?.data?.message || error.message}`);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // const [vendors, setVendors] = useState([]);
+    // const [items, setItems] = useState([]);
+    // const [showForm, setShowForm] = useState(false);
+    // const [isLoading, setIsLoading] = useState(false);
+    // const quantityRef = useRef(null);
+    // const rateRef = useRef(null);
+    // const navigate = useNavigate();
+
+    // const initialPrimaryInfo = {
+    //     entryOf: 'PURCHASE',
+    //     stockFlowTo: 'STORE',
+    //     receiptNo: '',
+    //     receiptDateAD: new Date().toLocaleDateString('en-GB'),
+    //     receiptDateBS: '',
+    //     fiscalYear: '2081-2082',
+    //     purchaseType: 'CREDIT',
+    //     billNo: '',
+    //     billDateAD: new Date().toLocaleDateString('en-GB'),
+    //     billDateBS: '',
+    //     vendor: '',
+    // };
+
+    // const initialNewItemState = {
+    //     currency: 'NPR',
+    //     itemId: '',
+    //     itemGroup: '',
+    //     uom: '',
+    //     isComplimentary: 'NO',
+    //     taxStructure: '',
+    //     quantity: '',
+    //     rate: '',
+    //     value: '',
+    //     discountPercent: '',
+    //     discountAmount: '0.00',
+    // };
+
+    // const [primaryInfo, setPrimaryInfo] = useState(initialPrimaryInfo);
+    // const [newItem, setNewItem] = useState(initialNewItemState);
+    // const [addedItems, setAddedItems] = useState([]);
+
+    useEffect(() => {
+        getVendors();
+        getItems();
+        loadReceiptData();
+    }, [id]);
+
+    // const loadReceiptData = async () => {
+    //     try {
+    //         setIsLoading(true);
+    //         const response = await fetchReceiptById(id);
+    //         console.log("Receipt data:", response.data);
+    //         if (response.status === 200) {
+    //             const receipt = response.data;
+                
+    //             // Set primary info
+    //             setPrimaryInfo({
+    //                 entryOf: 'PURCHASE',
+    //                 stockFlowTo: 'STORE',
+    //                 receiptNo: receipt.receiptNo,
+    //                 receiptDateAD: new Date(receipt.receiptDate).toLocaleDateString('en-GB'),
+    //                 receiptDateBS: receipt.receiptDateBS || '',
+    //                 fiscalYear: receipt.fiscalYear || '2081-2082',
+    //                 purchaseType: receipt.purchaseType || 'CREDIT',
+    //                 billNo: receipt.billNo,
+    //                 billDateAD: receipt.billDateAD || new Date().toLocaleDateString('en-GB'),
+    //                 billDateBS: receipt.billDateBS || '',
+    //                 vendor: receipt.vendor.id.toString(),
+    //             });
+
+    //             // Set items
+    //             const formattedItems = receipt.receiptDetails.map(item => ({
+    //                 tempId: Date.now() + Math.random(),
+    //                 itemId: item.item.id.toString(),
+    //                 itemName: item.item.name,
+    //                 currency: 'NPR',
+    //                 itemGroup: item.item.itemGroup || '',
+    //                 uom: item.item.uom || '',
+    //                 isComplimentary: 'NO',
+    //                 taxStructure: item.item.taxStructure || '',
+    //                 quantity: item.quantity.toString(),
+    //                 rate: item.rate.toString(),
+    //                 value: (item.quantity * item.rate).toFixed(2),
+    //                 discountPercent: '0',
+    //                 discountAmount: '0.00'
+    //             }));
+                
+    //             setAddedItems(formattedItems);
+    //         }
+    //     } catch (e) {
+    //         console.error("Error loading receipt:", e);
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
 
     const getVendors = async () => {
         try {
@@ -231,51 +383,51 @@ const EditReceipt = () => {
         }, 0).toFixed(2);
     };
 
-    const handleSubmitReceipt = async (e) => {
-        e.preventDefault();
+    // const handleSubmitReceipt = async (e) => {
+    //     e.preventDefault();
 
-        if (addedItems.length === 0) {
-            alert("Please add at least one item");
-            return;
-        }
+    //     if (addedItems.length === 0) {
+    //         alert("Please add at least one item");
+    //         return;
+    //     }
 
-        if (!primaryInfo.vendor) {
-            alert("Please select a vendor");
-            return;
-        }
+    //     if (!primaryInfo.vendor) {
+    //         alert("Please select a vendor");
+    //         return;
+    //     }
 
-        const receiptData = {
-            id: id, // Include the receipt ID for update
-            receiptDate: new Date(primaryInfo.receiptDateAD).toISOString(),
-            billNo: primaryInfo.billNo,
-            vendorId: primaryInfo.vendor,
-            receiptDetails: addedItems.map(item => ({
-                itemId: item.itemId,
-                quantity: parseFloat(item.quantity),
-                rate: parseFloat(item.rate)
-            }))
-        };
+    //     const receiptData = {
+    //         id: id, // Include the receipt ID for update
+    //         receiptDate: new Date(primaryInfo.receiptDateAD).toISOString(),
+    //         billNo: primaryInfo.billNo,
+    //         vendorId: primaryInfo.vendor,
+    //         receiptDetails: addedItems.map(item => ({
+    //             itemId: item.itemId,
+    //             quantity: parseFloat(item.quantity),
+    //             rate: parseFloat(item.rate)
+    //         }))
+    //     };
 
-        try {
-            setIsLoading(true);
-            const response = await updateReceipt(receiptData);
+    //     try {
+    //         setIsLoading(true);
+    //         const response = await updateReceipt(receiptData);
 
-            if (response.data) {
-                alert("Receipt updated successfully!");
-                navigate('/receipt-list');
-            } else {
-                throw new Error("No data received from server");
-            }
-        } catch (error) {
-            console.error("Error updating receipt:", error);
-            const errorMessage = error.response?.data?.message ||
-                error.message ||
-                "Failed to update receipt";
-            alert(`Error: ${errorMessage}`);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    //         if (response.data) {
+    //             alert("Receipt updated successfully!");
+    //             navigate('/receipt-list');
+    //         } else {
+    //             throw new Error("No data received from server");
+    //         }
+    //     } catch (error) {
+    //         console.error("Error updating receipt:", error);
+    //         const errorMessage = error.response?.data?.message ||
+    //             error.message ||
+    //             "Failed to update receipt";
+    //         alert(`Error: ${errorMessage}`);
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
 
     const SectionHeader = ({ title, icon }) => (
         <div className="flex items-start gap-4 mb-4">
