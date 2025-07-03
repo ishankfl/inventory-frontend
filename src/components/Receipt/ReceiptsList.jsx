@@ -206,9 +206,7 @@ const ReceiptsList = () => {
                                                     </button>
                                                 </div>
                                             </td>
-                                            <td>
-                                                edit
-                                            </td>
+                                    
                                         </tr>
 
                                     );

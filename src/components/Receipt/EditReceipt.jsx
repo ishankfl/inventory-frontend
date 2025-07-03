@@ -147,6 +147,7 @@ const EditReceipt = () => {
             }))
         };
 
+        console.log("Submitting receipt data update :", receiptData);
         try {
             setIsLoading(true);
 
