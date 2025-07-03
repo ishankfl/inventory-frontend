@@ -1,15 +1,10 @@
-// import { FiEye, FiPlus } from "react-icons/fi";
-// import { fetchAllVendors, fetchAllItems, fetchReceiptById, updateReceipt } from '../../api/receipt';
-// import { useEffect, useState, useRef } from 'react';
-// import AddItemForm from './AddItemForm';
-// import { useNavigate, useParams } from "react-router-dom";
+
 
 
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAllVendors, fetchAllItems, fetchReceiptById, updateReceipt } from '../../api/receipt';
 import AddItemForm from './AddItemForm';
-import { FiPlus } from 'react-icons/fi';
 
 
 const PlusIcon = () => (
@@ -169,45 +164,7 @@ const EditReceipt = () => {
         }
     };
 
-    // const [vendors, setVendors] = useState([]);
-    // const [items, setItems] = useState([]);
-    // const [showForm, setShowForm] = useState(false);
-    // const [isLoading, setIsLoading] = useState(false);
-    // const quantityRef = useRef(null);
-    // const rateRef = useRef(null);
-    // const navigate = useNavigate();
 
-    // const initialPrimaryInfo = {
-    //     entryOf: 'PURCHASE',
-    //     stockFlowTo: 'STORE',
-    //     receiptNo: '',
-    //     receiptDateAD: new Date().toLocaleDateString('en-GB'),
-    //     receiptDateBS: '',
-    //     fiscalYear: '2081-2082',
-    //     purchaseType: 'CREDIT',
-    //     billNo: '',
-    //     billDateAD: new Date().toLocaleDateString('en-GB'),
-    //     billDateBS: '',
-    //     vendor: '',
-    // };
-
-    // const initialNewItemState = {
-    //     currency: 'NPR',
-    //     itemId: '',
-    //     itemGroup: '',
-    //     uom: '',
-    //     isComplimentary: 'NO',
-    //     taxStructure: '',
-    //     quantity: '',
-    //     rate: '',
-    //     value: '',
-    //     discountPercent: '',
-    //     discountAmount: '0.00',
-    // };
-
-    // const [primaryInfo, setPrimaryInfo] = useState(initialPrimaryInfo);
-    // const [newItem, setNewItem] = useState(initialNewItemState);
-    // const [addedItems, setAddedItems] = useState([]);
 
     useEffect(() => {
         getVendors();
@@ -215,54 +172,7 @@ const EditReceipt = () => {
         loadReceiptData();
     }, [id]);
 
-    // const loadReceiptData = async () => {
-    //     try {
-    //         setIsLoading(true);
-    //         const response = await fetchReceiptById(id);
-    //         console.log("Receipt data:", response.data);
-    //         if (response.status === 200) {
-    //             const receipt = response.data;
-                
-    //             // Set primary info
-    //             setPrimaryInfo({
-    //                 entryOf: 'PURCHASE',
-    //                 stockFlowTo: 'STORE',
-    //                 receiptNo: receipt.receiptNo,
-    //                 receiptDateAD: new Date(receipt.receiptDate).toLocaleDateString('en-GB'),
-    //                 receiptDateBS: receipt.receiptDateBS || '',
-    //                 fiscalYear: receipt.fiscalYear || '2081-2082',
-    //                 purchaseType: receipt.purchaseType || 'CREDIT',
-    //                 billNo: receipt.billNo,
-    //                 billDateAD: receipt.billDateAD || new Date().toLocaleDateString('en-GB'),
-    //                 billDateBS: receipt.billDateBS || '',
-    //                 vendor: receipt.vendor.id.toString(),
-    //             });
-
-    //             // Set items
-    //             const formattedItems = receipt.receiptDetails.map(item => ({
-    //                 tempId: Date.now() + Math.random(),
-    //                 itemId: item.item.id.toString(),
-    //                 itemName: item.item.name,
-    //                 currency: 'NPR',
-    //                 itemGroup: item.item.itemGroup || '',
-    //                 uom: item.item.uom || '',
-    //                 isComplimentary: 'NO',
-    //                 taxStructure: item.item.taxStructure || '',
-    //                 quantity: item.quantity.toString(),
-    //                 rate: item.rate.toString(),
-    //                 value: (item.quantity * item.rate).toFixed(2),
-    //                 discountPercent: '0',
-    //                 discountAmount: '0.00'
-    //             }));
-                
-    //             setAddedItems(formattedItems);
-    //         }
-    //     } catch (e) {
-    //         console.error("Error loading receipt:", e);
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // };
+   
 
     const getVendors = async () => {
         try {
