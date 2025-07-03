@@ -18,7 +18,7 @@ import AddDepartment from "./components/departments/AddDepartment";
 import { useNavigate } from "react-router-dom";
 import { isLoggedIn } from './utils/tokenutils';
 import { useState,useEffect } from "react";
-import Receipt from "./components/Receipt/Receipt";
+import Receipt from "./components/Receipt/ReceiptForm";
 import ReceiptDetails from "./components/Receipt/ReceiptDetails";
 import ReceiptList from "./components/Receipt/ReceiptsList";
 const CustomRouter = (c) => {

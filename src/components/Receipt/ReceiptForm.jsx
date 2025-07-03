@@ -3,7 +3,7 @@ import { fetchAllVendors, fetchAllItems } from '../../api/receipt';
 import { useEffect, useState, useRef } from 'react';
 import AddItemForm from './AddItemForm';
 import { createReceipt } from '../../api/receipt';
-
+import { useNavigate } from "react-router-dom";
 const PlusIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -24,6 +24,7 @@ const Receipt = () => {
     const quantityRef = useRef(null);
     const rateRef = useRef(null);
     const [randomForReceipt, setRandomForReceipt] = useState();
+    const navigate = useNavigate();
 
     const initialPrimaryInfo = {
         entryOf: 'PURCHASE',
@@ -272,6 +273,10 @@ const Receipt = () => {
         label: i.name,
     }));
 
+    const handleViewReceipt = () => {
+        navigate('/receipt-list');
+        return;
+    }
 
 
     return (
@@ -279,7 +284,7 @@ const Receipt = () => {
             <div className="max-w-screen-lg mx-auto">
                 <div className="header flex gap-12">
                     <SectionHeader title="Receipt Products" icon={<FiPlus size={20} />} />
-                    <SectionHeader title="" icon={<FiEye size={20} className="ml-4 pr-1" />} />
+                    <SectionHeader title="" icon={<FiEye size={20} className="ml-4 pr-1" onClick={handleViewReceipt} />} />
                 </div>
 
                 {showForm && (
