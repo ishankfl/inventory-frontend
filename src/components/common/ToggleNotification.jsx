@@ -37,7 +37,7 @@ const ToastNotification = ({
           clearInterval(timer);
           startFadeOut();
         }
-      }, 50);
+      }, 4000);
     }
     return () => clearInterval(timer);
   }, [isVisible, duration]);
