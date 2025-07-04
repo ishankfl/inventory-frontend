@@ -25,7 +25,7 @@ add-btn .input-text {
 }
 
 .container {
-  @apply w-[500px] mx-auto my-[50px] p-[30px] border border-gray-300 rounded-lg shadow-md absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2;
+  @apply bg-gray-100 w-[500px] mx-auto my-[50px] p-[30px] border border-gray-300 rounded-lg shadow-md absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2;
 }
 
 h2 {

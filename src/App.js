@@ -12,7 +12,7 @@ function App() {
   return (
     <BrowserRouter >
       <Navbar/>
-      <div className='main-container bg-gray-100  pt-[180px] px-6 no-scrollbar'>
+      <div className='min-h-[100vh] main-container bg-gray-100  pt-[180px] px-6 no-scrollbar'>
           <CustomRouter/>
       {isUserLoggedin?  (<CurrentActivityBox/>):(<div></div>) }
     

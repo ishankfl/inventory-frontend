@@ -4,6 +4,7 @@ import { authHeader } from '../utils/tokenutils.js'; // Import authHeader
 
 //  Login (no token required)
 export const loginApi = (email, password) => {
+  console.log(email,password)
   return axios.post(`${server}/api/Users/Login`, {
     email,
     password

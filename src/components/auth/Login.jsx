@@ -1,69 +1,100 @@
 import React, { useState } from 'react';
-import '../../styles/form.scss'
+import '../../styles/form.scss';
 import { loginApi } from '../../api/user';
-import userEvent from '@testing-library/user-event';
 import { setToken } from '../../utils/tokenutils';
 import { useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
+
+const schema = Yup.object().shape({
+  email: Yup.string().email('Invalid email').required('Email is required'),
+  password: Yup.string().required('Password is required'),
+});
+
 const Login = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error,setError] = useState('')
+  const [values, setValues] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setErrors((prev) => ({
+      ...prev,
+      [name]: '',
+    }));
+    setSubmitError('');
+  };
+
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await loginApi(email, password);
-    if (response.status === 200) {
-      console.log(response);
-      setToken(response.data.token)
-      console.log("Login successful");
-      window.location='/'
-      return;
+    e.preventDefault();
+    setSubmitError('');
+    setIsSubmitting(true);
 
-    } else {
-      console.log("Something went wrong");
+    try {
+      await schema.validate(values, { abortEarly: false });
+      const response = await loginApi(values.email, values.password);
+      if (response.status === 200) {
+        setToken(response.data.token);
+        navigate('/');
+      } else {
+        setSubmitError('Login failed. Please try again.');
+      }
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+        const newErrors = {};
+        err.inner.forEach((error) => {
+          newErrors[error.path] = error.message;
+        });
+        setErrors(newErrors);
+      } else {
+        setSubmitError('Invalid email or password.');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
-  } catch (error) {
-    if (error.response && error.response.status === 401) {
-      console.log("Invalid email or password.");
-      setError('Invalid email or password.');
-    } else {
-        
-      setError('An unexpected error occurred');
-
-      console.log("An unexpected error occurred:", error.message);
-    }
-  }
-};
-
+  };
 
   return (
-    <div className="container">
-      <h2>Login</h2>
+    <div className="!bg-white container ">
       <form onSubmit={handleSubmit}>
-                <div>
-          <label className='error-msg'>{error}</label>
-       
-        </div>
-        <div>
-          <label>Email:</label>
+        <h2>Login</h2>
+
+        {submitError && <div className="error-msg">{submitError}</div>}
+
+        <div className="field-group">
+          <label htmlFor="email">Email:</label>
           <input
+            id="email"
+            name="email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            value={values.email}
+            onChange={handleChange}
+            className={errors.email ? 'error' : ''}
           />
+          {errors.email && <p className="error-msg">{errors.email}</p>}
         </div>
-        <div>
-          <label>Password:</label>
+
+        <div className="field-group">
+          <label htmlFor="password">Password:</label>
           <input
+            id="password"
+            name="password"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+            value={values.password}
+            onChange={handleChange}
+            className={errors.password ? 'error' : ''}
           />
+          {errors.password && <p className="error-msg">{errors.password}</p>}
         </div>
-        <button type="submit">Login</button>
+<br></br>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Logging in...' : 'Login'}
+        </button>
       </form>
     </div>
   );
