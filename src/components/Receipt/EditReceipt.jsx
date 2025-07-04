@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAllVendors, fetchAllItems, fetchReceiptById, updateReceipt } from '../../api/receipt';
 import AddItemForm from './AddItemForm';
+import AddedItems from './AddedItems';
 
 
 const PlusIcon = () => (
@@ -508,7 +509,8 @@ const EditReceipt = () => {
                         </div>
                     </div>
                 </form>
-
+                 <AddedItems addedItems={addedItems} handleRemoveItem={handleRemoveItem} calculateTotal={calculateTotal}/>
+{/* 
                 {addedItems.length > 0 && (
                     <div className="!min-h-0 !min-w-0 mx-24 mt-8 shadow-lg rounded-lg overflow-x-auto flex align-center justify-center view-container">
                         <table className="">
@@ -548,7 +550,7 @@ const EditReceipt = () => {
                             </tfoot>
                         </table>
                     </div>
-                )}
+                )} */}
 
                 <div className="mt-8 flex justify-end gap-4 px-24">
                     <button
