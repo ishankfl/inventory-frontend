@@ -224,11 +224,9 @@ const IssueReceipt = () => {
       <h1 className="text-2xl font-bold mb-6">Create Issue</h1>
       
       <form onSubmit={handleSubmit}>
-        {/* Primary Information Section */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <SectionHeader title="Primary Information" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Issue ID */}
             <div className="form-group">
               <label className="block text-sm font-medium text-gray-700 mb-1">Issue ID</label>
               <input
@@ -241,7 +239,6 @@ const IssueReceipt = () => {
               />
             </div>
             
-            {/* Issue Date */}
             <div className="form-group">
               <label className="block text-sm font-medium text-gray-700 mb-1">Issue Date *</label>
               <input
@@ -259,7 +256,6 @@ const IssueReceipt = () => {
               )}
             </div>
             
-            {/* Invoice Number */}
             <div className="form-group">
               <label className="block text-sm font-medium text-gray-700 mb-1">Invoice Number</label>
               <input
@@ -277,7 +273,6 @@ const IssueReceipt = () => {
               )}
             </div>
             
-            {/* Invoice Date */}
             <div className="form-group">
               <label className="block text-sm font-medium text-gray-700 mb-1">Invoice Date</label>
               <input
@@ -294,7 +289,6 @@ const IssueReceipt = () => {
               )}
             </div>
             
-            {/* Department */}
             <div className="form-group">
               <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
               <select
@@ -316,7 +310,6 @@ const IssueReceipt = () => {
               )}
             </div>
             
-            {/* Delivery Note */}
             <div className="form-group md:col-span-3">
               <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Note</label>
               <textarea
@@ -336,7 +329,6 @@ const IssueReceipt = () => {
           </div>
         </div>
         
-        {/* Item Management Section */}
         <ItemManagementSection 
           items={items} 
           formData={formData}
@@ -349,7 +341,6 @@ const IssueReceipt = () => {
           setShowForm={setShowForm}
         />
         
-        {/* Form Actions */}
         <div className="flex justify-end gap-4">
           <button
             type="button"
@@ -370,7 +361,6 @@ const IssueReceipt = () => {
         </div>
       </form>
       
-      {/* Add Item Modal */}
       {showForm && (
         <AddItemForm
           onClose={() => setShowForm(false)}
