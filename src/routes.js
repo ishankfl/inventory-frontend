@@ -22,6 +22,7 @@ import Receipt from "./components/Receipt/ReceiptForm";
 import ReceiptDetails from "./components/Receipt/ReceiptDetails";
 import ReceiptList from "./components/Receipt/ReceiptsList";
 import EditReceipt from "./components/Receipt/EditReceipt";
+import IssueReceipt from "./components/Receipt/IssueReceipt";
 const CustomRouter = (c) => {
 const navigate = useNavigate();
   const [userLoggedinStatus,setUserLoggedinStatus]= useState(false);
@@ -60,6 +61,7 @@ const navigate = useNavigate();
       <Route path="/receipt-details/:id" element={<ReceiptDetails />} />
       <Route path="/receipt/edit/:id" element={<EditReceipt />} />
       <Route path="/receipt-list" element={<ReceiptList />} />
+      <Route path="/issue-receipt" element={<IssueReceipt />} />
 
     </Routes>
   );
