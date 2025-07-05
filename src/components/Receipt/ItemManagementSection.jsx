@@ -10,7 +10,6 @@ const ItemManagementSection = ({
   rateRef, 
   calculateTotal, 
   errors,
-  setShowForm
 }) => {
   const [newItem, setNewItem] = useState({
     itemId: '',
@@ -112,14 +111,7 @@ const ItemManagementSection = ({
                   </option>
                 ))}
               </select>
-              <button
-                type="button"
-                onClick={() => setShowForm(true)}
-                className="p-2 bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200"
-                title="Add new item"
-              >
-                <FiPlus />
-              </button>
+            
             </div>
           </div>
           

@@ -83,6 +83,7 @@ const IssueReceipt = () => {
     try {
       const response = await fetchAllItems();
       if (response.status === 200) {
+        console.log('Items receiced ',response.data )
         setItems(response.data);
       }
     } catch (e) {
@@ -220,7 +221,7 @@ const IssueReceipt = () => {
   );
 
   return (
-    <div className="view-container mx-auto p-4 max-w-6xl">
+    <div className="view-container mx-auto py-4 px-24 max-w-6xl">
       <h1 className="text-2xl font-bold mb-6">Create Issue</h1>
       
       <form onSubmit={handleSubmit}>
@@ -338,7 +339,6 @@ const IssueReceipt = () => {
           rateRef={rateRef}
           calculateTotal={calculateTotal}
           errors={errors}
-          setShowForm={setShowForm}
         />
         
         <div className="flex justify-end gap-4">
