@@ -106,7 +106,7 @@ const IssueReceipt = () => {
             var total = 0;
             const item = (items.filter(item => item.id == updatedItem.itemId))
             console.log('selected item', item)
-            console.log('item stock ',item);
+            console.log('item stock ' ,item);
             console.log("Total ", total)
 
             if (name === 'itemId') {
