@@ -23,6 +23,7 @@ const Receipt = () => {
     const navigate = useNavigate();
 
     const initialPrimaryInfo = {
+        
         entryOf: 'PURCHASE',
         stockFlowTo: 'STORE',
         receiptNo: '',
@@ -204,6 +205,7 @@ const Receipt = () => {
 
         // Prepare the data in the format expected by the backend
         const receiptData = {
+            receiptId:randomForReceipt,
             receiptDate: new Date(primaryInfo.receiptDateAD).toISOString(),
             billNo: primaryInfo.billNo,
             vendorId: primaryInfo.vendor,
@@ -221,6 +223,7 @@ const Receipt = () => {
 
             // Call the API to save the receipt
             const response = await createReceipt(receiptData);
+            console.log(response.data)
 
             // Handle success
             if (response.data) {
