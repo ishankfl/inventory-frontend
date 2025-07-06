@@ -21,6 +21,7 @@ const Receipt = () => {
     const rateRef = useRef(null);
     const [randomForReceipt, setRandomForReceipt] = useState();
     const navigate = useNavigate();
+    const [selectedItems, setSelectedItems]=useState();
 
     const initialPrimaryInfo = {
         
@@ -86,6 +87,7 @@ const Receipt = () => {
         try {
             setIsLoading(true);
             const response = await fetchAllItems();
+            console.log(response.data)
             if (response.status === 200) setItems(response.data);
         } catch (e) {
             console.error("Error fetching items:", e);
@@ -109,8 +111,10 @@ const Receipt = () => {
                 if (selectedItem) {
                     updatedItem.itemGroup = selectedItem.itemGroup || '';
                     updatedItem.uom = selectedItem.uom || '';
-                    updatedItem.taxStructure = selectedItem.taxStructure || '';
+                    console.log(selectedItem)
+                    setSelectedItems(selectedItem);
                 }
+                
             }
 
             return updatedItem;
@@ -442,6 +446,7 @@ const Receipt = () => {
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
                                         min="0.01"
                                         step="0.01"
+                                        value={selectedItems ? selectedItems.price : 0}
                                         required
                                     />
                                 </div>
@@ -474,47 +479,7 @@ const Receipt = () => {
                     </div>
                  </form> 
                  <AddedItems addedItems={addedItems} handleRemoveItem={handleRemoveItem} calculateTotal={calculateTotal}/>
-* {/*<AddedItems addedItems={addedItems} handleRemoveItem={handleRemoveItem} calculateTotal={calculateTotal}  />
-                {addedItems.length > 0 && (
-                    <div className="!min-h-0 !min-w-0 mx-24 mt-8  shadow-lg rounded-lg overflow-x-auto flex align-center justify-center view-container">
-                        <table className="">
-                            <thead className="">
-                                <tr>
-                                    <th className="">Item Name</th>
-                                    <th className="uppercase">Qty</th>
-                                    <th className="uppercase">Rate</th>
-                                    <th className="uppercase">Value</th>
-                                    <th className="uppercase">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="">
-                                {addedItems.map(item => (
-                                    <tr key={item.tempId} className="max-h-[20px]">
-                                        <td className="p-0 ">{item.itemName || items.find(i => i.id.toString() === item.itemId)?.name}</td>
-                                        <td className="p-0">{item.quantity}</td>
-                                        <td className="p-0">{item.rate}</td>
-                                        <td className="p-0">{item.value}</td>
-                                        <td className="p-0">
-                                            <button
-                                                onClick={() => handleRemoveItem(item.tempId)}
-                                                className="text-red-500 hover:text-red-700 bg-white hover:bg-white"
-                                            >
-                                                <TrashIcon />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                            <tfoot className="bg-gray-50">
-                                <tr>
-                                    <td colSpan="4" className="px-4 py-3 text-right text-sm font-medium text-gray-700">Total</td>
-                                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{calculateTotal()}</td>
-                                    <td></td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                )} */}
+
 
                 <div className="mt-8 flex justify-end gap-4  px-24 ">
                     <button
