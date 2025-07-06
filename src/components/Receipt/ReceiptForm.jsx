@@ -1,13 +1,14 @@
 import * as Yup from 'yup';
 import { FiEye, FiPlus } from "react-icons/fi";
-import { fetchAllVendors, fetchAllItems } from '../../api/receipt';
 import { useEffect, useState } from 'react';
-import AddItemForm from './AddItemForm';
-import { createReceipt } from '../../api/receipt';
 import { useNavigate } from "react-router-dom";
-import AddedItems from "./AddedItems";
-// import { itemSchema, validatePrimaryInfo, validateItem } from "../../utils/yup/receipt-form.valid";
+import { fetchAllVendors, fetchAllItems, createReceipt } from '../../api/receipt';
+import AddItemForm from './AddItemForm';
+import AddedItems from './AddedItems';
 import { itemSchema, validatePrimaryInfo, validateItem, primaryInfoSchema } from '../../utils/yup/receipt-form.vaid';
+import FormInput from '../common/FormInput';
+import FormSelect from '../common/FormSelect';
+
 const PlusIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
     <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -180,38 +181,39 @@ const Receipt = () => {
     }
   };
 
-const handleAddItem = async (e) => {
-  e.preventDefault();
-  
-  const isItemValid = await validateItem(setErrors, newItem);
-  if (!isItemValid) return;
+  const handleAddItem = async (e) => {
+    e.preventDefault();
+    
+    const isItemValid = await validateItem(setErrors, newItem);
+    if (!isItemValid) return;
 
-  const selected = items.find(i => i.id.toString() === newItem.itemId);
-  if (!selected) {
-    alert("Selected item not found");
-    return;
-  }
+    const selected = items.find(i => i.id.toString() === newItem.itemId);
+    if (!selected) {
+      alert("Selected item not found");
+      return;
+    }
 
-  const itemToAdd = {
-    ...newItem,
-    tempId: Date.now(), 
-    itemName: selected.name,
-    value: newItem.value
+    const itemToAdd = {
+      ...newItem,
+      tempId: Date.now(), 
+      itemName: selected.name,
+      value: newItem.value
+    };
+
+    const existingItemIndex = addedItems.findIndex(item => item.itemId === newItem.itemId);
+    
+    if (existingItemIndex >= 0) {
+      const updatedItems = [...addedItems];
+      updatedItems[existingItemIndex] = itemToAdd;
+      setAddedItems(updatedItems);
+    } else {
+      setAddedItems([...addedItems, itemToAdd]);
+    }
+
+    setNewItem(initialNewItemState);
+    setSelectedItem(null);
   };
 
-  const existingItemIndex = addedItems.findIndex(item => item.itemId === newItem.itemId);
-  
-  if (existingItemIndex >= 0) {
-    const updatedItems = [...addedItems];
-    updatedItems[existingItemIndex] = itemToAdd;
-    setAddedItems(updatedItems);
-  } else {
-    setAddedItems([...addedItems, itemToAdd]);
-  }
-
-  setNewItem(initialNewItemState);
-  setSelectedItem(null);
-};
   const handleRemoveItem = (tempId) => {
     setAddedItems(prev => prev.filter(item => item.tempId !== tempId));
   };
@@ -232,8 +234,7 @@ const handleAddItem = async (e) => {
 
   const handleSubmitReceipt = async (e) => {
     e.preventDefault();
-    console.log(primaryInfo)
-    primaryInfo.receiptNo=randomForReceipt
+    
     const isPrimaryValid = await validatePrimaryInfo(setErrors, primaryInfo);
     if (!isPrimaryValid) return;
 
@@ -319,138 +320,97 @@ const handleAddItem = async (e) => {
             <div className="bg-white py-8 px-4 rounded-lg shadow-md w-[80%]">
               <SectionHeader title="Primary Information" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Entry Of</label>
-                  <select
-                    name="entryOf"
-                    value={primaryInfo.entryOf}
-                    onChange={handlePrimaryChange}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${
-                      errors.primary.entryOf ? 'border-red-500' : ''
-                    }`}
-                  >
-                    <option value="PURCHASE">PURCHASE</option>
-                    <option value="SALE">SALE</option>
-                  </select>
-                  {errors.primary.entryOf && (
-                    <p className="mt-1 text-sm text-red-600">{errors.primary.entryOf}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Receipt # <span className="text-red-500">*</span></label>
-                  <input
-                    type="text"
-                    name="receiptNo"
-                    value={randomForReceipt}
-                    onChange={handlePrimaryChange}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${
-                      errors.primary.receiptNo ? 'border-red-500' : ''
-                    }`}
-                    readOnly
-                  />
-                  {errors.primary.receiptNo && (
-                    <p className="mt-1 text-sm text-red-600">{errors.primary.receiptNo}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Receipt Date (AD)<span className="text-red-500">*</span></label>
-                  <input
-                    type="date"
-                    name="receiptDateAD"
-                    value={primaryInfo.receiptDateAD}
-                    onChange={handlePrimaryChange}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${
-                      errors.primary.receiptDateAD ? 'border-red-500' : ''
-                    }`}
-                  />
-                  {errors.primary.receiptDateAD && (
-                    <p className="mt-1 text-sm text-red-600">{errors.primary.receiptDateAD}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Bill Number <span className="text-red-500">*</span></label>
-                  <input
-                    type="text"
-                    name="billNo"
-                    value={primaryInfo.billNo}
-                    onChange={handlePrimaryChange}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${
-                      errors.primary.billNo ? 'border-red-500' : ''
-                    }`}
-                  />
-                  {errors.primary.billNo && (
-                    <p className="mt-1 text-sm text-red-600">{errors.primary.billNo}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Bill Date (AD)</label>
-                  <input
-                    type="date"
-                    name="billDateAD"
-                    value={primaryInfo.billDateAD}
-                    onChange={handlePrimaryChange}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${
-                      errors.primary.billDateAD ? 'border-red-500' : ''
-                    }`}
-                  />
-                  {errors.primary.billDateAD && (
-                    <p className="mt-1 text-sm text-red-600">{errors.primary.billDateAD}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Vendor <span className="text-red-500">*</span></label>
-                  <select
-                    name="vendor"
-                    value={primaryInfo.vendor}
-                    onChange={handlePrimaryChange}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${
-                      errors.primary.vendor ? 'border-red-500' : ''
-                    }`}
-                  >
-                    <option value="">Select Vendor</option>
-                    {vendors.map(v => (
-                      <option key={v.id} value={v.id}>{v.name}</option>
-                    ))}
-                  </select>
-                  {errors.primary.vendor && (
-                    <p className="mt-1 text-sm text-red-600">{errors.primary.vendor}</p>
-                  )}
-                </div>
+                <FormSelect
+                  label="Entry Of"
+                  name="entryOf"
+                  value={primaryInfo.entryOf}
+                  onChange={handlePrimaryChange}
+                  options={[
+                    { value: "PURCHASE", label: "PURCHASE" },
+                    { value: "SALE", label: "SALE" }
+                  ]}
+                  error={errors.primary.entryOf}
+                />
+                <FormInput
+                  label="Receipt #"
+                  name="receiptNo"
+                  type="text"
+                  value={randomForReceipt}
+                  onChange={handlePrimaryChange}
+                  error={errors.primary.receiptNo}
+                  readOnly
+                />
+                <FormInput
+                  label="Receipt Date (AD)"
+                  name="receiptDateAD"
+                  type="date"
+                  value={primaryInfo.receiptDateAD}
+                  onChange={handlePrimaryChange}
+                  error={errors.primary.receiptDateAD}
+                  required
+                />
+                <FormInput
+                  label="Bill Number"
+                  name="billNo"
+                  type="text"
+                  value={primaryInfo.billNo}
+                  onChange={handlePrimaryChange}
+                  error={errors.primary.billNo}
+                  required
+                />
+                <FormInput
+                  label="Bill Date (AD)"
+                  name="billDateAD"
+                  type="date"
+                  value={primaryInfo.billDateAD}
+                  onChange={handlePrimaryChange}
+                  error={errors.primary.billDateAD}
+                />
+                <FormSelect
+                  label="Vendor"
+                  name="vendor"
+                  value={primaryInfo.vendor}
+                  onChange={handlePrimaryChange}
+                  options={[
+                    { value: "", label: "Select Vendor" },
+                    ...vendors.map(v => ({ value: v.id, label: v.name }))
+                  ]}
+                  error={errors.primary.vendor}
+                  required
+                />
               </div>
             </div>
 
             <div className="py-8 px-4 bg-white rounded-lg shadow-md w-[80%]">
               <SectionHeader title="Item Information" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Currency</label>
-                  <select
-                    name="currency"
-                    value={newItem.currency}
-                    onChange={handleItemChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
-                  >
-                    <option value="NPR">NPR</option>
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                  </select>
-                </div>
+                <FormSelect
+                  label="Currency"
+                  name="currency"
+                  value={newItem.currency}
+                  onChange={handleItemChange}
+                  options={[
+                    { value: "NPR", label: "NPR" },
+                    { value: "USD", label: "USD" },
+                    { value: "EUR", label: "EUR" }
+                  ]}
+                />
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700">Item Name <span className="text-red-500">*</span></label>
-                  <select
+                  <FormSelect
+                    label="Item Name"
                     name="itemId"
                     value={newItem.itemId}
                     onChange={handleItemChange}
-                    className={`mt-1 block w-full rounded-md border-green-500 shadow-sm h-12 px-3 ring-2 ring-green-200 pr-10 ${
+                    options={[
+                      { value: "", label: "Choose Item" },
+                      ...items.map(i => ({ value: i.id, label: i.name }))
+                    ]}
+                    error={errors.item.itemId}
+                    required
+                    className={`border-green-500 ring-2 ring-green-200 pr-10 ${
                       errors.item.itemId ? 'border-red-500 ring-red-200' : ''
                     }`}
-                    required
-                  >
-                    <option value="">Choose Item</option>
-                    {items.map(i => (
-                      <option key={i.id} value={i.id}>{i.name}</option>
-                    ))}
-                  </select>
+                  />
                   <button
                     type="button"
                     className="absolute right-2 top-9 p-1 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200"
@@ -458,58 +418,39 @@ const handleAddItem = async (e) => {
                   >
                     <PlusIcon />
                   </button>
-                  {errors.item.itemId && (
-                    <p className="mt-1 text-sm text-red-600">{errors.item.itemId}</p>
-                  )}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Quantity <span className="text-red-500">*</span></label>
-                  <input
-                    name="quantity"
-                    value={newItem.quantity}
-                    type="number"
-                    placeholder="Quantity"
-                    onChange={handleQuantityOrRateChange}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${
-                      errors.item.quantity ? 'border-red-500' : ''
-                    }`}
-                    min="0.01"
-                    step="0.01"
-                    required
-                  />
-                  {errors.item.quantity && (
-                    <p className="mt-1 text-sm text-red-600">{errors.item.quantity}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Rate <span className="text-red-500">*</span></label>
-                  <input
-                    name="rate"
-                    value={newItem.rate}
-                    type="number"
-                    placeholder="Rate"
-                    onChange={handleQuantityOrRateChange}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${
-                      errors.item.rate ? 'border-red-500' : ''
-                    }`}
-                    min="0.01"
-                    step="0.01"
-                    required
-                  />
-                  {errors.item.rate && (
-                    <p className="mt-1 text-sm text-red-600">{errors.item.rate}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Value</label>
-                  <input
-                    type="text"
-                    name="value"
-                    value={newItem.value}
-                    readOnly
-                    className="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm h-12 px-3"
-                  />
-                </div>
+                <FormInput
+                  label="Quantity"
+                  name="quantity"
+                  type="number"
+                  placeholder="Quantity"
+                  value={newItem.quantity}
+                  onChange={handleQuantityOrRateChange}
+                  error={errors.item.quantity}
+                  required
+                  min="0.01"
+                  step="0.01"
+                />
+                <FormInput
+                  label="Rate"
+                  name="rate"
+                  type="number"
+                  placeholder="Rate"
+                  value={newItem.rate}
+                  onChange={handleQuantityOrRateChange}
+                  error={errors.item.rate}
+                  required
+                  min="0.01"
+                  step="0.01"
+                />
+                <FormInput
+                  label="Value"
+                  name="value"
+                  type="text"
+                  value={newItem.value}
+                  readOnly
+                  className="bg-gray-100"
+                />
                 <div className="md:col-span-2 flex justify-end gap-3 mt-4">
                   <button
                     type="button"
