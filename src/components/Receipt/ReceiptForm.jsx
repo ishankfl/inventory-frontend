@@ -180,30 +180,38 @@ const Receipt = () => {
     }
   };
 
-  const handleAddItem = async (e) => {
-    e.preventDefault();
-    
-    const isItemValid = await validateItem(setErrors, newItem);
-    if (!isItemValid) return;
+const handleAddItem = async (e) => {
+  e.preventDefault();
+  
+  const isItemValid = await validateItem(setErrors, newItem);
+  if (!isItemValid) return;
 
-    const selected = items.find(i => i.id.toString() === newItem.itemId);
-    if (!selected) {
-      alert("Selected item not found");
-      return;
-    }
+  const selected = items.find(i => i.id.toString() === newItem.itemId);
+  if (!selected) {
+    alert("Selected item not found");
+    return;
+  }
 
-    const itemToAdd = {
-      ...newItem,
-      tempId: Date.now(),
-      itemName: selected.name,
-      value: newItem.value
-    };
-
-    setAddedItems([...addedItems, itemToAdd]);
-    setNewItem(initialNewItemState);
-    setSelectedItem(null);
+  const itemToAdd = {
+    ...newItem,
+    tempId: Date.now(), 
+    itemName: selected.name,
+    value: newItem.value
   };
 
+  const existingItemIndex = addedItems.findIndex(item => item.itemId === newItem.itemId);
+  
+  if (existingItemIndex >= 0) {
+    const updatedItems = [...addedItems];
+    updatedItems[existingItemIndex] = itemToAdd;
+    setAddedItems(updatedItems);
+  } else {
+    setAddedItems([...addedItems, itemToAdd]);
+  }
+
+  setNewItem(initialNewItemState);
+  setSelectedItem(null);
+};
   const handleRemoveItem = (tempId) => {
     setAddedItems(prev => prev.filter(item => item.tempId !== tempId));
   };
@@ -224,7 +232,8 @@ const Receipt = () => {
 
   const handleSubmitReceipt = async (e) => {
     e.preventDefault();
-
+    console.log(primaryInfo)
+    primaryInfo.receiptNo=randomForReceipt
     const isPrimaryValid = await validatePrimaryInfo(setErrors, primaryInfo);
     if (!isPrimaryValid) return;
 
