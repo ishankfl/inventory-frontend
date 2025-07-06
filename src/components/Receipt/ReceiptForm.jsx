@@ -294,8 +294,8 @@ const Receipt = () => {
                     <AddItemForm
                         onClose={handleCloseForm}
                         onItemAdded={handleItemAdded}
-                        fetchAllItem={fetchAllItems}
-                    />
+                        fetchAllItem={getItems}
+                    />  
                 )}
 
                 <form onSubmit={handleAddItem}>
