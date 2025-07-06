@@ -1,12 +1,13 @@
-
-
-
-import { useEffect, useState, useRef } from 'react';
+import * as Yup from 'yup';
+import { FiEye, FiPlus } from "react-icons/fi";
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAllVendors, fetchAllItems, fetchReceiptById, updateReceipt } from '../../api/receipt';
 import AddItemForm from './AddItemForm';
 import AddedItems from './AddedItems';
-
+import { itemSchema, validatePrimaryInfo, validateItem, primaryInfoSchema } from '../../utils/yup/receipt-form.vaid';
+import FormInput from '../common/FormInput';
+import FormSelect from '../common/FormSelect';
 
 const PlusIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -22,25 +23,24 @@ const TrashIcon = () => (
 
 const EditReceipt = () => {
     const { id } = useParams();
-    //   const { id } = useParams();
     const navigate = useNavigate();
     const [vendors, setVendors] = useState([]);
     const [items, setItems] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const quantityRef = useRef(null);
-    const rateRef = useRef(null);
+    const [errors, setErrors] = useState({ primary: {}, item: {} });
+    const [selectedItem, setSelectedItem] = useState(null);
 
     const initialPrimaryInfo = {
         entryOf: 'PURCHASE',
         stockFlowTo: 'STORE',
         receiptNo: '',
-        receiptDateAD: '',
+        receiptDateAD: new Date().toISOString().split('T')[0],
         receiptDateBS: '',
         fiscalYear: '2081-2082',
         purchaseType: 'CREDIT',
         billNo: '',
-        billDateAD: '',
+        billDateAD: new Date().toISOString().split('T')[0],
         billDateBS: '',
         vendor: '',
     };
@@ -75,15 +75,13 @@ const EditReceipt = () => {
             const response = await fetchReceiptById(id);
             if (response.data) {
                 const receipt = response.data;
-
-                // Format date to YYYY-MM-DD for date input
                 const receiptDate = new Date(receipt.receiptDate);
                 const formattedDate = receiptDate.toISOString().split('T')[0];
 
                 setPrimaryInfo({
                     entryOf: 'PURCHASE',
                     stockFlowTo: 'STORE',
-                    receiptNo: receipt.id, // Using the receipt ID as receipt number
+                    receiptNo: receipt.id,
                     receiptDateAD: formattedDate,
                     receiptDateBS: '',
                     fiscalYear: '2081-2082',
@@ -94,10 +92,9 @@ const EditReceipt = () => {
                     vendor: receipt.vendorId,
                 });
 
-                // Transform receipt details for the form
                 const formattedItems = receipt.receiptDetails.map(item => ({
-                    tempId: `${item.id}-${Date.now()}`, // Unique key for each item
-                    id: item.id, // Keep original ID for updates
+                    tempId: `${item.id}-${Date.now()}`,
+                    id: item.id,
                     itemId: item.itemId,
                     itemName: item.item?.name || 'Unknown Item',
                     currency: 'NPR',
@@ -120,61 +117,6 @@ const EditReceipt = () => {
             setIsLoading(false);
         }
     };
-
-    // ... (other functions remain mostly the same, but update handleSubmitReceipt)
-    const handleSubmitReceipt = async (e) => {
-        e.preventDefault();
-
-        if (addedItems.length === 0) {
-            alert("Please add at least one item");
-            return;
-        }
-
-        if (!primaryInfo.vendor) {
-            alert("Please select a vendor");
-            return;
-        }
-
-        const receiptData = {
-            id: id,
-            receiptDate: new Date(primaryInfo.receiptDateAD).toISOString(),
-            billNo: primaryInfo.billNo,
-            vendorId: primaryInfo.vendor,
-            receiptDetails: addedItems.map(item => ({
-                id: item.id || undefined,
-                itemId: item.itemId,
-                quantity: parseFloat(item.quantity),
-                rate: parseFloat(item.rate)
-            }))
-        };
-
-        console.log("Submitting receipt data update :", receiptData);
-        try {
-            setIsLoading(true);
-
-            const response = await updateReceipt(receiptData.id, receiptData);
-
-            if (response.data) {
-                alert("Receipt updated successfully!");
-                navigate('/receipt-list');
-            }
-        } catch (error) {
-            console.error("Error updating receipt:", error);
-            alert(`Error: ${error.response?.data?.message || error.message}`);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-
-
-    useEffect(() => {
-        getVendors();
-        getItems();
-        loadReceiptData();
-    }, [id]);
-
-
 
     const getVendors = async () => {
         try {
@@ -202,63 +144,100 @@ const EditReceipt = () => {
         }
     };
 
-    const handlePrimaryChange = (e) => {
-        setPrimaryInfo({ ...primaryInfo, [e.target.name]: e.target.value });
+    const handlePrimaryChange = async (e) => {
+        const { name, value } = e.target;
+        setPrimaryInfo(prev => ({ ...prev, [name]: value }));
+
+        if (errors.primary[name]) {
+            try {
+                await Yup.reach(primaryInfoSchema, name).validate(value);
+                setErrors(prev => ({
+                    ...prev,
+                    primary: { ...prev.primary, [name]: undefined }
+                }));
+            } catch (err) {
+                setErrors(prev => ({
+                    ...prev,
+                    primary: { ...prev.primary, [name]: err.message }
+                }));
+            }
+        }
     };
 
-    const handleItemChange = (e) => {
+    const handleItemChange = async (e) => {
         const { name, value } = e.target;
         setNewItem(prev => {
             const updatedItem = { ...prev, [name]: value };
 
             if (name === 'itemId') {
-                const selectedItem = items.find(i => i.id.toString() === value);
-                if (selectedItem) {
-                    updatedItem.itemGroup = selectedItem.itemGroup || '';
-                    updatedItem.uom = selectedItem.uom || '';
-                    updatedItem.taxStructure = selectedItem.taxStructure || '';
+                const selected = items.find(i => i.id.toString() === value);
+                if (selected) {
+                    updatedItem.itemGroup = selected.itemGroup || '';
+                    updatedItem.uom = selected.uom || '';
+                    updatedItem.rate = selected.price || '';
+                    setSelectedItem(selected);
+                } else {
+                    setSelectedItem(null);
                 }
             }
 
             return updatedItem;
         });
+
+        if (errors.item[name]) {
+            try {
+                await Yup.reach(itemSchema, name).validate(value);
+                setErrors(prev => ({
+                    ...prev,
+                    item: { ...prev.item, [name]: undefined }
+                }));
+            } catch (err) {
+                setErrors(prev => ({
+                    ...prev,
+                    item: { ...prev.item, [name]: err.message }
+                }));
+            }
+        }
     };
 
-    const handleQuantityOrRateChange = () => {
-        const qty = parseFloat(quantityRef.current?.value) || 0;
-        const rate = parseFloat(rateRef.current?.value) || 0;
+    const handleQuantityOrRateChange = async (e) => {
+        const { name, value } = e.target;
+        setNewItem(prev => {
+            const updated = { ...prev, [name]: value };
 
-        setNewItem(prev => ({
-            ...prev,
-            quantity: quantityRef.current?.value || '',
-            rate: rateRef.current?.value || '',
-            value: (qty * rate).toFixed(2),
-        }));
+            if (name === 'quantity' || name === 'rate') {
+                const qty = parseFloat(updated.quantity) || 0;
+                const rate = parseFloat(updated.rate) || 0;
+                updated.value = (qty * rate).toFixed(2);
+            }
+
+            return updated;
+        });
+
+        if (errors.item[name]) {
+            try {
+                await Yup.reach(itemSchema, name).validate(value);
+                setErrors(prev => ({
+                    ...prev,
+                    item: { ...prev.item, [name]: undefined }
+                }));
+            } catch (err) {
+                setErrors(prev => ({
+                    ...prev,
+                    item: { ...prev.item, [name]: err.message }
+                }));
+            }
+        }
     };
 
-    const handleAddItem = (e) => {
+    const handleAddItem = async (e) => {
         e.preventDefault();
 
-        const qty = parseFloat(newItem.quantity);
-        const rate = parseFloat(newItem.rate);
+        const isItemValid = await validateItem(setErrors, newItem);
+        if (!isItemValid) return;
 
-        if (!newItem.itemId) {
-            alert("Please select an item");
-            return;
-        }
-
-        if (isNaN(qty)) {
-            alert("Please enter a valid quantity");
-            return;
-        }
-
-        if (isNaN(rate)) {
-            alert("Please enter a valid rate");
-            return;
-        }
-
-        const selectedItem = items.find(i => i.id.toString() === newItem.itemId);
-        if (!selectedItem) {
+        const selected = items.find(i => i.id.toString() === newItem.itemId);
+        if (!selected) {
             alert("Selected item not found");
             return;
         }
@@ -266,19 +245,26 @@ const EditReceipt = () => {
         const itemToAdd = {
             ...newItem,
             tempId: Date.now(),
-            itemName: selectedItem.name,
-            value: (qty * rate).toFixed(2)
+            itemName: selected.name,
+            value: newItem.value
         };
 
-        setAddedItems([...addedItems, itemToAdd]);
-        setNewItem(initialNewItemState);
+        const existingItemIndex = addedItems.findIndex(item => item.itemId === newItem.itemId);
 
-        if (quantityRef.current) quantityRef.current.value = "";
-        if (rateRef.current) rateRef.current.value = "";
+        if (existingItemIndex >= 0) {
+            const updatedItems = [...addedItems];
+            updatedItems[existingItemIndex] = itemToAdd;
+            setAddedItems(updatedItems);
+        } else {
+            setAddedItems([...addedItems, itemToAdd]);
+        }
+
+        setNewItem(initialNewItemState);
+        setSelectedItem(null);
     };
 
     const handleRemoveItem = (tempId) => {
-        setAddedItems(addedItems.filter(item => item.tempId !== tempId));
+        setAddedItems(prev => prev.filter(item => item.tempId !== tempId));
     };
 
     const handleOpenForm = () => setShowForm(true);
@@ -295,7 +281,45 @@ const EditReceipt = () => {
         }, 0).toFixed(2);
     };
 
+    const handleSubmitReceipt = async (e) => {
+        e.preventDefault();
 
+        const isPrimaryValid = await validatePrimaryInfo(setErrors, primaryInfo);
+        if (!isPrimaryValid) return;
+
+        if (addedItems.length === 0) {
+            alert("Please add at least one item");
+            return;
+        }
+
+        const receiptData = {
+            id: id,
+            receiptDate: primaryInfo.receiptDateAD,
+            billNo: primaryInfo.billNo,
+            vendorId: primaryInfo.vendor,
+            receiptDetails: addedItems.map(item => ({
+                id: item.id || undefined,
+                itemId: item.itemId,
+                quantity: parseFloat(item.quantity),
+                rate: parseFloat(item.rate)
+            }))
+        };
+
+        try {
+            setIsLoading(true);
+            const response = await updateReceipt(receiptData.id, receiptData);
+
+            if (response.data) {
+                alert("Receipt updated successfully!");
+                navigate('/receipt-list');
+            }
+        } catch (error) {
+            console.error("Error updating receipt:", error);
+            alert(`Error: ${error.response?.data?.message || error.message || "Failed to update receipt"}`);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const SectionHeader = ({ title, icon }) => (
         <div className="flex items-start gap-4 mb-4">
@@ -306,24 +330,31 @@ const EditReceipt = () => {
 
     const handleViewReceipt = () => {
         navigate('/receipt-list');
-    }
+    };
 
     if (isLoading) {
-        return <div className="bg-gray-100 p-2 sm:p-2 lg:p-4 min-h-screen flex items-center justify-center">
-            <div className="text-center">
-                <div className="spinner-border text-primary" role="status">
-                    <span className="sr-only">Loading...</span>
+        return (
+            <div className="bg-gray-100 p-2 sm:p-2 lg:p-4 min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="spinner-border text-primary" role="status">
+                        <span className="sr-only">Loading...</span>
+                    </div>
+                    <p>Loading receipt data...</p>
                 </div>
-                <p>Loading receipt data...</p>
             </div>
-        </div>;
+        );
     }
 
     return (
         <div className="bg-gray-100 p-2 sm:p-2 lg:p-4 min-h-screen">
             <div className="mx-auto">
                 <div className="flex flex-col px-24 gap-8">
-                    <button onClick={handleViewReceipt} className="my-0 w-64">Back to Receipts</button>
+                    <button
+                        onClick={handleViewReceipt}
+                        className="my-0 w-64 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    >
+                        <FiEye /> Back to Receipts
+                    </button>
                     <h1 className="text-2xl font-bold text-gray-800">Edit Receipt</h1>
                 </div>
 
@@ -331,6 +362,7 @@ const EditReceipt = () => {
                     <AddItemForm
                         onClose={handleCloseForm}
                         onItemAdded={handleItemAdded}
+                        fetchAllItem={getItems}
                     />
                 )}
 
@@ -345,12 +377,15 @@ const EditReceipt = () => {
                                         name="entryOf"
                                         value={primaryInfo.entryOf}
                                         onChange={handlePrimaryChange}
-                                        required
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12"
+                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${errors.primary.entryOf ? 'border-red-500' : ''
+                                            }`}
                                     >
                                         <option value="PURCHASE">PURCHASE</option>
                                         <option value="SALE">SALE</option>
                                     </select>
+                                    {errors.primary.entryOf && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.primary.entryOf}</p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Receipt #</label>
@@ -359,9 +394,13 @@ const EditReceipt = () => {
                                         name="receiptNo"
                                         value={primaryInfo.receiptNo}
                                         onChange={handlePrimaryChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 bg-gray-100"
+                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 bg-gray-100 ${errors.primary.receiptNo ? 'border-red-500' : ''
+                                            }`}
                                         readOnly
                                     />
+                                    {errors.primary.receiptNo && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.primary.receiptNo}</p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Receipt Date (AD)<span className="text-red-500">*</span></label>
@@ -370,9 +409,13 @@ const EditReceipt = () => {
                                         name="receiptDateAD"
                                         value={primaryInfo.receiptDateAD}
                                         onChange={handlePrimaryChange}
+                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${errors.primary.receiptDateAD ? 'border-red-500' : ''
+                                            }`}
                                         required
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
                                     />
+                                    {errors.primary.receiptDateAD && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.primary.receiptDateAD}</p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Bill Number <span className="text-red-500">*</span></label>
@@ -381,20 +424,27 @@ const EditReceipt = () => {
                                         name="billNo"
                                         value={primaryInfo.billNo}
                                         onChange={handlePrimaryChange}
+                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${errors.primary.billNo ? 'border-red-500' : ''
+                                            }`}
                                         required
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
                                     />
+                                    {errors.primary.billNo && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.primary.billNo}</p>
+                                    )}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Bill Date (BS)</label>
+                                    <label className="block text-sm font-medium text-gray-700">Bill Date (AD)</label>
                                     <input
-                                        type="text"
-                                        name="billDateBS"
-                                        value={primaryInfo.billDateBS}
+                                        type="date"
+                                        name="billDateAD"
+                                        value={primaryInfo.billDateAD}
                                         onChange={handlePrimaryChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
-                                        placeholder="YYYYMMDD"
+                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${errors.primary.billDateAD ? 'border-red-500' : ''
+                                            }`}
                                     />
+                                    {errors.primary.billDateAD && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.primary.billDateAD}</p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Vendor <span className="text-red-500">*</span></label>
@@ -402,99 +452,102 @@ const EditReceipt = () => {
                                         name="vendor"
                                         value={primaryInfo.vendor}
                                         onChange={handlePrimaryChange}
+                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${errors.primary.vendor ? 'border-red-500' : ''
+                                            }`}
                                         required
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12"
                                     >
                                         <option value="">Select Vendor</option>
                                         {vendors.map(v => (
                                             <option key={v.id} value={v.id}>{v.name}</option>
                                         ))}
                                     </select>
+                                    {errors.primary.vendor && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.primary.vendor}</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
                         <div className="py-8 px-4 bg-white rounded-lg shadow-md w-[80%]">
+                            <SectionHeader title="Item Information" />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Currency</label>
-                                    <select
-                                        name="currency"
-                                        value={newItem.currency}
-                                        onChange={handleItemChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12"
-                                    >
-                                        <option value="NPR">NPR</option>
-                                        <option value="USD">USD</option>
-                                        <option value="EUR">EUR</option>
-                                    </select>
-                                </div>
+
+                                <FormSelect
+                                    label="Currency"
+                                    name="currency"
+                                    value={newItem.currency}
+                                    onChange={handleItemChange}
+                                    options={[
+                                        { value: "NPR", label: "NPR" },
+                                        { value: "USD", label: "USD" },
+                                        { value: "EUR", label: "EUR" },
+                                    ]}
+                                />
+
                                 <div className="relative">
-                                    <label className="block text-sm font-medium text-gray-700">Item Name <span className="text-red-500">*</span></label>
-                                    <select
+                                    <FormSelect
+                                        label="Item Name"
                                         name="itemId"
                                         value={newItem.itemId}
                                         onChange={handleItemChange}
-                                        className="mt-1 block w-full rounded-md border-green-500 shadow-sm h-12 ring-2 ring-green-200 pr-10"
+                                        options={[
+                                            { value: "", label: "Choose Item" },
+                                            ...items.map(i => ({ value: i.id, label: i.name }))
+                                        ]}
+                                        error={errors.item.itemId}
                                         required
-                                    >
-                                        <option value="">Choose Item</option>
-                                        {items.map(i => (
-                                            <option key={i.id} value={i.id}>
-                                                {i.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        className={`border-green-500 ring-2 ring-green-200 pr-10 ${errors.item.itemId ? 'border-red-500 ring-red-200' : ''}`}
+                                    />
                                     <button
                                         type="button"
-                                        className="absolute right-7 top-9 p-1 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200"
+                                        className="absolute right-2 top-9 p-1 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200"
                                         onClick={handleOpenForm}
                                     >
                                         <PlusIcon />
                                     </button>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Quantity <span className="text-red-500">*</span></label>
-                                    <input
-                                        name="quantity"
-                                        ref={quantityRef}
-                                        type="number"
-                                        placeholder="Quantity"
-                                        onChange={handleQuantityOrRateChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
-                                        min="0.01"
-                                        step="0.01"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Rate <span className="text-red-500">*</span></label>
-                                    <input
-                                        name="rate"
-                                        ref={rateRef}
-                                        type="number"
-                                        placeholder="Rate"
-                                        onChange={handleQuantityOrRateChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3"
-                                        min="0.01"
-                                        step="0.01"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Value</label>
-                                    <input
-                                        type="text"
-                                        value={newItem.value}
-                                        readOnly
-                                        className="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm h-12 px-3"
-                                    />
-                                </div>
+
+                                <FormInput
+                                    label="Quantity"
+                                    name="quantity"
+                                    type="number"
+                                    placeholder="Quantity"
+                                    value={newItem.quantity}
+                                    onChange={handleQuantityOrRateChange}
+                                    error={errors.item.quantity}
+                                    required
+                                    className=""
+                                />
+
+                                <FormInput
+                                    label="Rate"
+                                    name="rate"
+                                    type="number"
+                                    placeholder="Rate"
+                                    value={newItem.rate}
+                                    onChange={handleQuantityOrRateChange}
+                                    error={errors.item.rate}
+                                    required
+                                />
+
+                                <FormInput
+                                    label="Value"
+                                    name="value"
+                                    type="text"
+                                    value={newItem.value}
+                                    readOnly
+                                    className="bg-gray-100"
+                                />
+
                                 <div className="md:col-span-2 flex justify-end gap-3 mt-4">
                                     <button
                                         type="button"
                                         className="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700"
-                                        onClick={() => setNewItem(initialNewItemState)}
+                                        onClick={() => {
+                                            setNewItem(initialNewItemState);
+                                            setSelectedItem(null);
+                                            setErrors(prev => ({ ...prev, item: {} }));
+                                        }}
                                     >
                                         Clear
                                     </button>
@@ -509,48 +562,12 @@ const EditReceipt = () => {
                         </div>
                     </div>
                 </form>
-                 <AddedItems addedItems={addedItems} handleRemoveItem={handleRemoveItem} calculateTotal={calculateTotal}/>
-{/* 
-                {addedItems.length > 0 && (
-                    <div className="!min-h-0 !min-w-0 mx-24 mt-8 shadow-lg rounded-lg overflow-x-auto flex align-center justify-center view-container">
-                        <table className="">
-                            <thead className="">
-                                <tr>
-                                    <th className="">Item Name</th>
-                                    <th className="uppercase">Qty</th>
-                                    <th className="uppercase">Rate</th>
-                                    <th className="uppercase">Value</th>
-                                    <th className="uppercase">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="">
-                                {addedItems.map(item => (
-                                    <tr key={item.tempId} className="max-h-[20px]">
-                                        <td className="p-0 ">{item.itemName || items.find(i => i.id.toString() === item.itemId)?.name}</td>
-                                        <td className="p-0">{item.quantity}</td>
-                                        <td className="p-0">{item.rate}</td>
-                                        <td className="p-0">{item.value}</td>
-                                        <td className="p-0">
-                                            <button
-                                                onClick={() => handleRemoveItem(item.tempId)}
-                                                className="text-red-500 hover:text-red-700 bg-white hover:bg-white"
-                                            >
-                                                <TrashIcon />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                            <tfoot className="bg-gray-50">
-                                <tr>
-                                    <td colSpan="4" className="px-4 py-3 text-right text-sm font-medium text-gray-700">Total</td>
-                                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{calculateTotal()}</td>
-                                    <td></td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                )} */}
+
+                <AddedItems
+                    addedItems={addedItems}
+                    handleRemoveItem={handleRemoveItem}
+                    calculateTotal={calculateTotal}
+                />
 
                 <div className="mt-8 flex justify-end gap-4 px-24">
                     <button
@@ -566,7 +583,8 @@ const EditReceipt = () => {
                     </button>
                     <button
                         type="button"
-                        className="px-6 py-2 rounded-md bg-green-600 text-white font-semibold hover:bg-green-700"
+                        className={`px-6 py-2 rounded-md text-white font-semibold ${addedItems.length === 0 || isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+                            }`}
                         onClick={handleSubmitReceipt}
                         disabled={addedItems.length === 0 || isLoading}
                     >
