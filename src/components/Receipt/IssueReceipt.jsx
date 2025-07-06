@@ -1,12 +1,14 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
 import AddItemForm from './AddItemForm';
-import { createIssue, getItemById } from "../../api/receipt";
+import { createIssue } from "../../api/receipt";
 import { fetchAllItems } from "../../api/receipt";
 import { getAllDepartments } from '../../api/departments';
 import { getUserId } from '../../utils/tokenutils';
 import ItemManagementSection from './ItemManagementSection';
+import FormInput from '../common/FormInput';
+import FormSelect from '../common/FormSelect';
 
 const IssueReceipt = () => {
   const [departments, setDepartments] = useState([]);
@@ -17,7 +19,6 @@ const IssueReceipt = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  // Form state
   const [formData, setFormData] = useState({
     issueId: `ISSUE-${Date.now().toString(36).toUpperCase()}`,
     issueDate: new Date().toISOString().split('T')[0],
@@ -27,10 +28,6 @@ const IssueReceipt = () => {
     departmentId: '',
     items: []
   });
-
-  // Refs
-  const quantityRef = useRef(null);
-  const rateRef = useRef(null);
 
   useEffect(() => {
     initializePage();
@@ -44,9 +41,12 @@ const IssueReceipt = () => {
         getItems(),
         getCurrentUserData()
       ]);
-      
-      console.log(depts)
-      // Set initial department if available
+      console.log('initializing page ...........');
+      console.log(user)
+      setDepartments(depts);
+      setItems(its);
+      setCurrentUser(user);
+
       if (depts.length > 0) {
         setFormData(prev => ({
           ...prev,
@@ -62,36 +62,32 @@ const IssueReceipt = () => {
 
   const getCurrentUserData = async () => {
     try {
-      const user = await getUserId();
-      setCurrentUser(user);
-      return user;
+      return await getUserId();
     } catch (error) {
       console.error("Error fetching current user:", error);
+      throw error;
     }
   };
 
   const getDepartments = async () => {
     try {
       const response = await getAllDepartments();
-      if (response.status === 200) {
-        setDepartments(response.data);
-        return response.data;
-      }
+      if (response.status === 200) return response.data;
+      throw new Error('Failed to fetch departments');
     } catch (e) {
       console.error("Error fetching departments:", e);
+      throw e;
     }
   };
 
   const getItems = async () => {
     try {
       const response = await fetchAllItems();
-      if (response.status === 200) {
-        console.log('Items receiced ',response.data )
-        setItems(response.data);
-        return response.data;
-      }
+      if (response.status === 200) return response.data;
+      throw new Error('Failed to fetch items');
     } catch (e) {
       console.error("Error fetching items:", e);
+      throw e;
     }
   };
 
@@ -101,8 +97,7 @@ const IssueReceipt = () => {
       ...prev,
       [name]: value
     }));
-    
-    // Clear error when field changes
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -113,46 +108,46 @@ const IssueReceipt = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
-    // Required fields
+
     if (!formData.issueDate) newErrors.issueDate = 'Issue date is required';
     if (!formData.departmentId) newErrors.departmentId = 'Department is required';
-    
-    // Conditional validation
+
     if (formData.invoiceNumber && !formData.invoiceDate) {
       newErrors.invoiceDate = 'Invoice date is required when invoice number is provided';
     }
-    console.log("item validation")
-    // Items validation
+
     if (formData.items.length === 0) {
       newErrors.items = 'At least one item is required';
     } else {
       formData.items.forEach((item, index) => {
         if (!item.itemId) newErrors[`items[${index}].itemId`] = 'Item is required';
-        if (!item.quantity || item.quantity <= 0) newErrors[`items[${index}].quantity`] = 'Valid quantity is required';
-        if (!item.rate || item.rate < 0) newErrors[`items[${index}].rate`] = 'Valid rate is required';
+        if (!item.quantity || item.quantity <= 0) {
+          newErrors[`items[${index}].quantity`] = 'Valid quantity is required';
+        }
         if (item.quantity > item.availableQuantity) {
           newErrors[`items[${index}].quantity`] = 'Quantity exceeds available stock';
         }
       });
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleAddItem = (itemToAdd) => {
-    setFormData(prev => ({
-      ...prev,
-      items: [...prev.items, itemToAdd]
-    }));
-    resetItemForm();
+  const handleAddItem = ({ updatedItem, isUpdate }) => {
+    setFormData(prev => {
+      let newItems;
+      if (isUpdate) {
+        newItems = prev.items.map(item =>
+          item.itemId === updatedItem.itemId ? updatedItem : item
+        );
+      } else {
+        newItems = [...prev.items, updatedItem];
+      }
+      return { ...prev, items: newItems };
+    });
   };
 
-  const resetItemForm = () => {
-    if (quantityRef.current) quantityRef.current.value = "";
-    if (rateRef.current) rateRef.current.value = "";
-  };
 
   const handleRemoveItem = (tempId) => {
     setFormData(prev => ({
@@ -163,35 +158,35 @@ const IssueReceipt = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    if (!currentUser?.id) {
+    if (!currentUser) {
       alert("User information not available");
       return;
     }
-    
-    const issueData = {
-      issueId: formData.issueId,
-      issueDate: formData.issueDate,
-      invoiceNumber: formData.invoiceNumber,
-      invoiceDate: formData.invoiceDate,
-      deliveryNote: formData.deliveryNote,
-      departmentId: formData.departmentId,
-      issuedByUserId: currentUser.id,
-      issueDetails: formData.items.map(item => ({
-        itemId: item.itemId,
-        quantity: item.quantity,
-        rate: item.rate
-      }))
-    };
-    
+
     try {
       setIsLoading(true);
-      const response = await createIssue(issueData);
-      
+
+      const response = await createIssue({
+        issueId: formData.issueId,
+        issueDate: new Date(formData.issueDate).toISOString(), 
+        invoiceNumber: formData.invoiceNumber,
+        invoiceDate: formData.invoiceDate?.trim() ? new Date(formData.invoiceDate).toISOString() : null,
+        deliveryNote: formData.deliveryNote,
+        departmentId: formData.departmentId,
+        issuedByUserId: getUserId(),
+        issueDetails: formData.items.map(item => ({
+          itemId: item.itemId,
+          quantity: parseFloat(item.quantity),
+          issueRate: parseFloat(item.rate),
+        }))
+      });
+
+
+
       if (response.data) {
         alert("Issue created successfully!");
-        // Reset form
         setFormData({
           issueId: `ISSUE-${Date.now().toString(36).toUpperCase()}`,
           issueDate: new Date().toISOString().split('T')[0],
@@ -213,7 +208,7 @@ const IssueReceipt = () => {
 
   const calculateTotal = () => {
     return formData.items.reduce(
-      (sum, item) => sum + (parseFloat(item.value) || 0), 
+      (sum, item) => sum + (parseFloat(item.value) || 0),
       0
     ).toFixed(2);
   };
@@ -225,126 +220,93 @@ const IssueReceipt = () => {
   );
 
   return (
-    <div className="view-container mx-auto py-4 px-24 max-w-6xl">
+    <div className="view-container mx-auto py-4 px-4 md:px-24 max-w-6xl">
       <h1 className="text-2xl font-bold mb-6">Create Issue</h1>
-      
+
       <form onSubmit={handleSubmit}>
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <SectionHeader title="Primary Information" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Issue ID</label>
-              <input
-                type="text"
-                name="issueId"
-                value={formData.issueId}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                readOnly
-              />
-            </div>
-            
-            <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Issue Date *</label>
-              <input
-                type="date"
-                name="issueDate"
-                value={formData.issueDate}
-                onChange={handleInputChange}
-                className={`w-full p-2 border rounded-md ${
-                  errors.issueDate ? 'border-red-500' : 'border-gray-300'
-                }`}
-                required
-              />
-              {errors.issueDate && (
-                <p className="text-red-500 text-xs mt-1">{errors.issueDate}</p>
-              )}
-            </div>
-            
-            <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Invoice Number</label>
-              <input
-                type="text"
-                name="invoiceNumber"
-                value={formData.invoiceNumber}
-                onChange={handleInputChange}
-                className={`w-full p-2 border rounded-md ${
-                  errors.invoiceNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
-                maxLength={100}
-              />
-              {errors.invoiceNumber && (
-                <p className="text-red-500 text-xs mt-1">{errors.invoiceNumber}</p>
-              )}
-            </div>
-            
-            <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Invoice Date</label>
-              <input
-                type="date"
-                name="invoiceDate"
-                value={formData.invoiceDate}
-                onChange={handleInputChange}
-                className={`w-full p-2 border rounded-md ${
-                  errors.invoiceDate ? 'border-red-500' : 'border-gray-300'
-                }`}
-              />
-              {errors.invoiceDate && (
-                <p className="text-red-500 text-xs mt-1">{errors.invoiceDate}</p>
-              )}
-            </div>
-            
-            <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
-              <select
-                name="departmentId"
-                value={formData.departmentId}
-                onChange={handleInputChange}
-                className={`w-full p-2 border rounded-md ${
-                  errors.departmentId ? 'border-red-500' : 'border-gray-300'
-                }`}
-                required
-              >
-                <option value="">Select Department</option>
-                {departments.map(dept => (
-                  <option key={dept.id} value={dept.id}>{dept.name}</option>
-                ))}
-              </select>
-              {errors.departmentId && (
-                <p className="text-red-500 text-xs mt-1">{errors.departmentId}</p>
-              )}
-            </div>
-            
-            <div className="form-group md:col-span-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Note</label>
-              <textarea
+            <FormInput
+              label="Issue ID"
+              name="issueId"
+              type="text"
+              value={formData.issueId}
+              onChange={handleInputChange}
+              readOnly
+              className="bg-gray-100"
+            />
+
+            <FormInput
+              label="Issue Date *"
+              name="issueDate"
+              type="date"
+              value={formData.issueDate}
+              onChange={handleInputChange}
+              error={errors.issueDate}
+              required
+            />
+
+            <FormInput
+              label="Invoice Number"
+              name="invoiceNumber"
+              type="text"
+              value={formData.invoiceNumber}
+              onChange={handleInputChange}
+              error={errors.invoiceNumber}
+              maxLength={100}
+            />
+
+            <FormInput
+              label="Invoice Date"
+              name="invoiceDate"
+              type="date"
+              value={formData.invoiceDate}
+              onChange={handleInputChange}
+              error={errors.invoiceDate}
+            />
+
+            <FormSelect
+              label="Department *"
+              name="departmentId"
+              value={formData.departmentId}
+              onChange={handleInputChange}
+              options={[
+                { value: "", label: "Select Department" },
+                ...departments.map(dept => ({
+                  value: dept.id,
+                  label: dept.name
+                }))
+              ]}
+              error={errors.departmentId}
+              required
+            />
+
+            <div className="md:col-span-3">
+              <FormInput
+                label="Delivery Note"
                 name="deliveryNote"
+                type="textarea"
                 value={formData.deliveryNote}
                 onChange={handleInputChange}
-                className={`w-full p-2 border rounded-md ${
-                  errors.deliveryNote ? 'border-red-500' : 'border-gray-300'
-                }`}
-                rows="2"
+                error={errors.deliveryNote}
+                rows={2}
                 maxLength={500}
               />
-              {errors.deliveryNote && (
-                <p className="text-red-500 text-xs mt-1">{errors.deliveryNote}</p>
-              )}
             </div>
           </div>
         </div>
-        
-        <ItemManagementSection 
-          items={items} 
+
+        <ItemManagementSection
+          items={items}
           formData={formData}
           onAddItem={handleAddItem}
           onRemoveItem={handleRemoveItem}
-          quantityRef={quantityRef}
-          rateRef={rateRef}
           calculateTotal={calculateTotal}
           errors={errors}
+          setShowForm={setShowForm}
         />
-        
+
         <div className="flex justify-end gap-4">
           <button
             type="button"
@@ -356,15 +318,14 @@ const IssueReceipt = () => {
           <button
             type="submit"
             disabled={formData.items.length === 0 || isLoading}
-            className={`px-6 py-2 rounded-md ${
-              formData.items.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
-            } text-white`}
+            className={`px-6 py-2 rounded-md ${formData.items.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+              } text-white`}
           >
             {isLoading ? 'Processing...' : 'Create Issue'}
           </button>
         </div>
       </form>
-      
+
       {showForm && (
         <AddItemForm
           onClose={() => setShowForm(false)}
@@ -377,6 +338,5 @@ const IssueReceipt = () => {
     </div>
   );
 };
-
 
 export default IssueReceipt;
