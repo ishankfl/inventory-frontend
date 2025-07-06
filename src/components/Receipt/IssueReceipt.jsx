@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
 import AddItemForm from './AddItemForm';
-import { createIssue } from "../../api/receipt";
+import { createIssue, getItemById } from "../../api/receipt";
 import { fetchAllItems } from "../../api/receipt";
 import { getAllDepartments } from '../../api/departments';
 import { getUserId } from '../../utils/tokenutils';
@@ -45,6 +45,7 @@ const IssueReceipt = () => {
         getCurrentUserData()
       ]);
       
+      console.log(depts)
       // Set initial department if available
       if (depts.length > 0) {
         setFormData(prev => ({
@@ -63,6 +64,7 @@ const IssueReceipt = () => {
     try {
       const user = await getUserId();
       setCurrentUser(user);
+      return user;
     } catch (error) {
       console.error("Error fetching current user:", error);
     }
@@ -73,6 +75,7 @@ const IssueReceipt = () => {
       const response = await getAllDepartments();
       if (response.status === 200) {
         setDepartments(response.data);
+        return response.data;
       }
     } catch (e) {
       console.error("Error fetching departments:", e);
@@ -85,6 +88,7 @@ const IssueReceipt = () => {
       if (response.status === 200) {
         console.log('Items receiced ',response.data )
         setItems(response.data);
+        return response.data;
       }
     } catch (e) {
       console.error("Error fetching items:", e);
@@ -118,7 +122,7 @@ const IssueReceipt = () => {
     if (formData.invoiceNumber && !formData.invoiceDate) {
       newErrors.invoiceDate = 'Invoice date is required when invoice number is provided';
     }
-    
+    console.log("item validation")
     // Items validation
     if (formData.items.length === 0) {
       newErrors.items = 'At least one item is required';

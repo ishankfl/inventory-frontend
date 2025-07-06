@@ -1,42 +1,54 @@
 import { useState } from "react";
 import { FiX } from "react-icons/fi";
 import { AddNewItem } from "../../api/receipt";
+import * as Yup from "yup";
 
-const AddItemForm = ({ onClose,fetchAllItem }) => {
+const AddItemForm = ({ onClose, fetchAllItem }) => {
   const [newItem, setNewItem] = useState({ name: "", unit: "" });
-  const [isAddItemNameError, setIsAddItemNameError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleNewItemChange = (e) => {
     const { name, value } = e.target;
     setNewItem((prev) => ({ ...prev, [name]: value }));
-    if (isAddItemNameError && value.trim()) setIsAddItemNameError(false);
+    if (errorMessage) setErrorMessage(""); // clear previous error
   };
+
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().trim().required("Item name is required."),
+    unit: Yup.string().trim().required("Unit is required."),
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!newItem.name.trim() || !newItem.unit.trim()) {
-      setIsAddItemNameError(true);
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-    //   await new Promise((resolve) => setTimeout(resolve, 1000));
-        // Simulate API call to add new item
-        const response = await AddNewItem(newItem.name, newItem.unit);
-        console.log("Response:", response.data);
-        console.log("Response:", response.status);
-      if (response.status !== 201) {
-        fetchAllItem()
-        console.log("Failed to add item");
-      }
+    setErrorMessage(""); // clear existing errors
 
-      console.log("Item added:", newItem);
-      setNewItem({ name: "", unit: "" });
-      setIsAddItemNameError(false);
-      onClose();
+    try {
+      await validationSchema.validate(newItem, { abortEarly: false });
+
+      setIsSubmitting(true);
+      const response = await AddNewItem(newItem.name, newItem.unit, 0);
+      console.log("Response:", response);
+
+      if (response.status === 201) {
+        fetchAllItem();
+        console.log("Item added:", newItem);
+        setNewItem({ name: "", unit: "" });
+        onClose();
+      } else {
+        setErrorMessage("Failed to add item. Please try again.");
+      }
     } catch (error) {
-      console.error("Error adding item:", error);
+      if (error.name === "ValidationError") {
+        setErrorMessage(error.errors.join(" "));
+      } else {
+        console.error("Error adding item:", error);
+        setErrorMessage(
+          error.response?.data?.message ||
+            error.response?.data?.title ||
+            "Unexpected error occurred."
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -54,9 +66,9 @@ const AddItemForm = ({ onClose,fetchAllItem }) => {
             </button>
           </div>
 
-          {isAddItemNameError && (
+          {errorMessage && (
             <div className="bg-red-100 text-red-700 rounded p-3 mb-4">
-              Please fill in all required fields.
+              {errorMessage}
             </div>
           )}
 
@@ -73,7 +85,7 @@ const AddItemForm = ({ onClose,fetchAllItem }) => {
                 onChange={handleNewItemChange}
                 disabled={isSubmitting}
                 className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 ${
-                  isAddItemNameError ? "border-red-300 bg-red-50" : "border-gray-300"
+                  errorMessage ? "border-red-300 bg-red-50" : "border-gray-300"
                 }`}
                 placeholder="e.g., Apple, Notebook"
               />
@@ -91,7 +103,7 @@ const AddItemForm = ({ onClose,fetchAllItem }) => {
                 onChange={handleNewItemChange}
                 disabled={isSubmitting}
                 className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 ${
-                  isAddItemNameError ? "border-red-300 bg-red-50" : "border-gray-300"
+                  errorMessage ? "border-red-300 bg-red-50" : "border-gray-300"
                 }`}
                 placeholder="e.g., kg, pcs"
               />

@@ -23,8 +23,9 @@ export const getItemById = async (id) => {
     return await axios.get(`${server}/api/Item/${id}`);
 }
 
-export const AddNewItem = async (name, unit) => {
-    return await axios.post(`${server}/api/Item`, { name, unit });
+export const AddNewItem = async (name, unit,price) => {
+    console.log(name,unit,price);
+    return await axios.post(`${server}/api/Item`, { name, unit, price});
 }
 
 export const updateItem = async (id, itemData) => {
@@ -107,4 +108,8 @@ export const fetchReceiptsByDateRange = async (startDate, endDate) => {
 export const createIssue = async (issue) => {
     console.log(issue)
     return await axios.post(`${server}/api/Issue`,issue);
+}
+
+export const getIssueById=async (id)=>{
+    return await axios.get(`${server}/api/Issue/${id}`)
 }

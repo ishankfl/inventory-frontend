@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-const ItemManagementSection = ({ 
+import { getItemById } from "../../api/receipt";
+const ItemManagementSection = ({
 
-  items, 
-  formData, 
-  onAddItem, 
-  onRemoveItem, 
-  quantityRef, 
-  rateRef, 
-  calculateTotal, 
+  items,
+  formData,
+  onAddItem,
+  onRemoveItem,
+  quantityRef,
+  rateRef,
+  calculateTotal,
   errors,
 }) => {
   const [newItem, setNewItem] = useState({
@@ -19,12 +20,13 @@ const ItemManagementSection = ({
     value: '0.00'
   });
 
+  const [rateOfSelectedItem,setRateOfSelectedItem]=useState(0)
   const handleItemChange = (e) => {
     const { name, value } = e.target;
-    
+
     setNewItem(prev => {
       const updatedItem = { ...prev, [name]: value };
-      
+
       if (name === 'itemId' && value) {
         const selectedItem = items.find(i => i.id === value);
         if (selectedItem) {
@@ -35,16 +37,27 @@ const ItemManagementSection = ({
           updatedItem.uom = selectedItem.unit;
         }
       }
-      
+      getIssueDetail(updatedItem.itemId)
+
       return updatedItem;
     });
   };
+
+  const getIssueDetail = async (id) => {
+    console.log('GEtissude details')
+    console.log(id)
+    const response = await getItemById(id);
+    console.log(response.status)
+    console.log(response.data)
+    setRateOfSelectedItem(response.data.price)
+
+  }
 
 
   const handleQuantityOrRateChange = () => {
     const quantity = parseFloat(quantityRef.current?.value) || 0;
     const rate = parseFloat(rateRef.current?.value) || 0;
-    
+
     setNewItem(prev => ({
       ...prev,
       quantity: quantityRef.current?.value || '',
@@ -55,16 +68,16 @@ const ItemManagementSection = ({
 
   const handleAddItem = (e) => {
     e.preventDefault();
-    
+
     const quantity = parseFloat(newItem.quantity);
     const rate = parseFloat(newItem.rate);
     const selectedItem = items.find(i => i.id === newItem.itemId);
-    
+
     if (!selectedItem) {
       alert("Selected item not found");
       return;
     }
-    
+
     const itemToAdd = {
       tempId: Date.now(),
       itemId: newItem.itemId,
@@ -75,7 +88,7 @@ const ItemManagementSection = ({
       uom: selectedItem.unit,
       availableQuantity: newItem.availableQuantity
     };
-    
+
     onAddItem(itemToAdd);
     setNewItem({
       itemId: '',
@@ -111,10 +124,10 @@ const ItemManagementSection = ({
                   </option>
                 ))}
               </select>
-            
+
             </div>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Available Qty</label>
             <input
@@ -124,7 +137,7 @@ const ItemManagementSection = ({
               readOnly
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
             <input
@@ -138,7 +151,7 @@ const ItemManagementSection = ({
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Rate *</label>
             <input
@@ -147,12 +160,14 @@ const ItemManagementSection = ({
               name="rate"
               min="0"
               step="0.01"
+              value={rateOfSelectedItem}
               onChange={handleQuantityOrRateChange}
               className="w-full p-2 border border-gray-300 rounded-md"
               required
+              disabled
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Value</label>
             <input
@@ -162,7 +177,7 @@ const ItemManagementSection = ({
               readOnly
             />
           </div>
-          
+
           <div className="md:col-span-2 flex justify-end gap-2">
             <button
               type="button"
@@ -186,7 +201,7 @@ const ItemManagementSection = ({
           </div>
         </form>
       </div>
-      
+
       {/* Added Items List */}
       <div className="bg-white p-6 rounded-lg shadow-md flex-1">
         <div className="mb-4">
