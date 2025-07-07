@@ -1,62 +1,72 @@
 import { useState } from 'react';
+import * as Yup from 'yup';
 import '../../styles/form.scss';
 import { addCategory } from '../../api/category';
 import { getUserId } from '../../utils/tokenutils';
 import { useNavigate } from 'react-router-dom';
-const AddCategory = ({closeModal}) => {
-  
+import { categorySchema } from '../../utils/yup/category-validation';
+
+
+const AddCategory = ({ closeModal }) => {
   const navigate = useNavigate();
   const [categoryName, setCategoryName] = useState('');
   const [categoryDescription, setCategoryDescription] = useState('');
   const [errors, setErrors] = useState({});
 
   const handleSubmit = async (e) => {
-
-
     e.preventDefault();
-    const userId = (getUserId())
-    console.log(userId);
-    const newErrors = {};
-    if (!categoryName.trim()) newErrors.categoryName = 'Category Name is required';
-    if (!categoryDescription.trim()) newErrors.categoryDescription = 'Description is required';
+    setErrors({});
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    const userId = getUserId();
+    const formData = { categoryName, categoryDescription };
 
     try {
+      await categorySchema.validate(formData, { abortEarly: false });
+
       const response = await addCategory(categoryName, categoryDescription, userId);
       if (response.status === 201 || response.status === 200) {
-        console.log('Category added:', response.data);
-
-        // Optionally show success message
         alert('Category added successfully');
-
-        // Reset form
         setCategoryName('');
         setCategoryDescription('');
-        setErrors({});
-        navigate('/view-category')
+        navigate('/view-category');
       }
-    } catch (error) {
-      console.error('Error adding category:', error);
-      setErrors({ api: 'Failed to add category. Please try again.' });
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+        const newErrors = {};
+        err.inner.forEach((error) => {
+          newErrors[error.path] = error.message;
+        });
+        setErrors(newErrors);
+      } else {
+        console.error('Error adding category:', err);
+        setErrors({ api: 'Failed to add category. Please try again.' });
+      }
     }
   };
 
   return (
-    <div className="container">
+    <div className="!bg-white container">
       <h2>Add New Category</h2>
       <form onSubmit={handleSubmit}>
+        {errors.api && (
+          <label className="error-msg" style={{ color: 'red', marginBottom: '1rem', display: 'block' }}>
+            {errors.api}
+          </label>
+        )}
+
         <div>
           <label>Category Name</label>
           <input
             type="text"
             value={categoryName}
             onChange={(e) => setCategoryName(e.target.value)}
+            placeholder="Enter category name"
           />
-          {errors.categoryName && <p className="error-msg">{errors.categoryName}</p>}
+          {errors.categoryName && (
+            <p className="error-msg" style={{ color: 'red' }}>
+              {errors.categoryName}
+            </p>
+          )}
         </div>
 
         <div>
@@ -65,14 +75,29 @@ const AddCategory = ({closeModal}) => {
             type="text"
             value={categoryDescription}
             onChange={(e) => setCategoryDescription(e.target.value)}
+            placeholder="Enter category description"
           />
-          {errors.categoryDescription && <p className="error-msg">{errors.categoryDescription}</p>}
+          {errors.categoryDescription && (
+            <p className="error-msg" style={{ color: 'red' }}>
+              {errors.categoryDescription}
+            </p>
+          )}
         </div>
 
-        <div>
-          <button type="submit">Add</button>
-          <button type="button" onClick={closeModal}
-          >Cancel</button>
+        <div style={{ marginTop: '1rem' }}>
+          <button
+            type="submit"
+            className="!bg-[#C62300] hover:!bg-[#F14A00] text-white"
+          >
+            Add
+          </button>
+          <button
+            type="button"
+            onClick={closeModal}
+            className="!bg-red-600 hover:!bg-red-700 text-white ml-3"
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </div>

@@ -45,7 +45,7 @@ const AddStaff = ({ closeModal }) => {
     };
 
     return (
-        <div className="container">
+        <div className="!bg-white container">
             <h2>Add New Staff</h2>
             <form onSubmit={handleSubmit}>
                 {error && <label className="error-msg" style={{ color: 'red' }}>{error}</label>}
@@ -76,7 +76,7 @@ const AddStaff = ({ closeModal }) => {
 
                 <div>
                     <button type="submit">Add</button>
-                    <button type="button" onClick={closeModal}>Cancel</button>
+                    <button type="button " className='!bg-red-600 hover:!bg-red-700' onClick={closeModal}>Cancel</button>
                 </div>
             </form>
         </div>
