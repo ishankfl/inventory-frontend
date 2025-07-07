@@ -234,6 +234,8 @@ const Receipt = () => {
 
   const handleSubmitReceipt = async (e) => {
     e.preventDefault();
+    console.log(primaryInfo)
+    primaryInfo.receiptNo = randomForReceipt;
     
     const isPrimaryValid = await validatePrimaryInfo(setErrors, primaryInfo);
     if (!isPrimaryValid) return;

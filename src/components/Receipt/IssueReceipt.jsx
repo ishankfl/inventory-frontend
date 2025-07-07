@@ -9,7 +9,7 @@ import { getUserId } from '../../utils/tokenutils';
 import ItemManagementSection from './ItemManagementSection';
 import FormInput from '../common/FormInput';
 import FormSelect from '../common/FormSelect';
-
+import issueSchema from '../../utils/yup/issue-validation'
 const IssueReceipt = () => {
   const [departments, setDepartments] = useState([]);
   const [items, setItems] = useState([]);
@@ -19,7 +19,7 @@ const IssueReceipt = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({  
     issueId: `ISSUE-${Date.now().toString(36).toUpperCase()}`,
     issueDate: new Date().toISOString().split('T')[0],
     invoiceNumber: '',
@@ -106,33 +106,23 @@ const IssueReceipt = () => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.issueDate) newErrors.issueDate = 'Issue date is required';
-    if (!formData.departmentId) newErrors.departmentId = 'Department is required';
-
-    if (formData.invoiceNumber && !formData.invoiceDate) {
-      newErrors.invoiceDate = 'Invoice date is required when invoice number is provided';
-    }
-
-    if (formData.items.length === 0) {
-      newErrors.items = 'At least one item is required';
-    } else {
-      formData.items.forEach((item, index) => {
-        if (!item.itemId) newErrors[`items[${index}].itemId`] = 'Item is required';
-        if (!item.quantity || item.quantity <= 0) {
-          newErrors[`items[${index}].quantity`] = 'Valid quantity is required';
-        }
-        if (item.quantity > item.availableQuantity) {
-          newErrors[`items[${index}].quantity`] = 'Quantity exceeds available stock';
-        }
+  const validateForm = async () => {
+  try {
+    await  issueSchema.validate(formData, { abortEarly: false });
+    setErrors({});
+    return true;
+  } catch (validationError) {
+    if (validationError.inner) {
+      const newErrors = {};
+      validationError.inner.forEach(err => {
+        newErrors[err.path] = err.message;
       });
+      setErrors(newErrors);
     }
+    return false;
+  }
+};
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleAddItem = ({ updatedItem, isUpdate }) => {
     setFormData(prev => {
@@ -307,18 +297,18 @@ const IssueReceipt = () => {
           setShowForm={setShowForm}
         />
 
-        <div className="flex justify-end gap-4">
+        <div className="flex flex-row justify-end gap-4 align-right">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+            className="px-6 py-2 !bg-red-600 text-white rounded-md hover:bg-red-800 w-36"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={formData.items.length === 0 || isLoading}
-            className={`px-6 py-2 rounded-md ${formData.items.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+            className={` w-36 px-6 py-2 rounded-md ${formData.items.length === 0 ? 'bg-primary-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
               } text-white`}
           >
             {isLoading ? 'Processing...' : 'Create Issue'}

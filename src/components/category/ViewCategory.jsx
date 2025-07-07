@@ -5,7 +5,6 @@ import AddCategory from './AddCategory'
 import EditCategory from './EditCategory'
 
 
-// import '../../styles/viewCategory.scss'; // Optional styling
 import '../../styles/view.scss';
 import SearchBox from '../common/SearchBox';
 const ViewCategory = () => {
