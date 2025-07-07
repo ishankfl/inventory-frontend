@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { addDepartment } from '../../api/departments';
 import '../../styles/form.scss';
+import { addDepartment } from '../../api/departments';
+import { departmentSchema } from '../../utils/yup/department-validation';
 
 const AddDepartment = ({ onClose, fetchAllDepartments }) => {
   const [name, setName] = useState('');
@@ -11,40 +11,50 @@ const AddDepartment = ({ onClose, fetchAllDepartments }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({});
 
-    const newErrors = {};
-    if (!name.trim()) newErrors.name = 'Department name is required';
-    if (!description.trim()) newErrors.description = 'Description is required';
+    const formData = { name, description };
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setLoading(true);
     try {
+      await departmentSchema.validate(formData, { abortEarly: false });
+
+      setLoading(true);
       const response = await addDepartment(name, description);
+
       if (response.status === 201 || response.status === 200) {
         alert('Department added successfully!');
+        setName('');
+        setDescription('');
+        fetchAllDepartments();
         onClose();
-        fetchAllDepartments()
-        // navigate('/view-departments');
       } else {
-        setErrors({ api: 'Failed to add department.' });
+        setErrors({ api: 'Failed to add department. Please try again.' });
       }
-    } catch (error) {
-      console.error('Error adding department:', error);
-      setErrors({ api: 'An error occurred while adding department.' });
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+        const newErrors = {};
+        err.inner.forEach((error) => {
+          newErrors[error.path] = error.message;
+        });
+        setErrors(newErrors);
+      } else {
+        console.error('Error adding department:', err);
+        setErrors({ api: 'An unexpected error occurred. Please try again.' });
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="container">
-      <h2>Add Department</h2>
+    <div className="!bg-white container">
+      <h2>Add New Department</h2>
       <form onSubmit={handleSubmit}>
-        {errors.api && <p className="error-msg">{errors.api}</p>}
+        {errors.api && (
+          <label className="error-msg" style={{ color: 'red', marginBottom: '1rem', display: 'block' }}>
+            {errors.api}
+          </label>
+        )}
 
         <div>
           <label>Department Name</label>
@@ -52,8 +62,13 @@ const AddDepartment = ({ onClose, fetchAllDepartments }) => {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            placeholder="Enter department name"
           />
-          {errors.name && <p className="error-msg">{errors.name}</p>}
+          {errors.name && (
+            <p className="error-msg" style={{ color: 'red' }}>
+              {errors.name}
+            </p>
+          )}
         </div>
 
         <div>
@@ -62,13 +77,25 @@ const AddDepartment = ({ onClose, fetchAllDepartments }) => {
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter department description"
           />
-          {errors.description && <p className="error-msg">{errors.description}</p>}
+          {errors.description && (
+            <p className="error-msg" style={{ color: 'red' }}>
+              {errors.description}
+            </p>
+          )}
         </div>
 
-        <div>
-          <button type="submit" disabled={loading}>
-            {loading ? 'Adding...' : 'Add Department'}
+        <div style={{ marginTop: '1rem' }}>
+          <button type="submit" className="text-white" disabled={loading}>
+            {loading ? 'Adding...' : 'Add'}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="!bg-red-600 hover:!bg-red-700 text-white"
+          >
+            Cancel
           </button>
         </div>
       </form>
