@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
+import * as Yup from 'yup';
 import { addStaff } from '../../api/user';
 import { useNavigate } from 'react-router-dom';
-const AddStaff = ({closeModal}) => {
+import { staffSchema } from '../../utils/yup/staff-validation';
+
+// Yup schema for validation
+
+
+const AddStaff = ({ closeModal }) => {
     const navigate = useNavigate();
+
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -11,33 +18,28 @@ const AddStaff = ({closeModal}) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!name || !email || !password || role === undefined || role === null) {
-            setError('All fields are required');
-            return;
-        }
-
+        setError('');
         const newStaff = { name, email, password, role };
-        console.log('Submitting staff:', newStaff);
 
         try {
+            await staffSchema.validate(newStaff, { abortEarly: false });
+
             const response = await addStaff(name, email, password, role);
 
             if (response.status === 201) {
-                console.log("Staff added successfully:", response.data);
-                setError('');  // Clear error message on success if you want
-                navigate('/view-users')
+                navigate('/view-users');
             } else {
-                console.log("Unexpected response:", response);
                 setError('Something went wrong. Please try again.');
             }
-        } catch (error) {
-            if (error.response && error.response.status === 400) {
-                console.log("Bad request error:", error.response.data);
+        } catch (validationError) {
+            if (validationError.name === 'ValidationError') {
+                const messages = validationError.errors.join(' ');
+                setError(messages);
+            } else if (validationError.response && validationError.response.status === 400) {
                 setError('Invalid data provided. Please check your input.');
             } else {
                 setError('An unexpected error occurred. Please try again later.');
-                console.log("Unexpected error:", error.message);
+                console.error(validationError);
             }
         }
     };
@@ -46,36 +48,35 @@ const AddStaff = ({closeModal}) => {
         <div className="container">
             <h2>Add New Staff</h2>
             <form onSubmit={handleSubmit}>
-                {error && <label className="error-msg">{error}</label>}
+                {error && <label className="error-msg" style={{ color: 'red' }}>{error}</label>}
 
                 <div>
                     <label>Name:</label>
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
                 </div>
 
                 <div>
                     <label>Email:</label>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                 </div>
 
                 <div>
                     <label>Password:</label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
 
                 <div>
                     <label>Role:</label>
-                    <select value={role} onChange={(e) => setRole(e.target.value)} required>
+                    <select value={role} onChange={(e) => setRole(e.target.value)}>
                         <option value="">Select Role</option>
                         <option value="0">Admin</option>
                         <option value="1">Staff</option>
                     </select>
                 </div>
 
-
                 <div>
                     <button type="submit">Add</button>
-                    <button type="submit" onClick={closeModal}>Cancel</button>
+                    <button type="button" onClick={closeModal}>Cancel</button>
                 </div>
             </form>
         </div>
