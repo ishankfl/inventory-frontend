@@ -28,7 +28,7 @@ const AddCategory = ({ closeModal }) => {
         alert('Category added successfully');
         setCategoryName('');
         setCategoryDescription('');
-        navigate('/view-category');
+        closeModal();
       }
     } catch (err) {
       if (err.name === 'ValidationError') {
@@ -87,14 +87,14 @@ const AddCategory = ({ closeModal }) => {
         <div style={{ marginTop: '1rem' }}>
           <button
             type="submit"
-            className="!bg-[#C62300] hover:!bg-[#F14A00] text-white"
+            className=" text-white"
           >
             Add
           </button>
           <button
             type="button"
             onClick={closeModal}
-            className="!bg-red-600 hover:!bg-red-700 text-white ml-3"
+            className="!bg-red-600 hover:!bg-red-700 text-white"
           >
             Cancel
           </button>

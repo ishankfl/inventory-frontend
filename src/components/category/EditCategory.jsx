@@ -48,7 +48,7 @@ const EditCategory = ({ closeModal, catId }) => {
       const response = await updateCategory(id, categoryName, categoryDescription);
       if (response.status === 200) {
         alert('Category updated successfully!');
-        navigate('/view-categories');
+        navigate('/view-category');
       } else {
         setErrors({ api: 'Failed to update category.' });
       }
@@ -109,14 +109,14 @@ const EditCategory = ({ closeModal, catId }) => {
         <div style={{ marginTop: '1rem' }}>
           <button
             type="submit"
-            className="!bg-[#C62300] hover:!bg-[#F14A00] text-white"
+            className="text-white"
           >
             Update
           </button>
           <button
             type="button"
             onClick={closeModal}
-            className="!bg-red-600 hover:!bg-red-700 text-white ml-3"
+            className="!bg-red-600 hover:!bg-red-700 text-white"
           >
             Cancel
           </button>
