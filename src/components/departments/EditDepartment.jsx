@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { getDepartmentById, updateDepartment } from '../../api/departments';
 import '../../styles/form.scss';
+import { getDepartmentById, updateDepartment } from '../../api/departments';
+import { departmentSchema } from '../../utils/yup/department-validation';
 
 const EditDepartment = ({ onClose, id, fetchAllDepartments }) => {
-  // const { id } = useParams();
-  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [errors, setErrors] = useState({});
@@ -15,7 +13,6 @@ const EditDepartment = ({ onClose, id, fetchAllDepartments }) => {
     const fetchDepartment = async () => {
       try {
         const response = await getDepartmentById(id);
-        console.log(response.status);
         if (response.status === 200) {
           const { name, description } = response.data;
           setName(name);
@@ -36,39 +33,46 @@ const EditDepartment = ({ onClose, id, fetchAllDepartments }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({});
 
-    const newErrors = {};
-    if (!name.trim()) newErrors.name = 'Department name is required';
-    if (!description.trim()) newErrors.description = 'Description is required';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    const formData = { name, description };
 
     try {
+      await departmentSchema.validate(formData, { abortEarly: false });
+
       const response = await updateDepartment(id, name, description);
       if (response.status === 200) {
         alert('Department updated successfully!');
         fetchAllDepartments();
         onClose();
-        // navigate('/view-departments'); // redirect after update
       } else {
         setErrors({ api: 'Failed to update department.' });
       }
-    } catch (error) {
-      console.error('Error updating department:', error);
-      setErrors({ api: 'An error occurred during update.' });
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+        const newErrors = {};
+        err.inner.forEach((error) => {
+          newErrors[error.path] = error.message;
+        });
+        setErrors(newErrors);
+      } else {
+        console.error('Error updating department:', err);
+        setErrors({ api: 'An unexpected error occurred. Please try again.' });
+      }
     }
   };
 
   if (loading) return <p>Loading department data...</p>;
 
   return (
-    <div className="container">
+    <div className="!bg-white container">
       <h2>Edit Department</h2>
       <form onSubmit={handleSubmit}>
-        {errors.api && <p className="error-msg">{errors.api}</p>}
+        {errors.api && (
+          <label className="error-msg" style={{ color: 'red', marginBottom: '1rem', display: 'block' }}>
+            {errors.api}
+          </label>
+        )}
 
         <div>
           <label>Department Name</label>
@@ -76,8 +80,13 @@ const EditDepartment = ({ onClose, id, fetchAllDepartments }) => {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            placeholder="Enter department name"
           />
-          {errors.name && <p className="error-msg">{errors.name}</p>}
+          {errors.name && (
+            <p className="error-msg" style={{ color: 'red' }}>
+              {errors.name}
+            </p>
+          )}
         </div>
 
         <div>
@@ -86,12 +95,26 @@ const EditDepartment = ({ onClose, id, fetchAllDepartments }) => {
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter department description"
           />
-          {errors.description && <p className="error-msg">{errors.description}</p>}
+          {errors.description && (
+            <p className="error-msg" style={{ color: 'red' }}>
+              {errors.description}
+            </p>
+          )}
         </div>
 
-        <div>
-          <button type="submit">Update</button>
+        <div style={{ marginTop: '1rem' }}>
+          <button type="submit" className="text-white">
+            Update
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="!bg-red-600 hover:!bg-red-700 text-white"
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </div>
