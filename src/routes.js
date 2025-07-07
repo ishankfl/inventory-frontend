@@ -1,5 +1,5 @@
 import Login from "./components/auth/Login"
-import {Route, Routes} from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import AddProduct from "./components/products/AddProduct";
 import AddCategory from "./components/category/AddCategory";
 import AddStaff from "./components/auth/AddStaff";
@@ -17,37 +17,39 @@ import EditDepartment from "./components/departments/EditDepartment";
 import AddDepartment from "./components/departments/AddDepartment";
 import { useNavigate } from "react-router-dom";
 import { isLoggedIn } from './utils/tokenutils';
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import Receipt from "./components/Receipt/ReceiptForm";
 import ReceiptDetails from "./components/Receipt/ReceiptDetails";
 import ReceiptList from "./components/Receipt/ReceiptsList";
 import EditReceipt from "./components/Receipt/EditReceipt";
-import IssueReceipt from "./components/Receipt/IssueReceipt";
+import IssueReceipt from "./components/Receipt/IssueForm";
+import IssuesList from "./components/Receipt/IssueList";
+import EditIssue from "./components/Receipt/EditIssuem";
 const CustomRouter = (c) => {
-const navigate = useNavigate();
-  const [userLoggedinStatus,setUserLoggedinStatus]= useState(false);
-   function getUserLoggedInStatus(){
-    const userLoggedInStatus =  isLoggedIn();
-    if (!userLoggedInStatus){
-    navigate('/login')
-    return;
+  const navigate = useNavigate();
+  const [userLoggedinStatus, setUserLoggedinStatus] = useState(false);
+  function getUserLoggedInStatus() {
+    const userLoggedInStatus = isLoggedIn();
+    if (!userLoggedInStatus) {
+      navigate('/login')
+      return;
     }
     setUserLoggedinStatus(userLoggedInStatus);
   }
-  useEffect(()=>{
+  useEffect(() => {
     getUserLoggedInStatus();
   });
 
   return (
-    
+
     <Routes>
-      <Route path="/login" element={<Login/>}/>
-      <Route path="/add-product" element={<AddProduct/>}/>
-      <Route path="/view-products" element={<ViewProducts/>}/>
-      <Route path="/add-category" element={<AddCategory/>}/>
-      <Route path="/add-user" element={<AddStaff/>}/>
-      <Route path="/view-users" element={<ViewAllUsers/>}/>
-      <Route path="/view-category" element={<ViewCategory/>}/>
+      <Route path="/login" element={<Login />} />
+      <Route path="/add-product" element={<AddProduct />} />
+      <Route path="/view-products" element={<ViewProducts />} />
+      <Route path="/add-category" element={<AddCategory />} />
+      <Route path="/add-user" element={<AddStaff />} />
+      <Route path="/view-users" element={<ViewAllUsers />} />
+      <Route path="/view-category" element={<ViewCategory />} />
       <Route path="/edit-category/:id" element={<EditCategory />} />
       <Route path="/edit-product/:id" element={<EditProduct />} />
       <Route path="/departments/:id" element={<EditProduct />} />
@@ -62,6 +64,8 @@ const navigate = useNavigate();
       <Route path="/receipt/edit/:id" element={<EditReceipt />} />
       <Route path="/receipt-list" element={<ReceiptList />} />
       <Route path="/issue-receipt" element={<IssueReceipt />} />
+      <Route path="/issue-list" element={<IssuesList />} />
+      <Route path="/edit-issue/:id" element={<EditIssue />} />
 
     </Routes>
   );

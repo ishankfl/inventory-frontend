@@ -23,9 +23,9 @@ export const getItemById = async (id) => {
     return await axios.get(`${server}/api/Item/${id}`);
 }
 
-export const AddNewItem = async (name, unit,price) => {
-    console.log(name,unit,price);
-    return await axios.post(`${server}/api/Item`, { name, unit, price});
+export const AddNewItem = async (name, unit, price) => {
+    console.log(name, unit, price);
+    return await axios.post(`${server}/api/Item`, { name, unit, price });
 }
 
 export const updateItem = async (id, itemData) => {
@@ -107,9 +107,23 @@ export const fetchReceiptsByDateRange = async (startDate, endDate) => {
 
 export const createIssue = async (issue) => {
     console.log(issue)
-    return await axios.post(`${server}/api/Issue`,issue);
+    return await axios.post(`${server}/api/Issue`, issue);
 }
 
-export const getIssueById=async (id)=>{
+export const getIssueById = async (id) => {
     return await axios.get(`${server}/api/Issue/${id}`)
 }
+
+export const fetchAllIssue = async () => {
+    return await axios.get(`${server}/api/Issue`)
+}
+
+export const fetchIssueById = async (id) => {
+  const response = await axios.get(`/api/issues/${id}`);
+  return response;
+};
+
+export const updateIssue = async (id, data) => {
+  const response = await axios.put(`/api/issues/${id}`, data);
+  return response;
+};
