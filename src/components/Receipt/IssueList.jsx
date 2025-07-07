@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, Printer, Download, Edit } from 'lucide-react';
 import { fetchAllIssue } from '../../api/receipt';
-
+import { useNavigate } from 'react-router-dom';
 const IssuesList = () => {
     const [issues, setIssues] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -9,6 +9,7 @@ const IssuesList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const issuesPerPage = 10;
+    const navigate = useNavigate();
 
  
 
@@ -59,7 +60,8 @@ const IssuesList = () => {
     }
 
     const handleEditIssue = (id) => {
-        alert(`Edit issue: ${id}`);
+        navigate(`/edit-issue/${id}`)
+        // alert(`Edit issue: ${id}`);
         return;
     }
 

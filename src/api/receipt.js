@@ -119,11 +119,11 @@ export const fetchAllIssue = async () => {
 }
 
 export const fetchIssueById = async (id) => {
-  const response = await axios.get(`/api/issues/${id}`);
+  const response = await axios.get(`${server}/api/issue/${id}`);
   return response;
 };
 
 export const updateIssue = async (id, data) => {
-  const response = await axios.put(`/api/issues/${id}`, data);
+  const response = await axios.put(`${server}/api/issue/${id}`, data);
   return response;
 };
