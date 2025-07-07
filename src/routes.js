@@ -24,7 +24,7 @@ import ReceiptList from "./components/Receipt/ReceiptsList";
 import EditReceipt from "./components/Receipt/EditReceipt";
 import IssueReceipt from "./components/Receipt/IssueForm";
 import IssuesList from "./components/Receipt/IssueList";
-import EditIssue from "./components/Receipt/EditIssuem";
+import EditIssue from "./components/Receipt/EditIssue";
 const CustomRouter = (c) => {
   const navigate = useNavigate();
   const [userLoggedinStatus, setUserLoggedinStatus] = useState(false);

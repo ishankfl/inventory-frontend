@@ -187,7 +187,7 @@ const EditIssue = () => {
 
         try {
             setIsLoading(true);
-            const response = await updateIssue({
+            const response = await updateIssue(id,{
                 issueId: formData.issueId,
                 issueDate: new Date(formData.issueDate).toISOString(),
                 invoiceNumber: formData.invoiceNumber,
