@@ -103,7 +103,6 @@ const CurrentActivityBox = () => {
 
     </div>
 
-    {/* Activity List */}
     <div className="p-4 max-h-90  max-h-[400px] overflow-y-scroll !scrollbar-hide" ref={scrollRef}>
       {activities.length > 0 ? (
         <div className="space-y-3">
