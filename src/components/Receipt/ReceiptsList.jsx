@@ -79,7 +79,13 @@ const ReceiptsList = () => {
     return (
         <div className="main-container-box !pt-[0px] mt-[-50px]">
             <br /><br /><br />
+
             <div className="view-container overflow-x-auto transition-all duration-300">
+                <div className="flex w-100% justify-end">
+                    <button onClick={handleAddReceipt} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                        Add Receipt
+                    </button>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                     <div className="bg-blue-100 p-4 rounded-lg">
                         <h3 className="text-sm font-medium text-blue-700">Total Receipts</h3>
@@ -107,9 +113,7 @@ const ReceiptsList = () => {
                     </div>
                 </div>
                 <br />
-                <button onClick={handleAddReceipt} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-                    Add Receipt
-                </button>
+
 
                 <div className="overflow-x-auto">
                     <table className="min-w-full bg-white">

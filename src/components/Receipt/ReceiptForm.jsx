@@ -98,7 +98,7 @@ const Receipt = () => {
   const handlePrimaryChange = async (e) => {
     const { name, value } = e.target;
     setPrimaryInfo(prev => ({ ...prev, [name]: value }));
-    
+
     if (errors.primary[name]) {
       try {
         await Yup.reach(primaryInfoSchema, name).validate(value);
@@ -155,13 +155,13 @@ const Receipt = () => {
     const { name, value } = e.target;
     setNewItem(prev => {
       const updated = { ...prev, [name]: value };
-      
+
       if (name === 'quantity' || name === 'rate') {
         const qty = parseFloat(updated.quantity) || 0;
         const rate = parseFloat(updated.rate) || 0;
         updated.value = (qty * rate).toFixed(2);
       }
-      
+
       return updated;
     });
 
@@ -183,7 +183,7 @@ const Receipt = () => {
 
   const handleAddItem = async (e) => {
     e.preventDefault();
-    
+
     const isItemValid = await validateItem(setErrors, newItem);
     if (!isItemValid) return;
 
@@ -195,13 +195,13 @@ const Receipt = () => {
 
     const itemToAdd = {
       ...newItem,
-      tempId: Date.now(), 
+      tempId: Date.now(),
       itemName: selected.name,
       value: newItem.value
     };
 
     const existingItemIndex = addedItems.findIndex(item => item.itemId === newItem.itemId);
-    
+
     if (existingItemIndex >= 0) {
       const updatedItems = [...addedItems];
       updatedItems[existingItemIndex] = itemToAdd;
@@ -236,7 +236,7 @@ const Receipt = () => {
     e.preventDefault();
     console.log(primaryInfo)
     primaryInfo.receiptNo = randomForReceipt;
-    
+
     const isPrimaryValid = await validatePrimaryInfo(setErrors, primaryInfo);
     if (!isPrimaryValid) return;
 
@@ -260,7 +260,7 @@ const Receipt = () => {
     try {
       setIsLoading(true);
       const response = await createReceipt(receiptData);
-      
+
       if (response.data) {
         alert("Receipt saved successfully!");
         setPrimaryInfo(initialPrimaryInfo);
@@ -300,12 +300,14 @@ const Receipt = () => {
     <div className=" p-2 sm:p-2 lg:p-4 min-h-screen">
       <div className="mx-auto">
         <div className="flex flex-col px-24 gap-8">
-          <button 
-            onClick={handleViewReceipt} 
-            className="my-0 w-64 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            <FiEye /> View Receipt
-          </button>
+          <div className='flex w-100% justify-end'>
+            <button
+              onClick={handleViewReceipt}
+              className="my-0  flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              <FiEye /> View Receipt
+            </button>
+          </div>
           <h1 className="text-2xl font-bold text-gray-800">Receipts Inventory</h1>
         </div>
 
@@ -314,7 +316,7 @@ const Receipt = () => {
             onClose={handleCloseForm}
             onItemAdded={handleItemAdded}
             fetchAllItem={getItems}
-          />  
+          />
         )}
 
         <form onSubmit={handleAddItem}>
@@ -409,9 +411,8 @@ const Receipt = () => {
                     ]}
                     error={errors.item.itemId}
                     required
-                    className={`border-green-500 ring-2 ring-green-200 pr-10 ${
-                      errors.item.itemId ? 'border-red-500 ring-red-200' : ''
-                    }`}
+                    className={`border-green-500 ring-2 ring-green-200 pr-10 ${errors.item.itemId ? 'border-red-500 ring-red-200' : ''
+                      }`}
                   />
                   <button
                     type="button"
@@ -477,9 +478,9 @@ const Receipt = () => {
           </div>
         </form>
 
-        <AddedItems 
-          addedItems={addedItems} 
-          handleRemoveItem={handleRemoveItem} 
+        <AddedItems
+          addedItems={addedItems}
+          handleRemoveItem={handleRemoveItem}
           calculateTotal={calculateTotal}
         />
 
@@ -498,9 +499,8 @@ const Receipt = () => {
           </button>
           <button
             type="button"
-            className={`px-6 py-2 rounded-md text-white font-semibold ${
-              addedItems.length === 0 || isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
-            }`}
+            className={`px-6 py-2 rounded-md text-white font-semibold ${addedItems.length === 0 || isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+              }`}
             onClick={handleSubmitReceipt}
             disabled={addedItems.length === 0 || isLoading}
           >
