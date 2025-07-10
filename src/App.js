@@ -12,11 +12,10 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className='
-      '>
+      <div className='!flex !flex-row !gap-24'>
         <Navbar />
-        <div className='min-h-[100vh] main-container bg-gray-100 pt-[180px] px-6 no-scrollbar'>
-          <CustomRouter />
+        <div className='pt-24'>
+          <CustomRouter  />
           {isUserLoggedin && <CurrentActivityBox />}
         </div>
       </div>
