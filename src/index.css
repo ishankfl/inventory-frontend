@@ -61,11 +61,11 @@ form select {
 
 /* Tailwind css for view pages */
 .main-container-box {
-  @apply p-8 min-w-[60vw] min-h-[75vh] flex flex-col items-start mx-[10%];
+  @apply  min-w-[60vw] min-h-[75vh] flex flex-col items-start mx-[10%];
 }
 
 .view-container {
-  @apply rounded-xl min-h-[75vh] min-w-[100%];
+  @apply rounded-xl min-h-[75vh] min-w-[80vw];
 }
 
 .view-container h2 {

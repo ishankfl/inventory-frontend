@@ -209,10 +209,10 @@ const ItemManagementSection = ({
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md flex-1">
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">Items to Issue</h2>
-        </div>
-        <div className="overflow-auto">
+        {/* <div className="mb-4"> */}
+          <h2 className="text-lg font-semibold text-gray-800 !mb-0">Items to Issue</h2>
+        {/* </div> */}
+        <div className="overflow-auto mb-0">
           {errors.items && typeof errors.items === 'string' && (
             <p className="text-red-500 text-sm mb-2">{errors.items}</p>
           )}

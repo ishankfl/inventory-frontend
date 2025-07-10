@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  FaBars,
   FaTimes,
   FaHome,
   FaBox,
@@ -9,14 +8,13 @@ import {
   FaBuilding,
   FaLayerGroup,
 } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import '../../styles/navbar.scss';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { isLoggedIn } from '../../utils/tokenutils';
 
-const Navbar = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
+const Navbar = ({ toggleNavbar }) => {
   const [loggedIn, setLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     setLoggedIn(isLoggedIn());
@@ -24,81 +22,112 @@ const Navbar = () => {
 
   const handleNavigate = (path) => {
     navigate(path);
-    setMenuOpen(false);
+    toggleNavbar(); // close sidebar after navigation
   };
 
+  const isActive = (path) => location.pathname === path;
+
+  const navItems = [
+    { path: '/', icon: FaHome, label: 'Dashboard' },
+    { path: '/view-products', icon: FaBox, label: 'Product' },
+    { path: '/issue-receipt', icon: FaLayerGroup, label: 'Issue Items' },
+    { path: '/view-category', icon: FaLayerGroup, label: 'Category' },
+    { path: '/view-users', icon: FaUsers, label: 'Staff' },
+    { path: '/view-departments', icon: FaBuilding, label: 'Department' },
+  ];
+
   return (
-    <div className="main-nav top-0 left-0 h-[100vh] w-[250px] bg-primary text-white z-[100] flex flex-col shadow-md px-6 py-8">
-      <div className="nav-logo text-[1.5rem] font-bold mb-8">
-        Welcome to IMS
+    <div className="main-nav fixed top-0 left-0 h-screen w-[300px] bg-primary text-white z-[100] flex flex-col shadow-xl">
+      {/* Header */}
+      <div className="px-6 py-6 border-b border-primary/40">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-xl font-bold text-primarylight">IMS Portal</h1>
+          <button
+            onClick={toggleNavbar}
+            className="text-white/80 text-xl hover:text-white hover:rotate-90 transition-all duration-300 p-2 rounded-full hover:bg-primary/40"
+          >
+            <FaTimes />
+          </button>
+        </div>
+        <p className="text-sm text-primarylight/70">Inventory Management System</p>
       </div>
 
-      {/* Desktop menu */}
-      <div className="hidden md:flex flex-col gap-6">
+      {/* Nav Items */}
+      <div className="flex-1 px-4 py-6 overflow-y-auto space-y-2">
         {loggedIn ? (
-          <>
-            <button onClick={() => handleNavigate('/')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-              <FaHome /> Dashboard
-            </button>
-            <button onClick={() => handleNavigate('/view-products')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-              <FaBox /> Product
-            </button>
-            <button onClick={() => handleNavigate('/issue-products')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-              <FaLayerGroup /> Issue Product
-            </button>
-            <button onClick={() => handleNavigate('/view-category')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-              <FaLayerGroup /> Category
-            </button>
-            <button onClick={() => handleNavigate('/view-users')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-              <FaUsers /> Staff
-            </button>
-            <button onClick={() => handleNavigate('/view-departments')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-              <FaBuilding /> Department
-            </button>
-          </>
+          navItems.map((item, i) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
+            return (
+              <button
+                key={item.path}
+                onClick={() => handleNavigate(item.path)}
+                className={`!nav-item group relative w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${
+                  active
+                    ? 'bg-gradient-to-r from-primary to-primarylight text-white shadow-lg scale-105'
+                    : 'text-primarylight hover:bg-primary/40 hover:text-white'
+                }`}
+                style={{
+                  animationDelay: `${i * 0.1}s`,
+                  animation: 'slideInLeft 0.6s ease-out forwards',
+                }}
+              >
+                {/* Active line indicator */}
+                {active && (
+                  <div className="absolute left-0 top-0 h-full w-1 bg-white rounded-r-full animate-pulse"></div>
+                )}
+                <div className={`text-lg ${active ? 'text-white' : 'text-primarylight/80 group-hover:text-white'}`}>
+                  <Icon />
+                </div>
+                <span className={`font-medium ${active ? 'text-white' : 'text-primarylight group-hover:text-white'}`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })
         ) : (
-          <button onClick={() => handleNavigate('/login')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-            <FaSignInAlt /> Login
+          <button
+            onClick={() => handleNavigate('/login')}
+            className="group relative w-full flex items-center gap-4 px-4 py-3 rounded-xl text-primarylight hover:bg-primary/40 hover:text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+          >
+            <div className="text-lg text-primarylight group-hover:text-white">
+              <FaSignInAlt />
+            </div>
+            <span className="font-medium">Login</span>
           </button>
         )}
       </div>
 
-      {/* Mobile menu toggle button */}
-      <div className="md:hidden mt-auto cursor-pointer z-50" onClick={() => setMenuOpen(!menuOpen)}>
-        {menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      {/* Footer */}
+      <div className="px-6 py-4 border-t border-primary/40 text-center text-xs text-primarylight/70">
+        © 2024 IMS Portal
       </div>
 
-      {/* Mobile menu dropdown */}
-      {menuOpen && (
-        <div className="absolute top-20 left-0 w-full bg-primary flex flex-col items-start gap-4 px-6 py-4 z-40 md:hidden">
-          {loggedIn ? (
-            <>
-              <button onClick={() => handleNavigate('/')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-                <FaHome /> Dashboard
-              </button>
-              <button onClick={() => handleNavigate('/view-products')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-                <FaBox /> Product
-              </button>
-              <button onClick={() => handleNavigate('/issue-products')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-                <FaLayerGroup /> Issue Product
-              </button>
-              <button onClick={() => handleNavigate('/view-category')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-                <FaLayerGroup /> Category
-              </button>
-              <button onClick={() => handleNavigate('/view-users')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-                <FaUsers /> Staff
-              </button>
-              <button onClick={() => handleNavigate('/view-departments')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-                <FaBuilding /> Department
-              </button>
-            </>
-          ) : (
-            <button onClick={() => handleNavigate('/login')} className="nav-item flex items-center gap-3 hover:text-gray-300">
-              <FaSignInAlt /> Login
-            </button>
-          )}
-        </div>
-      )}
+      {/* CSS animations */}
+      <style jsx>{`
+        @keyframes slideInLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        .main-nav .overflow-y-auto::-webkit-scrollbar {
+          width: 4px;
+        }
+        .main-nav .overflow-y-auto::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.1);
+        }
+        .main-nav .overflow-y-auto::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.3);
+        }
+        .main-nav .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.5);
+        }
+      `}</style>
     </div>
   );
 };
