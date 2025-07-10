@@ -61,7 +61,7 @@ form select {
 
 /* Tailwind css for view pages */
 .main-container-box {
-  @apply p-8 min-h-[75vh] flex flex-col items-start mx-[10%];
+  @apply p-8 min-h-[75vh] flex flex-row items-start mx-[10%];
 }
 
 .view-container {
