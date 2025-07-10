@@ -149,8 +149,8 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6 no-scrollbar">
-      <div className="max-w-[80%] mx-auto space-y-6">
+    <div>
+      <div className="px-24">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Dashboard Analytics</h1>
         <div className="flex flex-wrap gap-12 items-center justify-center py-12">
           <div className="bg-primary text-white px-12 py-8 flex flex-col gap-4 custom-radius text-center w-[300px]">
@@ -180,7 +180,7 @@ const Dashboard = () => {
 
 
         {/* Bar Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-36">
           {/* Inventory Chart */}
           <div className="bg-white rounded-xl shadow-md p-4 md:p-6">
             <div className=" md:h-80 lg:h-96">
