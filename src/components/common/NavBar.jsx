@@ -7,6 +7,9 @@ import {
   FaSignInAlt,
   FaBuilding,
   FaLayerGroup,
+  FaReceipt,
+  FaFileInvoice,
+  FaTag,
 } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { isLoggedIn } from '../../utils/tokenutils';
@@ -26,15 +29,18 @@ const Navbar = ({ toggleNavbar }) => {
   };
 
   const isActive = (path) => location.pathname === path;
+  // import { FaHome, FaBox, FaFileInvoice, FaReceipt, FaTags, FaUsers, FaBuilding } from 'react-icons/fa';
 
   const navItems = [
     { path: '/', icon: FaHome, label: 'Dashboard' },
     { path: '/view-products', icon: FaBox, label: 'Product' },
-    { path: '/issue-receipt', icon: FaLayerGroup, label: 'Issue Items' },
-    { path: '/view-category', icon: FaLayerGroup, label: 'Category' },
+    { path: '/issue-receipt', icon: FaFileInvoice, label: 'Issue' }, 
+    { path: '/receipt', icon: FaReceipt, label: 'Receipt' },        
+    { path: '/view-category', icon: FaTag, label: 'Category' },   
     { path: '/view-users', icon: FaUsers, label: 'Staff' },
     { path: '/view-departments', icon: FaBuilding, label: 'Department' },
   ];
+
 
   return (
     <div className="main-nav fixed top-0 left-0 h-screen w-[300px] bg-primary text-white z-[100] flex flex-col shadow-xl">
@@ -62,11 +68,10 @@ const Navbar = ({ toggleNavbar }) => {
               <button
                 key={item.path}
                 onClick={() => handleNavigate(item.path)}
-                className={`!nav-item group relative w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${
-                  active
+                className={`!nav-item group relative w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${active
                     ? 'bg-gradient-to-r from-primary to-primarylight text-white shadow-lg scale-105'
                     : 'text-primarylight hover:bg-primary/40 hover:text-white'
-                }`}
+                  }`}
                 style={{
                   animationDelay: `${i * 0.1}s`,
                   animation: 'slideInLeft 0.6s ease-out forwards',

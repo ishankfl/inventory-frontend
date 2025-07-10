@@ -213,13 +213,13 @@ const IssueReceipt = () => {
   }
   return (
     <div className="!min-w-[80vw] view-container mx-auto py-4 px-4 md:px-24 max-w-6xl">
-             {/* <button 
+             <button 
                                onClick={handleViewIssue} 
 
                   className="my-0 w-auto flex items-center text-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
                   <FiEye /> View Previous
-                </button> */}
+                </button> 
                 {/* <br></br> */}
       <h1 className="text-2xl font-bold mb-6">Create Issue</h1>
 

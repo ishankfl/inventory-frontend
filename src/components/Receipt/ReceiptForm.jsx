@@ -297,7 +297,7 @@ const Receipt = () => {
   };
 
   return (
-    <div className="bg-gray-100 p-2 sm:p-2 lg:p-4 min-h-screen">
+    <div className=" p-2 sm:p-2 lg:p-4 min-h-screen">
       <div className="mx-auto">
         <div className="flex flex-col px-24 gap-8">
           <button 

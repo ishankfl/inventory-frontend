@@ -151,3 +151,7 @@ select {
    scrollbar-width: none !important;
   /* Firefox */
 }
+
+.search-input {
+  @apply w-full p-2 border rounded text-black font-thin;
+}
