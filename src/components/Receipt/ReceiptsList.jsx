@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAllReceipts } from '../../api/receipt';
-import { FiEye, FiPrinter, FiDownload, FiEdit } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import { Eye, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
 const ReceiptsList = () => {
     const [receipts, setReceipts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
+
+    const [filterBillNo, setFilterBillNo] = useState('');
+    const [filterDate, setFilterDate] = useState('');
+    const [filterVendor, setFilterVendor] = useState('');
+    const [filterItem, setFilterItem] = useState('');
+    const [filterTotalAmount, setFilterTotalAmount] = useState('');
+
     const [currentPage, setCurrentPage] = useState(1);
     const receiptsPerPage = 10;
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -17,15 +24,14 @@ const ReceiptsList = () => {
             try {
                 setLoading(true);
                 const response = await fetchAllReceipts();
-                console.log(response.data.data);
-                if (response.data.data) {
-                    setReceipts(response.data.data);
-                } else {
-                    setError('No receipts found');
+                if (response.status === 200) {
+                    setTimeout(() => {
+                        setReceipts(response.data.data || []);
+                        setLoading(false);
+                    }, 1000);
                 }
             } catch (err) {
                 setError(err.message || 'Failed to load receipts');
-            } finally {
                 setLoading(false);
             }
         };
@@ -33,13 +39,20 @@ const ReceiptsList = () => {
         loadReceipts();
     }, []);
 
-    const filteredReceipts = receipts.filter(receipt =>
-        receipt.billNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        receipt.vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        receipt.receiptDetails.some(item =>
-            item.item.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-    );
+    const filteredReceipts = receipts.filter(receipt => {
+        const totalAmount = receipt.receiptDetails.reduce(
+            (sum, item) => sum + item.quantity * item.rate, 0
+        );
+        return (
+            receipt.billNo.toLowerCase().includes(filterBillNo.toLowerCase()) &&
+            new Date(receipt.receiptDate).toLocaleDateString().includes(filterDate) &&
+            receipt.vendor.name.toLowerCase().includes(filterVendor.toLowerCase()) &&
+            receipt.receiptDetails.some(item =>
+                item.item.name.toLowerCase().includes(filterItem.toLowerCase())
+            ) &&
+            totalAmount.toString().includes(filterTotalAmount)
+        );
+    });
 
     const indexOfLastReceipt = currentPage * receiptsPerPage;
     const indexOfFirstReceipt = indexOfLastReceipt - receiptsPerPage;
@@ -53,18 +66,20 @@ const ReceiptsList = () => {
 
     const handleAddReceipt = () => {
         navigate('/receipt');
-        return;
-    }
+    };
 
     const handleEditReceipt = (id) => {
         navigate(`/receipt/edit/${id}`);
-        return;
-    }
+    };
+
+    const handleViewReceipt = (id) => {
+        navigate(`/receipt-details/${id}`);
+    };
 
     return (
-        <div className="main-container-box !pt-[0px]  mt-[-50px]">
-
-            <div className="view-container overflow-x-auto transition-all duration-300 ">
+        <div className="main-container-box !pt-[0px] mt-[-50px]">
+            <br /><br /><br />
+            <div className="view-container overflow-x-auto transition-all duration-300">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                     <div className="bg-blue-100 p-4 rounded-lg">
                         <h3 className="text-sm font-medium text-blue-700">Total Receipts</h3>
@@ -78,144 +93,125 @@ const ReceiptsList = () => {
                             {receipts.reduce((sum, receipt) => sum + receipt.receiptDetails.length, 0)}
                         </p>
                     </div>
-
                     <div className="bg-purple-100 p-4 rounded-lg">
                         <h3 className="text-sm font-medium text-purple-800">Total Amount</h3>
                         <p className="mt-1 text-2xl font-semibold text-purple-600">
-                            Rs. {receipts.reduce(
-                                (sum, receipt) => sum + receipt.receiptDetails.reduce(
-                                    (sum, item) => sum + (item.quantity * item.rate), 0
-                                ), 0
-                            ).toLocaleString()}
+                            Rs. {receipts
+                                .reduce(
+                                    (sum, receipt) =>
+                                        sum + receipt.receiptDetails.reduce(
+                                            (sum, item) => sum + (item.quantity * item.rate), 0
+                                        ), 0
+                                ).toLocaleString()}
                         </p>
                     </div>
                 </div>
-                <br></br>
-                <button onClick={handleAddReceipt}>Add Receipt</button>
-                <div className=" flex justify-between items-center ">
-                    <h1 className="text-2xl font-bold text-gray-800">Receipts Inventory</h1>
-
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Search by bill no, vendor or item..."
-                            className="pl-10 pr-4 py-2 border rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        <svg
-                            className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                            />
-                        </svg>
-                    </div>
-                </div>
+                <br />
+                <button onClick={handleAddReceipt} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                    Add Receipt
+                </button>
 
                 <div className="overflow-x-auto">
-                    <table className="">
-                        <thead className='rounded-lg '>
-                            <tr className='rounded-lg font-semibold'>
-                                <th className="">Bill No</th>
-                                <th className="">Date</th>
-                                <th className="">Vendor</th>
-                                <th className="">Items</th>
-                                <th className="">Total Amount</th>
-                                <th className="">Actions</th>
+                    <table className="min-w-full bg-white">
+                        <thead className="rounded-lg">
+                            <tr className="font-semibold bg-gray-50">
+                                <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase">Bill No</th>
+                                <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase">Date</th>
+                                <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase">Vendor</th>
+                                <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase">Items</th>
+                                <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase">Total Amount</th>
+                                <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase">Actions</th>
                             </tr>
-                            <tr className='bg-gray-100'>
-                                <th className=""><input className='!w-[80%] text-black !p-2 !m-0 ' type="text" /></th>
-                                <th className=""><input className='!w-[80%] text-black !p-2 !m-0 ' type="text" /></th>
-                                <th className=""><input className='!w-[80%] text-black !p-2 !m-0 ' type="text" /></th>
-                                <th className=""><input className='!w-[80%] text-black !p-2 !m-0 ' type="text" /></th>
-                                <th className=""><input className='!w-[80%] text-black !p-2 !m-0 ' type="text" /> </th>
-                                <th className=""><input className='!w-[80%] text-black !p-2 !m-0 ' type="text" /></th>
+                            <tr className="bg-gray-100">
+                                <th className="px-6 py-2">
+                                    <input
+                                        className="search-input"
+                                        placeholder="Search Bill No"
+                                        value={filterBillNo}
+                                        onChange={(e) => setFilterBillNo(e.target.value)}
+                                    />
+                                </th>
+                                <th className="px-6 py-2">
+                                    <input
+                                        className="search-input"
+                                        placeholder="Search Date"
+                                        value={filterDate}
+                                        onChange={(e) => setFilterDate(e.target.value)}
+                                    />
+                                </th>
+                                <th className="px-6 py-2">
+                                    <input
+                                        className="search-input"
+                                        placeholder="Search Vendor"
+                                        value={filterVendor}
+                                        onChange={(e) => setFilterVendor(e.target.value)}
+                                    />
+                                </th>
+                                <th className="px-6 py-2">
+                                    <input
+                                        className="search-input"
+                                        placeholder="Search Item"
+                                        value={filterItem}
+                                        onChange={(e) => setFilterItem(e.target.value)}
+                                    />
+                                </th>
+                                <th className="px-6 py-2">
+                                    <input
+                                        className="search-input"
+                                        placeholder="Search Amount"
+                                        value={filterTotalAmount}
+                                        onChange={(e) => setFilterTotalAmount(e.target.value)}
+                                    />
+                                </th>
+                                <th className="px-6 py-2"></th>
                             </tr>
                         </thead>
-                        <tbody className="">
-                            {currentReceipts.length > 0 ? (
-                                currentReceipts.map((receipt) => {
-                                    const totalAmount = receipt.receiptDetails.reduce(
-                                        (sum, item) => sum + (item.quantity * item.rate), 0
-                                    );
-
-                                    return (
-                                        <tr key={receipt.id}>
-                                            <td className="">
-                                                {receipt.billNo}
-                                            </td>
-                                            <td className="">
-                                                {new Date(receipt.receiptDate).toLocaleDateString()}
-                                            </td>
-                                            <td className="">
-                                                <div className="flex items-center">
-                                                    <div className="flex-shrink-0 h-10 w-10">
-                                                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                                            {receipt.vendor.name.charAt(0)}
-                                                        </div>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {currentReceipts.length > 0 ? currentReceipts.map(receipt => {
+                                const totalAmount = receipt.receiptDetails.reduce(
+                                    (sum, item) => sum + (item.quantity * item.rate), 0
+                                );
+                                return (
+                                    <tr key={receipt.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{receipt.billNo}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">{new Date(receipt.receiptDate).toLocaleDateString()}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center">
+                                                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                                    {receipt.vendor.name.charAt(0)}
+                                                </div>
+                                                <div className="ml-4">
+                                                    <div className="text-sm font-medium text-gray-900">{receipt.vendor.name}</div>
+                                                    <div className="text-sm text-gray-500">{receipt.vendor.email}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                            <div className="space-y-1">
+                                                {receipt.receiptDetails.map((item, idx) => (
+                                                    <div key={idx} className="flex justify-between">
+                                                        <span>{item.item.name} ({item.quantity} {item.item.unit})</span>
+                                                        <span className="font-medium">
+                                                            Rs. {(item.quantity * item.rate).toLocaleString()}
+                                                        </span>
                                                     </div>
-                                                    <div className="ml-4">
-                                                        <div className="text-sm font-medium text-gray-900">
-                                                            {receipt.vendor.name}
-                                                        </div>
-                                                        <div className="text-sm text-gray-500">
-                                                            {receipt.vendor.email}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">
-                                                <div className="space-y-1">
-                                                    {receipt.receiptDetails.map((item, idx) => (
-                                                        <div key={idx} className="flex justify-between">
-                                                            <span>{item.item.name} ({item.quantity} {item.item.unit})</span>
-                                                            <span className="font-medium">
-                                                                Rs. {(item.quantity * item.rate).toLocaleString()}
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                                                Rs. {totalAmount.toLocaleString()}
-                                            </td>
-                                            <td className="">
-                                                <div className="flex space-x-2">
-                                                    <button className="text-gray-600 hover:text-gray-900">
-
-                                                        <Link
-                                                            to={`/receipt-details/${receipt.id}`}
-                                                            className="text-blue-600 hover:text-blue-900"
-                                                        >
-                                                            <FiEye className="h-5 w-5" />
-                                                        </Link>
-                                                    </button>
-
-                                                    {/* <button className="text-gray-600 hover:text-gray-900">
-                                                        <FiPrinter className="h-5 w-5" />
-                                                    </button>
-                                                    <button className="text-white-600 hover:text-green-900">
-                                                        <FiDownload className="h-5 w-5" />
-                                                    </button> */}
-                                                    <button className="text-red-600 hover:text-green-900" onClick={() => handleEditReceipt(receipt.id)}>
-                                                        <FiEdit className="h-5 w-5" />
-                                                    </button>
-                                                </div>
-                                            </td>
-
-                                        </tr>
-
-                                    );
-                                })
-                            ) : (
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm font-bold text-gray-900">Rs. {totalAmount.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-sm font-medium">
+                                            <div className="flex space-x-2">
+                                                <button className="text-blue-600 hover:text-blue-900" onClick={() => handleViewReceipt(receipt.id)}>
+                                                    <Eye className="h-5 w-5" />
+                                                </button>
+                                                <button className="text-red-600 hover:text-green-900" onClick={() => handleEditReceipt(receipt.id)}>
+                                                    <Edit className="h-5 w-5" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            }) : (
                                 <tr>
                                     <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
                                         No receipts found
@@ -242,8 +238,8 @@ const ReceiptsList = () => {
                                     key={number}
                                     onClick={() => paginate(number)}
                                     className={`px-3 py-1 border-t border-b border-gray-300 bg-white text-sm font-medium ${currentPage === number
-                                            ? 'text-blue-600 bg-blue-50'
-                                            : 'text-gray-700 hover:bg-gray-50'
+                                        ? 'text-blue-600 bg-blue-50'
+                                        : 'text-gray-700 hover:bg-gray-50'
                                         }`}
                                 >
                                     {number}
@@ -259,9 +255,6 @@ const ReceiptsList = () => {
                         </nav>
                     </div>
                 )}
-
-                {/* Summary Cards */}
-
             </div>
         </div>
     );
