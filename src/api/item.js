@@ -77,7 +77,7 @@ export const getAllProducts = () => {
 
 //  FIXED: This should be DELETE instead of GET
 export const deleteProducts = (id) => {
-  return axios.delete(`${server}/api/Product/${id}`, authHeader());
+  return axios.delete(`${server}/api/Item/${id}`, authHeader());
 };
 
 //  Get Single Product by ID

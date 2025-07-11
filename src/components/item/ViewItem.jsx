@@ -37,11 +37,19 @@ const ViewProducts = () => {
     if (!confirmDelete) return;
 
     try {
-      await deleteProducts(id);
+     const response =  await deleteProducts(id);
+     console.log(response.status)
+     if(response.status == 409){
+
+     }
       setProducts(products.filter((p) => p.id !== id));
+
     } catch (err) {
-      console.error("Error deleting product:", err.message);
-      setError("Failed to delete product");
+      if(err.response.status == 409 ){
+
+      }
+      console.error("Error deleting product:", err);
+      setError(err.response.data.message);
     }
   };
 
