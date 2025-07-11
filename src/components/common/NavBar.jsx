@@ -34,7 +34,7 @@ const Navbar = ({ toggleNavbar }) => {
   const navItems = [
     { path: '/', icon: FaHome, label: 'Dashboard' },
     { path: '/view-products', icon: FaBox, label: 'Product' },
-    { path: '/issue-receipt', icon: FaFileInvoice, label: 'Issue' }, 
+    { path: '/issue-list', icon: FaFileInvoice, label: 'Issue' }, 
     { path: '/receipt', icon: FaReceipt, label: 'Receipt' },        
     { path: '/view-category', icon: FaTag, label: 'Category' },   
     { path: '/view-users', icon: FaUsers, label: 'Staff' },

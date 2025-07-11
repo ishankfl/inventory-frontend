@@ -41,19 +41,16 @@ const IssuesList = () => {
         };
 
         loadIssues();
-    }, []); // Empty dependency array means this runs once on mount
-
+    }, []); 
     const filteredIssues = issues.filter(issue => {
         const totalValue = issue.issueDetails.reduce((sum, item) => sum + item.quantity * item.issueRate, 0);
         return (
             issue.issueId.toLowerCase().includes(filterIssueId.toLowerCase()) &&
-            // Improved date filtering to handle empty filterDate gracefully
             (filterDate ? new Date(issue.issueDate).toLocaleDateString().includes(filterDate) : true) &&
             issue.issuedByUser.fullName.toLowerCase().includes(filterIssuedBy.toLowerCase()) &&
             issue.issueDetails.some(item =>
                 item.item.name.toLowerCase().includes(filterItem.toLowerCase())
             ) &&
-            // Convert totalValue to string before checking for inclusion
             totalValue.toLocaleString().includes(filterTotalValue)
         );
     });
@@ -65,7 +62,6 @@ const IssuesList = () => {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-    // --- Loading and Error Display (improved with Tailwind classes) ---
     if (loading) return (
         <div className="min-h-screen bg-background flex items-center justify-center">
             <div className="flex items-center space-x-2">
@@ -84,23 +80,18 @@ const IssuesList = () => {
         </div>
     );
 
-    // --- Action Handlers (using navigate for a real app) ---
     const handleAddIssue = () => {
-        // You'd typically navigate to an add issue form/page
-        navigate('/add-issue'); // Example: navigate to '/add-issue'
+        navigate('/add-issue'); 
     };
 
     const handleEditIssue = (id) => {
-        // You'd typically navigate to an edit issue form/page with the ID
-        navigate(`/edit-issue/${id}`); // Example: navigate to '/edit-issue/1'
+        navigate(`/edit-issue/${id}`); 
     };
 
     const handleViewIssue = (id) => {
-        // You'd typically navigate to a detailed view page for the issue
-        navigate(`/view-issue/${id}`); // Example: navigate to '/view-issue/1'
+        navigate(`/view-issue/${id}`);
     };
 
-    // --- Calculate Totals for Stats Cards ---
     const totalIssues = issues.length;
     const totalItemsIssued = issues.reduce((sum, issue) =>
         sum + issue.issueDetails.reduce((itemSum, item) => itemSum + item.quantity, 0), 0

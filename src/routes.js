@@ -56,7 +56,7 @@ const CustomRouter = () => {
       <Route path="/edit-department/:id" element={<EditDepartment />} />
       <Route path="/add-department" element={<AddDepartment />} />
 
-      <Route path="/issue-item" element={<IssuePage />} />
+      {/* <Route path="/add-issue" element={<IssuePage />} /> */}
       <Route path="/view-issues" element={<ViewIssue />} />
 
       <Route path="/receipt" element={<Receipt />} />
@@ -64,7 +64,7 @@ const CustomRouter = () => {
       <Route path="/receipt/edit/:id" element={<EditReceipt />} />
       <Route path="/receipt-list" element={<ReceiptList />} />
 
-      <Route path="/issue-receipt" element={<IssueReceipt />} />
+      <Route path="/add-issue" element={<IssueReceipt />} />
       <Route path="/issue-list" element={<IssuesList />} />
       <Route path="/edit-issue/:id" element={<EditIssue />} />
 

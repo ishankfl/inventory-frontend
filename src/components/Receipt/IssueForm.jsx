@@ -10,6 +10,7 @@ import ItemManagementSection from './ItemManagementSection';
 import FormInput from '../common/FormInput';
 import FormSelect from '../common/FormSelect';
 import issueSchema from '../../utils/yup/issue-validation'
+import { Plus } from 'lucide-react';
 const IssueReceipt = () => {
   const [departments, setDepartments] = useState([]);
   const [items, setItems] = useState([]);
@@ -213,17 +214,21 @@ const IssueReceipt = () => {
   }
   return (
     <div className="!min-w-[80vw] view-container mx-auto py-4 px-4 md:px-24 max-w-6xl">
-    <div className="flex w-100% justify-end">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-text mb-2">Create Issue</h1>
+          <p className="text-gray-600">Manage and track all inventory issues</p>
+        </div>
         <button
-        onClick={handleViewIssue}
+          onClick={handleViewIssue}
+          className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200 shadow-md"
+        >
+          <Plus className="h-5 w-5" />
+          <span>View Previous</span>
+        </button>
+      </div>
 
-        className="my-0 w-auto flex items-center text-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-      >
-        <FiEye /> View Previous
-      </button>
-    </div>
       {/* <br></br> */}
-      <h1 className="text-2xl font-bold mb-6">Create Issue</h1>
 
       <form onSubmit={handleSubmit}>
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
