@@ -49,7 +49,8 @@ const Login = () => {
           duration: 4000,
         });
         setTimeout(() => {
-          navigate('/');
+          // navigate('/');
+          window.location='/'
         }, 4000);
       } else {
         setSubmitError('Login failed. Please try again.');
