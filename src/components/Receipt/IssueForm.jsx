@@ -10,7 +10,7 @@ import ItemManagementSection from './ItemManagementSection';
 import FormInput from '../common/FormInput';
 import FormSelect from '../common/FormSelect';
 import issueSchema from '../../utils/yup/issue-validation'
-import { Plus } from 'lucide-react';
+import { Eye, Plus } from 'lucide-react';
 const IssueReceipt = () => {
   const [departments, setDepartments] = useState([]);
   const [items, setItems] = useState([]);
@@ -223,7 +223,7 @@ const IssueReceipt = () => {
           onClick={handleViewIssue}
           className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200 shadow-md"
         >
-          <Plus className="h-5 w-5" />
+          <Eye className="h-5 w-5" />
           <span>View Previous</span>
         </button>
       </div>

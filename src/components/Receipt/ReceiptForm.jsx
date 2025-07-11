@@ -8,6 +8,7 @@ import AddedItems from './AddedItems';
 import { itemSchema, validatePrimaryInfo, validateItem, primaryInfoSchema } from '../../utils/yup/receipt-form.vaid';
 import FormInput from '../common/FormInput';
 import FormSelect from '../common/FormSelect';
+import { Eye } from 'lucide-react';
 
 const PlusIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -298,18 +299,8 @@ const Receipt = () => {
 
   return (
     <div className=" p-2 sm:p-2 lg:p-4 min-h-screen">
-      <div className="mx-auto">
-        <div className="flex flex-col px-24 gap-8">
-          <div className='flex w-100% justify-end'>
-            <button
-              onClick={handleViewReceipt}
-              className="my-0  flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              <FiEye /> View Receipt
-            </button>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-800">Receipts Inventory</h1>
-        </div>
+      <div className="mx-auto ">
+
 
         {showForm && (
           <AddItemForm
@@ -318,8 +309,21 @@ const Receipt = () => {
             fetchAllItem={getItems}
           />
         )}
-
+        <div className="flex  justify-between mb-6 mx-auto py-4  md:px-24 ">
+          <div>
+            <h1 className="text-3xl font-bold text-text mb-2">Create Receipts</h1>
+            <p className="text-gray-600">Manage and track all inventory issues</p>
+          </div>
+          <button
+            onClick={handleViewReceipt}
+            className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200 shadow-md"
+          >
+            <Eye className="h-5 w-5" />
+            <span>View Previous</span>
+          </button>
+        </div>
         <form onSubmit={handleAddItem}>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 py-4 justify-items-center">
             <div className="bg-white py-8 px-4 rounded-lg shadow-md w-[80%]">
               <SectionHeader title="Primary Information" />

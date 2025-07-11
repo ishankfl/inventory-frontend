@@ -35,7 +35,7 @@ const Navbar = ({ toggleNavbar }) => {
     { path: '/', icon: FaHome, label: 'Dashboard' },
     { path: '/view-products', icon: FaBox, label: 'Product' },
     { path: '/issue-list', icon: FaFileInvoice, label: 'Issue' }, 
-    { path: '/receipt', icon: FaReceipt, label: 'Receipt' },        
+    { path: '/receipt-list', icon: FaReceipt, label: 'Receipt' },        
     { path: '/view-category', icon: FaTag, label: 'Category' },   
     { path: '/view-users', icon: FaUsers, label: 'Staff' },
     { path: '/view-departments', icon: FaBuilding, label: 'Department' },
