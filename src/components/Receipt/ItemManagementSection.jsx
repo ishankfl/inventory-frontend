@@ -76,6 +76,12 @@ const ItemManagementSection = ({
       return;
     }
 
+    // New validation: Check if selected quantity exceeds available quantity
+    if (quantity > newItem.availableQuantity) {
+      alert(`The selected quantity exceeds the available stock of ${newItem.availableQuantity}`);
+      return;
+    }
+
     try {
       await itemSchema.validate(newItem, { abortEarly: false });
 
@@ -87,17 +93,17 @@ const ItemManagementSection = ({
         rate,
         value: (quantity * rate).toFixed(2),
         uom: selectedItem.unit,
-        availableQuantity: newItem.availableQuantity - quantity
+        availableQuantity: newItem.availableQuantity - quantity,
       };
 
       const existingIndex = formData.items.findIndex(i => i.itemId === newItem.itemId);
-
       if (existingIndex !== -1) {
         onAddItem({ updatedItem, isUpdate: true });
       } else {
         onAddItem({ updatedItem, isUpdate: false });
       }
 
+      // Reset newItem state
       setNewItem({
         itemId: '',
         quantity: '1',
@@ -118,6 +124,7 @@ const ItemManagementSection = ({
       }
     }
   };
+
 
   return (
     <div className="flex flex-col md:flex-row gap-6 mb-6">
@@ -210,7 +217,7 @@ const ItemManagementSection = ({
 
       <div className="bg-white p-6 rounded-lg shadow-md flex-1">
         {/* <div className="mb-4"> */}
-          <h2 className="text-lg font-semibold text-gray-800 !mb-0">Items to Issue</h2>
+        <h2 className="text-lg font-semibold text-gray-800 !mb-0">Items to Issue</h2>
         {/* </div> */}
         <div className="overflow-auto mb-0">
           {errors.items && typeof errors.items === 'string' && (
