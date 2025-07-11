@@ -1,84 +1,66 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProductById, updateProduct } from '../../api/item';
-import { getAllCategories } from '../../api/category';
-import { productSchema } from '../../utils/yup/product-validation';
+import FormInput from '../common/FormInput';
 import '../../styles/form.scss';
+import { editProductSchema } from '../../utils/yup/receipt-form.vaid';
 
 const EditProduct = ({ onClose, productId }) => {
   const id = productId;
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
-  const [categoryId, setCategoryId] = useState('');
   const [userId, setUserId] = useState('');
-  const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await getAllCategories();
-        setCategories(res.data);
-      } catch (err) {
-        console.error('Error fetching categories:', err);
-        setErrors({ api: 'Failed to load categories. Please try again.' });
-      }
-    };
-
-    fetchCategories();
-  }, []);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const res = await getProductById(id);
+        console.log(res.data)
+        console.log(res.status)
         const data = res.data;
 
         setName(data.name || '');
-        setDescription(data.description || '');
-        setQuantity(data.quantity?.toString() || '');
+        setQuantity(
+          data.stock?.reduce((sum, s) => sum + (s.currentQuantity || 0), 0)?.toString() || ''
+        );
         setPrice(data.price?.toString() || '');
-        setCategoryId(data.category?.id || '');
         setUserId(data.userId || '');
       } catch (err) {
-        console.error('Failed to fetch product:', err);
+        console.log(err)
         setErrors({ api: 'Could not load product details.' });
       }
     };
 
-    fetchProduct();
+    if (id) fetchProduct();
   }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({}); // Clear old errors
+    setErrors({});
 
-    const formData = { name, description, quantity, price, categoryId };
+    const formData = { name, price };
 
     try {
-      await productSchema.validate(formData, { abortEarly: false });
+      await editProductSchema.validate(formData, { abortEarly: false });
 
       setIsSubmitting(true);
 
       const response = await updateProduct(
         id,
         name,
-        description,
         parseInt(quantity, 10),
         parseFloat(price),
-        categoryId,
         userId
       );
 
       if (response.status === 200) {
         alert('Product updated successfully!');
-        if (onClose) onClose();
-        else navigate('/view-products');
+        onClose ? onClose() : navigate('/view-products');
       } else {
         setErrors({ api: 'Failed to update product. Please try again.' });
       }
@@ -90,8 +72,7 @@ const EditProduct = ({ onClose, productId }) => {
         });
         setErrors(newErrors);
       } else {
-        console.error('Error updating product:', err);
-        setErrors({ api: 'An unexpected error occurred during update.' });
+        setErrors({ api: 'Unexpected error occurred.' });
       }
     } finally {
       setIsSubmitting(false);
@@ -100,84 +81,50 @@ const EditProduct = ({ onClose, productId }) => {
 
   return (
     <div className="!bg-white container">
-      <h2>Edit Product</h2>
-      {errors.api && (
-        <p className="error-msg" style={{ color: 'red', marginBottom: '1rem' }}>{errors.api}</p>
-      )}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            disabled={isSubmitting}
-          />
-          {errors.name && <p className="error-msg" style={{ color: 'red' }}>{errors.name}</p>}
-        </div>
+      <h2 className="text-xl font-semibold mb-4">Edit Product</h2>
 
-        <div>
-          <label>Description:</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            disabled={isSubmitting}
-          />
-          {errors.description && <p className="error-msg" style={{ color: 'red' }}>{errors.description}</p>}
-        </div>
+      {errors.api && <p className="text-red-600 mb-3">{errors.api}</p>}
 
-        <div>
-          <label>Quantity:</label>
-          <input
-            type="number"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            disabled={isSubmitting}
-            min={0}
-          />
-          {errors.quantity && <p className="error-msg" style={{ color: 'red' }}>{errors.quantity}</p>}
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <FormInput
+          label="Product Name"
+          name="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          error={errors.name}
+          required
+          disabled={isSubmitting}
+        />
 
-        <div>
-          <label>Price:</label>
-          <input
-            type="number"
-            step="0.01"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            disabled={isSubmitting}
-            min={0}
-          />
-          {errors.price && <p className="error-msg" style={{ color: 'red' }}>{errors.price}</p>}
-        </div>
+        {/* Quantity is not editable here but included for API call */}
 
-        <div>
-          <label>Category:</label>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
+        <FormInput
+          label="Price (Rs)"
+          name="price"
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          error={errors.price}
+          required
+          disabled={isSubmitting}
+          min={0}
+          step="0.01"
+        />
+
+        <div className="flex justify-end gap-3 mt-4">
+          <button
+            type="submit"
             disabled={isSubmitting}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
           >
-            <option value="">-- Select Category --</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-          {errors.categoryId && <p className="error-msg" style={{ color: 'red' }}>{errors.categoryId}</p>}
-        </div>
-
-        <div style={{ marginTop: '1rem' }}>
-          <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Updating...' : 'Update Product'}
+            {isSubmitting ? 'Updating...' : 'Update'}
           </button>
           {onClose && (
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="!bg-red-600 hover:!bg-red-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
             >
               Cancel
             </button>

@@ -58,17 +58,17 @@ export const addProduct = (name, description, quantity, price, categoryId, userI
   }, authHeader());
 };
 
-//  Update Product (PUT)
-export const updateProduct = (id, name, description, quantity, price, categoryId, userId) => {
-  console.log(id, name, description, quantity, price, categoryId, userId);
-  return axios.put(`${server}/api/Product/${id}`, {
-    name,
-    description,
-    quantity,
-    price,
-    categoryId,
-    userId
-  }, authHeader());
+export const updateProduct = (id, name, quantity, price, userId) => {
+  return axios.put(
+    `${server}/api/Product/${id}`,
+    {
+      name,
+      quantity,
+      price,
+      userId,
+    },
+    { headers: authHeader() }
+  );
 };
 
 //  Get All Products (no token required unless backend demands it)
@@ -83,5 +83,5 @@ export const deleteProducts = (id) => {
 
 //  Get Single Product by ID
 export const getProductById = (id) => {
-  return axios.get(`${server}/api/Product/${id}`);
+  return axios.get(`${server}/api/Item/${id}`);
 };

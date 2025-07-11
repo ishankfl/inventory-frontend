@@ -24,6 +24,13 @@ export const itemSchema = Yup.object().shape({
     value: Yup.number().required(),
 });
 
+export const editProductSchema = Yup.object().shape({
+  name: Yup.string().trim().required('Product name is required'),
+  price: Yup.number()
+    .typeError('Price must be a number')
+    .positive('Price must be greater than zero')
+    .required('Price is required'),
+});
 export const validatePrimaryInfo = async (setErrors, primaryInfo) => {
     try {
         await primaryInfoSchema.validate(primaryInfo, { abortEarly: false });

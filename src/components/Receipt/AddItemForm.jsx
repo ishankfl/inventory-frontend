@@ -63,12 +63,12 @@ const AddItemForm = ({ onClose, fetchAllItem }) => {
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-40 z-40" onClick={onClose} />
+      <div className="fixed !text-white inset-0 bg-black bg-opacity-40 z-40" onClick={onClose} />
       <div className="fixed inset-0 flex justify-center items-center z-50">
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 relative p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-800">Add New Item</h2>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <button onClick={onClose} className="text-white-500 hover:text-white-800">
               <FiX size={22} />
             </button>
           </div>

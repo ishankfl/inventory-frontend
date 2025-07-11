@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { deleteProducts, getAllProducts } from '../../api/item';
 import '../../styles/view.scss';
-import AddProduct from './AddItem';
+// import AddProduct from './AddItem';
 import EditProduct from './EditItem';
 import SearchBox from '../common/SearchBox';
+import AddItemForm from '../Receipt/AddItemForm';
+// import { fetchAllItems } from '../../api/receipt';
 
 const ViewProducts = () => {
   const [products, setProducts] = useState([]);
@@ -53,6 +55,7 @@ const ViewProducts = () => {
   };
 
   const closeModal = () => {
+    // fetchProducts()
     setIsAddModelOpened(false);
     setIsEditModelOpened(false);
   };
@@ -123,7 +126,7 @@ const ViewProducts = () => {
             className="bg-white p-6 rounded shadow-lg max-w-lg w-0"
             onClick={(e) => e.stopPropagation()}
           >
-            {isAddModelOpened && <AddProduct onClose={closeModal} />}
+            {isAddModelOpened && <AddItemForm onClose={closeModal} fetchAllItem={fetchProducts} />}
             {isEditModelOpened && <EditProduct onClose={closeModal} productId={productId} />}
           </div>
         </div>
