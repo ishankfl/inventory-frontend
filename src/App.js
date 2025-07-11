@@ -20,7 +20,7 @@ function App() {
         {!showNavbar && (
           <button 
             onClick={toggleNavbar} 
-            className='fixed top-4 left-4 z-50 p-2 text-white bg-purple-800 rounded-full shadow-md hover:bg-purple-600'
+            className='fixed top-4 left-4 z-50 p-2 text-white bg-primary rounded-full shadow-md hover:bg-purple-600'
           >
             <FaBars />
           </button>

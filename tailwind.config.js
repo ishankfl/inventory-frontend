@@ -1,8 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}", // Include all your frontend components
-
+    "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
@@ -16,10 +15,15 @@ module.exports = {
         background: '#f8fafc',
         text: '#1e293b',
         'accent-dark': '#d97706',
-         'danger-dark': '#dc2626',
-      }
+        'danger-dark': '#dc2626',
+
+        card1color: '#dbeafe',
+        card2color: '#dcfce7',
+        card3color: '#fef3c7',
+
+        'card-text': '#1e293b',
+      },
     },
   },
   plugins: [],
 }
-

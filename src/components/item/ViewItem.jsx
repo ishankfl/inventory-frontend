@@ -43,6 +43,7 @@ const ViewProducts = () => {
 
      }
       setProducts(products.filter((p) => p.id !== id));
+      setError('');
 
     } catch (err) {
       if(err.response.status == 409 ){
