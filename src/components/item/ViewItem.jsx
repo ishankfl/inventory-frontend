@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { deleteProducts, getAllProducts } from '../../api/product';
+import { deleteProducts, getAllProducts } from '../../api/item';
 import '../../styles/view.scss';
 import AddProduct from './AddItem';
 import EditProduct from './EditItem';
-import { Fa500Px, FaBed, FaSearch, FaUser } from 'react-icons/fa';
 import SearchBox from '../common/SearchBox';
-import { Label } from 'recharts';
+
 const ViewProducts = () => {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
@@ -16,8 +15,6 @@ const ViewProducts = () => {
   const [productId, setProductId] = useState('');
   const [originalProducts, setOriginalProducts] = useState([]);
 
-
-  // Fetch products on load
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -25,10 +22,8 @@ const ViewProducts = () => {
   const fetchProducts = async () => {
     try {
       const res = await getAllProducts();
-      console.log(res.data)
       setProducts(res.data);
-      setOriginalProducts(res.data); // store the original list
-
+      setOriginalProducts(res.data);
     } catch (err) {
       console.error("Error fetching products:", err.message);
       setError("Failed to load products");
@@ -51,7 +46,6 @@ const ViewProducts = () => {
   const handleEdit = (id) => {
     setProductId(id);
     setIsEditModelOpened(true);
-    // navigate(`/edit-product/${id}`);
   };
 
   const handleAddNewProduct = () => {
@@ -62,36 +56,6 @@ const ViewProducts = () => {
     setIsAddModelOpened(false);
     setIsEditModelOpened(false);
   };
-  // const handleSearchFilter=(details)=>{
-  //   if (details==='' || details == null){
-  //     setProducts(products);
-  //     return;
-  //   }
-  //   const filteredProduct = products.filter(item => item.name===details);
-  //   console.log(filteredProduct)
-  //   setProducts(filteredProduct)
-
-  // }
-  // const handleSearchFilter = (details) => {
-  //   console.log(details);
-
-  //   if (!details) {
-  //     if (!details) {
-  //       // If input is empty, reset to original full list
-  //       setProducts(products);
-  //       return;
-  //     }
-  //   };
-  //   let filteredProduct = products;
-
-  //   filteredProduct = filteredProduct.filter(item =>
-  //     item.name.toLowerCase().startsWith(details.toLowerCase()) ||
-  //     item.description.toLowerCase().startsWith(details.toLowerCase())
-  //   );
-
-  //   console.log(filteredProduct);
-  //   setProducts(filteredProduct);
-  // };
 
   const handleSearchFilter = (details) => {
     if (!details) {
@@ -101,51 +65,34 @@ const ViewProducts = () => {
 
     const filteredProduct = originalProducts.filter(item =>
       item.name.toLowerCase().startsWith(details.toLowerCase()) ||
-      item.description.toLowerCase().startsWith(details.toLowerCase())
+      (item.description?.toLowerCase().startsWith(details.toLowerCase()))
     );
-    console.log(filteredProduct)
     setProducts(filteredProduct);
   };
-
 
   return (
     <div className="main-container-box relative">
       <button className="nav-item" onClick={handleAddNewProduct}>+ Add New Product</button>
 
       <div
-        className={`view-container overflow-x-auto transition-all duration-300 ${(isAddModelOpened || isEditModelOpened) ? "blur-sm pointer-events-none select-none" : ""
-          }`}
+        className={`view-container overflow-x-auto transition-all duration-300 ${isAddModelOpened || isEditModelOpened ? "blur-sm pointer-events-none select-none" : ""}`}
       >
-        <div className='flex  justify-between '>
+        <div className='flex justify-between items-center'>
           <h2>Product List</h2>
-          <SearchBox handleSearchFilter={handleSearchFilter} label={'Product'}/>
-          {/* <input type="text" className='w-[20%]' prefix="hidlkfsdlkfjsdlfkjsdlfkjsdflkj" />
-          <div className="flex items-center justify-center border border-gray-300 rounded px-2 w-[20%]">
-            <FaSearch className="text-gray-500 mr-2 " />
-            <input
-              type="text"
-              className="flex-1 !outline-none !border-none m-0 p-0"
-              placeholder="Enter product name"
-              onChange={(e) => {
-                handleSearchFilter(e.target.value)
-              }}
-            />
-          </div> */}
+          <SearchBox handleSearchFilter={handleSearchFilter} label={'Product'} />
+        </div>
 
+        {error && <p className="error-msg">{error}</p>}
 
-        </div>        {error && <p className="error-msg">{error}</p>}
         {products.length === 0 ? (
           <p>No products found.</p>
         ) : (
-          <table border="1" cellPadding="10" cellSpacing="0" className="min-w-full divide-y divide-gray-20">
+          <table border="1" cellPadding="10" cellSpacing="0" className="min-w-full divide-y divide-gray-200">
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Description</th>
                 <th>Quantity</th>
                 <th>Price</th>
-                <th>Category</th>
-                <th>Created At</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -153,11 +100,12 @@ const ViewProducts = () => {
               {products.map((p) => (
                 <tr key={p.id}>
                   <td>{p.name}</td>
-                  <td>{p.description || '-'}</td>
-                  <td>{p.quantity}</td>
-                  <td>${p.price.toFixed(2)}</td>
-                  <td>{p.category?.name || 'N/A'}</td>
-                  <td>{new Date(p.createdAt).toLocaleString()}</td>
+                  <td>
+                    {Array.isArray(p.stock)
+                      ? p.stock.reduce((sum, stock) => sum + (stock.currentQuantity || 0), 0)
+                      : 0}
+                  </td>
+                  <td>Rs. {p.price.toFixed(2)}</td>
                   <td>
                     <button onClick={() => handleEdit(p.id)}>Edit</button>{' '}
                     <button onClick={() => handleDelete(p.id)}>Delete</button>
@@ -180,8 +128,6 @@ const ViewProducts = () => {
           </div>
         </div>
       )}
-
-
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProductById, updateProduct } from '../../api/product';
+import { getProductById, updateProduct } from '../../api/item';
 import { getAllCategories } from '../../api/category';
 import { productSchema } from '../../utils/yup/product-validation';
 import '../../styles/form.scss';

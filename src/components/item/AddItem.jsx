@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { addProduct } from '../../api/product';
+import { addProduct } from '../../api/item';
 import { getAllCategories } from '../../api/category';
 import { getUserId } from '../../utils/tokenutils';
 import { productSchema } from '../../utils/yup/product-validation';

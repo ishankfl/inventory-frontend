@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getAllDepartments } from "../../api/departments";
-import { getAllProducts } from "../../api/product";
+import { getAllProducts } from "../../api/item";
 import { addNewProduct, completeIssue, fetchIssuedItemByDept, removeProductFromIssue, updateProduct } from "../../api/issue";
 import { getUserId } from "../../utils/tokenutils";
 import { useNavigate } from "react-router-dom";
