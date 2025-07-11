@@ -58,14 +58,13 @@ export const addProduct = (name, description, quantity, price, categoryId, userI
   }, authHeader());
 };
 
-export const updateProduct = (id, name, quantity, price, userId) => {
+export const updateProduct = (id, name, unit, price) => {
   return axios.put(
-    `${server}/api/Product/${id}`,
+    `${server}/api/Item/${id}`,
     {
       name,
-      quantity,
+      unit,
       price,
-      userId,
     },
     { headers: authHeader() }
   );

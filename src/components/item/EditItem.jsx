@@ -10,6 +10,7 @@ const EditProduct = ({ onClose, productId }) => {
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
+  const [unit, setUnit] = useState('');
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
   const [userId, setUserId] = useState('');
@@ -23,7 +24,7 @@ const EditProduct = ({ onClose, productId }) => {
         console.log(res.data)
         console.log(res.status)
         const data = res.data;
-
+        setUnit(data.unit)
         setName(data.name || '');
         setQuantity(
           data.stock?.reduce((sum, s) => sum + (s.currentQuantity || 0), 0)?.toString() || ''
@@ -43,19 +44,19 @@ const EditProduct = ({ onClose, productId }) => {
     e.preventDefault();
     setErrors({});
 
-    const formData = { name, price };
+    const formData = { name, unit, price };
 
     try {
       await editProductSchema.validate(formData, { abortEarly: false });
 
       setIsSubmitting(true);
+console.log({ id, name, unit, price });
 
       const response = await updateProduct(
         id,
         name,
-        parseInt(quantity, 10),
-        parseFloat(price),
-        userId
+        unit,
+        parseInt(price),
       );
 
       if (response.status === 200) {
@@ -95,6 +96,17 @@ const EditProduct = ({ onClose, productId }) => {
           required
           disabled={isSubmitting}
         />
+
+        <FormInput
+          label="Unit"
+          name="unit"
+          value={unit}
+          onChange={(e) => setUnit(e.target.value)}
+          error={errors.name}
+          required
+          disabled={isSubmitting}
+        />
+
 
         {/* Quantity is not editable here but included for API call */}
 
