@@ -297,7 +297,7 @@ const IssuesList = () => {
                                                     {/* View Button with Eye Icon */}
                                                     <button
                                                         onClick={() => handleViewIssue(issue.id)}
-                                                        className="!bg-white p-2 text-primary hover:bg-card1color rounded-lg transition-colors duration-200"
+                                                        className="!bg-accent !text-black !py-   !px-4 text-primary hover:bg-card1color rounded-lg transition-colors duration-200"
                                                         title="View Issue"
                                                     >
                                                         <Eye className="h-4 w-4" />
@@ -305,7 +305,7 @@ const IssuesList = () => {
                                                     {/* Edit Button with Edit Icon */}
                                                     <button
                                                         onClick={() => handleEditIssue(issue.id)}
-                                                        className="!bg-white p-2 text-accent hover:bg-card3color rounded-lg transition-colors duration-200"
+                                                        className="!bg-red-600 !text-white !py-3   !px-4  text-accent hover:bg-card3color rounded-lg transition-colors duration-200"
                                                         title="Edit Issue"
                                                     >
                                                         <Edit className="h-4 w-4" />
