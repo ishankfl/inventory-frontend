@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import CustomRouter from './routes';
-import Navbar from './components/common/NavBar';
+import SideBar from './components/common/SideBar';
 import './styles/main.scss';
 import { FaBars } from 'react-icons/fa';
 import CurrentActivityBox from './components/common/CurrentActivityBox';
 import { isLoggedIn } from './utils/tokenutils';
+import { Sidebar } from 'lucide-react';
 
 function App() {
   const [showNavbar, setShowNavbar] = useState(true);
@@ -32,7 +33,7 @@ function App() {
         )}
 
         {/* Conditionally Render Navbar */}
-        {showNavbar && isUserLoggedin && <Navbar toggleNavbar={toggleNavbar} showNavbar={showNavbar} />}
+        {showNavbar && isUserLoggedin && <SideBar toggleNavbar={toggleNavbar} showNavbar={showNavbar} />}
 
         {/* Main Content Area */}
         <div className={`flex-1 transition-all duration-300 ${showNavbar ? 'ml-[300px]' : 'ml-0'}`}>

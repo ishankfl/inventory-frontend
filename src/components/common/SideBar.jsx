@@ -12,9 +12,10 @@ import {
   FaTag,
 } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { isLoggedIn } from '../../utils/tokenutils';
+import { isLoggedIn, removeToken } from '../../utils/tokenutils';
+import { LogOut } from 'lucide-react';
 
-const Navbar = ({ toggleNavbar }) => {
+const SideBar = ({ toggleNavbar }) => {
   const [loggedIn, setLoggedIn] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,9 +24,16 @@ const Navbar = ({ toggleNavbar }) => {
     setLoggedIn(isLoggedIn());
   }, []);
 
-  const handleNavigate = (path) => {
-    navigate(path);
-    toggleNavbar(); // close sidebar after navigation
+  const handleNavigate = async (path) => {
+    if (path == '/logout') {
+        removeToken()
+        window.location = '/login'
+      return;
+    }else{
+
+      navigate(path);
+      toggleNavbar(); // close sidebar after navigation
+    }
   };
 
   const isActive = (path) => location.pathname === path;
@@ -34,9 +42,9 @@ const Navbar = ({ toggleNavbar }) => {
   const navItems = [
     { path: '/', icon: FaHome, label: 'Dashboard' },
     { path: '/view-products', icon: FaBox, label: 'Product' },
-    { path: '/issue-list', icon: FaFileInvoice, label: 'Issue' }, 
-    { path: '/receipt-list', icon: FaReceipt, label: 'Receipt' },        
-    { path: '/view-category', icon: FaTag, label: 'Category' },   
+    { path: '/issue-list', icon: FaFileInvoice, label: 'Issue' },
+    { path: '/receipt-list', icon: FaReceipt, label: 'Receipt' },
+    { path: '/view-category', icon: FaTag, label: 'Category' },
     { path: '/view-users', icon: FaUsers, label: 'Staff' },
     { path: '/view-departments', icon: FaBuilding, label: 'Department' },
   ];
@@ -69,8 +77,8 @@ const Navbar = ({ toggleNavbar }) => {
                 key={item.path}
                 onClick={() => handleNavigate(item.path)}
                 className={`!nav-item group relative w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${active
-                    ? 'bg-gradient-to-r from-primary to-primarylight text-white shadow-lg scale-105'
-                    : 'text-primarylight hover:bg-primary/40 hover:text-white'
+                  ? 'bg-gradient-to-r from-primary to-primarylight text-white shadow-lg scale-105'
+                  : 'text-primarylight hover:bg-primary/40 hover:text-white'
                   }`}
                 style={{
                   animationDelay: `${i * 0.1}s`,
@@ -102,7 +110,19 @@ const Navbar = ({ toggleNavbar }) => {
           </button>
         )}
       </div>
-
+      {/* <div className="px-6 border-t border-primary/40 text-center text-xs text-primarylight/70"> */}
+      <div className="flex-1 px-4 overflow-y-auto space-y-2">
+        <button
+          onClick={() => handleNavigate('/logout')}
+          className="group relative w-full flex items-center gap-4 px-4 py-3 rounded-xl text-primarylight hover:bg-primary/40 hover:text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+        >
+          <div className="text-lg text-primarylight group-hover:text-white">
+            <LogOut />
+          </div>
+          <span className="font-medium">Logout</span>
+        </button>
+      </div>
+      {/* </div> */}
       {/* Footer */}
       <div className="px-6 py-4 border-t border-primary/40 text-center text-xs text-primarylight/70">
         © 2024 IMS Portal
@@ -137,4 +157,4 @@ const Navbar = ({ toggleNavbar }) => {
   );
 };
 
-export default Navbar;
+export default SideBar;

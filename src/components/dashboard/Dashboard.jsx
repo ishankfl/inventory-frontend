@@ -33,6 +33,7 @@ const Dashboard = () => {
 
       ]);
       console.log(countResponse.data)
+      console.log('Qty response ', quantityResponse.data)
       setTop10ProductByQty(quantityResponse.data);
       setTopIssuedProduct(issuedResponse.data);
       setCardCount(countResponse.data);
@@ -122,12 +123,11 @@ const Dashboard = () => {
     }
   });
 
-  // Inventory by quantity chart data
   const inventoryData = {
     labels: top10Items.map(item => item.name),
     datasets: [{
       label: 'Inventory Quantity',
-      data: top10Items.map(item => item.quantity),
+      data: top10Items.map(item => item.totalStockQuantity),
       backgroundColor: 'rgba(59, 130, 246, 0.7)',
       borderColor: 'rgba(59, 130, 246, 1)',
       borderWidth: 1,
@@ -135,13 +135,12 @@ const Dashboard = () => {
     }]
   };
 
-  // Issued products chart data
   const issuedData = {
     labels: topIssuedItems.map(item => item.name),
     datasets: [{
       label: 'Issued Quantity',
-      data: topIssuedItems.map(item => item.quantity),
-      backgroundColor: 'rgba(16, 185, 129, 0.7)', 
+      data: topIssuedItems.map(item => item.qty),
+      backgroundColor: 'rgba(16, 185, 129, 0.7)',
       borderColor: 'rgba(16, 185, 129, 1)',
       borderWidth: 1,
       borderRadius: 4
@@ -201,7 +200,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Issued Products Chart */}
           <div className="bg-white rounded-xl shadow-md p-4 md:p-6">
             <div className="h-64 md:h-80 lg:h-96">
               {loading ? (
