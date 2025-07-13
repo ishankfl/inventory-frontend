@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
-const ToastNotification = ({ 
-  type = 'success', 
+const ToastNotification = ({
+  type = 'success',
   message = 'Operation completed!',
   duration = 5000,
-  onClose 
+  onClose
 }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [isFading, setIsFading] = useState(false);
@@ -42,7 +42,6 @@ const ToastNotification = ({
     return () => clearInterval(timer);
   }, [isVisible, duration]);
 
-  // Define colors based on type
   const getColors = () => {
     switch (type) {
       case 'success':
@@ -77,12 +76,11 @@ const ToastNotification = ({
   const colors = getColors();
 
   return (
-    <div className=" w-[20%] right-0 absolute top-[100px] p-4 flex flex-col gap-4">
+    <div className="fixed top-4 right-4 z-50 w-[300px]">
       {isVisible && (
         <div
-          className={`relative p-4 rounded shadow ${colors.bg} text-white font-semibold transition-opacity duration-500 ${
-            isFading ? 'opacity-0' : 'opacity-100'
-          }`}
+          className={`relative p-4 rounded shadow ${colors.bg} text-white font-semibold transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'
+            }`}
         >
           <div
             onClick={handleClose}
