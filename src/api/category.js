@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { server } from './server.js';
-import { authHeader } from '../utils/tokenutils.js'; // Reusable header function
+import { authHeader } from '../utils/tokenutils.js';
 
 export const addCategory = (name, description, userId) => {
   return axios.post(
@@ -11,7 +11,7 @@ export const addCategory = (name, description, userId) => {
 };
 
 export const getAllCategories = () => {
-  return axios.get(`${server}/api/Category`); // GET: no token unless required
+  return axios.get(`${server}/api/Category`, authHeader());
 };
 
 export const deleteCategory = (id) => {
@@ -19,7 +19,7 @@ export const deleteCategory = (id) => {
 };
 
 export const getCategoryById = (id) => {
-  return axios.get(`${server}/api/Category/${id}`); // GET: no token
+  return axios.get(`${server}/api/Category/${id}`, authHeader());
 };
 
 export const updateCategory = (id, name, description) => {

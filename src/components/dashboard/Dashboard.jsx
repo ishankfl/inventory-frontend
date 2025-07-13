@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import LineChart from "./LineChart";
 import { fetchTop10ItemsByQty, fetchTop10IssuedProduct, fetchCountForCard } from '../../api/dashboard';
 import { Bar } from 'react-chartjs-2';
 import { FaTags, FaBuilding, FaBox, FaUsers } from "react-icons/fa";
@@ -20,26 +19,30 @@ const Dashboard = () => {
   const [topIssuedItems, setTopIssuedProduct] = useState([]);
   const [cardCount, setCardCount] = useState([]);
   const [loading, setLoading] = useState(true);
-
-
+  const [errorMsg, setErrorMsg] = useState(null);
 
   const fetchData = async () => {
     try {
       setLoading(true);
+      setErrorMsg(null); // Clear any previous error
+
       const [quantityResponse, issuedResponse, countResponse] = await Promise.all([
         fetchTop10ItemsByQty(),
         fetchTop10IssuedProduct(),
         fetchCountForCard()
-
       ]);
-      console.log(countResponse.data)
-      console.log('Qty response ', quantityResponse.data)
+
       setTop10ProductByQty(quantityResponse.data);
       setTopIssuedProduct(issuedResponse.data);
       setCardCount(countResponse.data);
-
-    } catch (e) {
-      console.error("Error fetching data:", e);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        setErrorMsg("You are unable to perform this action.");
+      } else {
+        
+        console.error("Error fetching dashboard data:", error);
+        setErrorMsg("An unexpected error occurred while loading the dashboard.");
+      }
     } finally {
       setLoading(false);
     }
@@ -49,7 +52,6 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  // Common chart options
   const getChartOptions = (title) => ({
     responsive: true,
     maintainAspectRatio: false,
@@ -58,20 +60,14 @@ const Dashboard = () => {
         position: 'top',
         labels: {
           usePointStyle: true,
-          padding: 15,
-          font: {
-          }
+          padding: 15
         }
       },
       title: {
         display: true,
         text: title,
-        font: {
-          weight: 'bold'
-        },
-        padding: {
-          bottom: 20
-        }
+        font: { weight: 'bold' },
+        padding: { bottom: 20 }
       },
       tooltip: {
         callbacks: {
@@ -84,41 +80,18 @@ const Dashboard = () => {
     scales: {
       y: {
         beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Quantity',
-
-        },
-        ticks: {
-          font: {
-          },
-          precision: 0
-        },
-        grid: {
-          display: true,
-          color: 'rgba(0, 0, 0, 0.05)'
-        }
+        title: { display: true, text: 'Quantity' },
+        ticks: { precision: 0 },
+        grid: { display: true, color: 'rgba(0, 0, 0, 0.05)' }
       },
       x: {
-        title: {
-          display: true,
-          text: 'Products',
-          font: {
-          }
-        },
+        title: { display: true, text: 'Products' },
         ticks: {
-          font: {
-          },
-
           callback: function (value) {
-            const label = this.getLabelForValue(value);
-
-            return label;
+            return this.getLabelForValue(value);
           }
         },
-        grid: {
-          display: false
-        }
+        grid: { display: false }
       }
     }
   });
@@ -151,6 +124,13 @@ const Dashboard = () => {
     <div>
       <div className="px-24">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Dashboard Analytics</h1>
+
+        {errorMsg && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4 text-center">
+            {errorMsg}
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-12 items-center justify-center py-12">
           <div className="bg-primary text-white px-12 py-8 flex flex-col gap-4 custom-radius text-center w-[300px]">
             <FaUsers className="text-4xl mx-auto" />
@@ -177,21 +157,15 @@ const Dashboard = () => {
           </div>
         </div>
 
-
-        {/* Bar Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-36">
-          {/* Inventory Chart */}
           <div className="bg-white rounded-xl shadow-md p-4 md:p-6">
-            <div className=" md:h-80 lg:h-96">
+            <div className="md:h-80 lg:h-96">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
                 </div>
               ) : top10Items.length > 0 ? (
-                <Bar
-                  data={inventoryData}
-                  options={getChartOptions('Top 10 Items by Inventory Quantity')}
-                />
+                <Bar data={inventoryData} options={getChartOptions('Top 10 Items by Inventory Quantity')} />
               ) : (
                 <div className="flex items-center justify-center h-full text-gray-500">
                   No inventory data available
@@ -207,10 +181,7 @@ const Dashboard = () => {
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
                 </div>
               ) : topIssuedItems.length > 0 ? (
-                <Bar
-                  data={issuedData}
-                  options={getChartOptions('Top 10 Issued Products')}
-                />
+                <Bar data={issuedData} options={getChartOptions('Top 10 Issued Products')} />
               ) : (
                 <div className="flex items-center justify-center h-full text-gray-500">
                   No issued products data available
@@ -219,7 +190,6 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
