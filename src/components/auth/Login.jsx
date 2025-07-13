@@ -1,84 +1,59 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/form.scss';
 import { loginApi } from '../../api/user';
 import { setToken } from '../../utils/tokenutils';
-import { useNavigate } from 'react-router-dom';
-import * as Yup from 'yup';
 import ToastNotification from '../common/ToggleNotification';
 
-const schema = Yup.object().shape({
+const validationSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Email is required'),
   password: Yup.string().required('Password is required'),
 });
 
 const Login = () => {
   const navigate = useNavigate();
-  const [values, setValues] = useState({ email: '', password: '' });
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState('');
-  const [toast, setToast] = useState(null);
+  const [toast, setToast] = React.useState(null);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValues((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    setErrors((prev) => ({
-      ...prev,
-      [name]: '',
-    }));
-    setSubmitError('');
-  };
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema,
+    onSubmit: async (values, { setSubmitting, setErrors }) => {
+      try {
+        const response = await loginApi(values.email, values.password);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitError('');
-    setIsSubmitting(true);
-
-    try {
-      await schema.validate(values, { abortEarly: false });
-      const response = await loginApi(values.email, values.password);
-
-      if (response.status === 200) {
-        setToken(response.data.token);
-        setToast({
-          type: 'success',
-          message: 'Login successful!',
-          duration: 4000,
-        });
-        setTimeout(() => {
-          // navigate('/');
-          window.location='/'
-        }, 4000);
-      } else {
-        setSubmitError('Login failed. Please try again.');
-        setToast({
-          type: 'error',
-          message: 'Login failed!',
-          duration: 3000,
-        });
-      }
-    } catch (err) {
-      if (err.name === 'ValidationError') {
-        const newErrors = {};
-        err.inner.forEach((error) => {
-          newErrors[error.path] = error.message;
-        });
-        setErrors(newErrors);
-      } else {
-        setSubmitError('Invalid email or password.');
+        if (response.status === 200) {
+          setToken(response.data.token);
+          setToast({
+            type: 'success',
+            message: 'Login successful!',
+            duration: 10000,
+          });
+          setTimeout(() => {
+            window.location = '/';
+          }, 4000);
+        } else {
+          setToast({
+            type: 'error',
+            message: 'Login failed!',
+            duration: 3000,
+          });
+        }
+      } catch (error) {
         setToast({
           type: 'error',
           message: 'Invalid email or password.',
           duration: 3000,
         });
+      } finally {
+        setSubmitting(false);
       }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    },
+  });
 
   return (
     <div className="!bg-white container">
@@ -92,14 +67,8 @@ const Login = () => {
         />
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={formik.handleSubmit}>
         <h2>Login</h2>
-
-        {submitError && (
-          <label className="error-msg" style={{ color: 'red' }}>
-            {submitError}
-          </label>
-        )}
 
         <div>
           <label htmlFor="email">Email:</label>
@@ -107,12 +76,13 @@ const Login = () => {
             id="email"
             name="email"
             type="email"
-            value={values.email}
-            onChange={handleChange}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.email}
           />
-          {errors.email && (
+          {formik.touched.email && formik.errors.email && (
             <p className="error-msg" style={{ color: 'red' }}>
-              {errors.email}
+              {formik.errors.email}
             </p>
           )}
         </div>
@@ -123,22 +93,23 @@ const Login = () => {
             id="password"
             name="password"
             type="password"
-            value={values.password}
-            onChange={handleChange}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.password}
           />
-          {errors.password && (
+          {formik.touched.password && formik.errors.password && (
             <p className="error-msg" style={{ color: 'red' }}>
-              {errors.password}
+              {formik.errors.password}
             </p>
           )}
         </div>
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={formik.isSubmitting}
           className="text-white"
         >
-          {isSubmitting ? 'Logging in...' : 'Login'}
+          {formik.isSubmitting ? 'Logging in...' : 'Login'}
         </button>
       </form>
     </div>
