@@ -1,86 +1,170 @@
 import React, { useState } from 'react';
-import * as Yup from 'yup';
-import { addStaff } from '../../api/user';
+import { Formik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import { staffSchema } from '../../utils/yup/staff-validation';
-
-// Yup schema for validation
-
+import { addStaff } from '../../api/user';
+import ToastNotification from '../common/ToggleNotification';
+import FormInput from '../common/FormInput'; // Adjust path if needed
 
 const AddStaff = ({ closeModal }) => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [toast, setToast] = useState(null);
 
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [role, setRole] = useState('');
-    const [error, setError] = useState('');
+  return (
+    <>
+      {toast && (
+        <ToastNotification
+          key={Date.now()}
+          type={toast.type}
+          message={toast.message}
+          duration={toast.duration}
+          onClose={() => setToast(null)}
+        />
+      )}
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        const newStaff = { name, email, password, role };
+      <div className="!bg-white container p-6 rounded-md shadow-md">
+        <h2 className="text-lg font-semibold mb-4">Add New Staff</h2>
 
-        try {
-            await staffSchema.validate(newStaff, { abortEarly: false });
+        <Formik
+          initialValues={{ name: '', email: '', password: '', role: '' }}
+          validationSchema={staffSchema}
+          onSubmit={async (values, { setSubmitting, setErrors }) => {
+            try {
+              const response = await addStaff(values.name, values.email, values.password, values.role);
 
-            const response = await addStaff(name, email, password, role);
-
-            if (response.status === 201) {
-                navigate('/view-users');
-            } else {
-                setError('Something went wrong. Please try again.');
+              if (response.status === 201) {
+                setToast({
+                  type: 'success',
+                  message: 'Staff added successfully!',
+                  duration: 4000,
+                });
+                setTimeout(() => {
+                  navigate('/view-users');
+                }, 3000);
+              } else {
+                setToast({
+                  type: 'error',
+                  message: 'Something went wrong. Please try again.',
+                  duration: 3000,
+                });
+              }
+            } catch (err) {
+              if (err.name === 'ValidationError') {
+                const fieldErrors = {};
+                err.inner.forEach((e) => {
+                  fieldErrors[e.path] = e.message;
+                });
+                setErrors(fieldErrors);
+              } else if (err.response?.status === 400) {
+                setToast({
+                  type: 'error',
+                  message: 'Invalid data provided. Please check your input.',
+                  duration: 4000,
+                });
+              } else {
+                setToast({
+                  type: 'error',
+                  message: 'Unexpected error occurred. Please try again.',
+                  duration: 4000,
+                });
+                console.error(err);
+              }
+            } finally {
+              setSubmitting(false);
             }
-        } catch (validationError) {
-            if (validationError.name === 'ValidationError') {
-                const messages = validationError.errors.join(' ');
-                setError(messages);
-            } else if (validationError.response && validationError.response.status === 400) {
-                setError('Invalid data provided. Please check your input.');
-            } else {
-                setError('An unexpected error occurred. Please try again later.');
-                console.error(validationError);
-            }
-        }
-    };
+          }}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            isSubmitting,
+          }) => (
+            <form onSubmit={handleSubmit} className="space-y-4">
 
-    return (
-        <div className="!bg-white container">
-            <h2>Add New Staff</h2>
-            <form onSubmit={handleSubmit}>
-                {error && <label className="error-msg" style={{ color: 'red' }}>{error}</label>}
+              <FormInput
+                label="Name"
+                name="name"
+                value={values.name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="Enter name"
+                required
+                error={touched.name && errors.name ? errors.name : ''}
+              />
 
-                <div>
-                    <label>Name:</label>
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
-                </div>
+              <FormInput
+                label="Email"
+                name="email"
+                type="email"
+                value={values.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="Enter email"
+                required
+                error={touched.email && errors.email ? errors.email : ''}
+              />
 
-                <div>
-                    <label>Email:</label>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                </div>
+              <FormInput
+                label="Password"
+                name="password"
+                type="password"
+                value={values.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="Enter password"
+                required
+                error={touched.password && errors.password ? errors.password : ''}
+              />
 
-                <div>
-                    <label>Password:</label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Role <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="role"
+                  value={values.role}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${
+                    touched.role && errors.role ? 'border-red-500' : ''
+                  }`}
+                  required
+                >
+                  <option value="">Select Role</option>
+                  <option value="0">Admin</option>
+                  <option value="1">Staff</option>
+                </select>
+                {touched.role && errors.role && (
+                  <p className="text-sm text-red-600 mt-1">{errors.role}</p>
+                )}
+              </div>
 
-                <div>
-                    <label>Role:</label>
-                    <select value={role} onChange={(e) => setRole(e.target.value)}>
-                        <option value="">Select Role</option>
-                        <option value="0">Admin</option>
-                        <option value="1">Staff</option>
-                    </select>
-                </div>
-
-                <div>
-                    <button type="submit">Add</button>
-                    <button type="button " className='!bg-red-600 hover:!bg-red-700' onClick={closeModal}>Cancel</button>
-                </div>
+              <div className="flex justify-start gap-4 pt-4">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-700"
+                >
+                  {isSubmitting ? 'Submitting...' : 'Add'}
+                </button>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                >
+                  Cancel
+                </button>
+              </div>
             </form>
-        </div>
-    );
+          )}
+        </Formik>
+      </div>
+    </>
+  );
 };
 
 export default AddStaff;
