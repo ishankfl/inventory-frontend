@@ -1,10 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+/* 
 body{
   background-color: `#fcf9f9;
-}
+} */
 /* styles.css */
 .btn-primary {
   @apply bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark;
@@ -157,4 +157,96 @@ select {
 
 .search-input {
   @apply w-full p-2 border rounded text-black font-thin;
+}
+
+
+
+/* Table Styles */
+
+.table-container {
+  @apply overflow-x-auto bg-white rounded-lg shadow-sm border mt-4;
+}
+
+.table-header {
+  @apply px-6 py-3 text-left text-sm font-semibold text-gray-700 whitespace-nowrap;
+}
+
+.table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-600;
+  
+  @media (max-width: 640px) {
+    /* @apply px-3 py-2; */
+  }
+}
+
+.action-button {
+  @apply px-4 py-2 border rounded-md transition-all duration-200 ease-in-out font-medium text-sm;
+  
+  &:focus {
+    @apply outline-none ring-2 ring-offset-2;
+  }
+}
+
+.button-blue {
+  @apply bg-accent text-black hover:bg-card1color focus:ring-accent;
+}
+
+.button-red {
+  @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+}
+
+.pagination-container {
+  @apply flex justify-between items-center mt-6;
+}
+
+.pagination-button {
+  @apply px-4 py-2 border rounded-md bg-white text-gray-700 font-medium text-sm 
+         hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.pagination-info {
+  @apply text-sm text-gray-600;
+}
+
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 
+         transition-opacity duration-300 ease-in-out;
+}
+
+.modal-box {
+  @apply bg-white p-6 rounded-lg shadow-xl max-w-lg w-full mx-4 
+         transform transition-all duration-300 ease-in-out;
+  
+  animation: modalEnter 0.3s ease-out forwards;
+
+  @keyframes modalEnter {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+.empty-state {
+  @apply px-6 py-12 text-center text-gray-400;
+}
+
+.loading-spinner {
+  @apply inline-block w-6 h-6 border-2 border-gray-300 border-t-accent 
+         rounded-full animate-spin;
+}
+
+@media (max-width: 768px) {
+  .table-header, .table-cell {
+    @apply px-4;
+  }
+  
+  .action-button {
+    @apply px-3 py-1.5 text-xs;
+  }
 }

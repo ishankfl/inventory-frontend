@@ -36,7 +36,7 @@ function App() {
         {showNavbar && isUserLoggedin && <SideBar toggleNavbar={toggleNavbar} showNavbar={showNavbar} />}
 
         {/* Main Content Area */}
-        <div className={`flex-1 transition-all duration-300 ${showNavbar ? 'ml-[300px]' : 'ml-0'}`}>
+        <div className={`flex-1 transition-all duration-300 ${showNavbar ? 'ml-[300px] ' : 'ml-0'}`}>
           {/* <div className='bg-[]'> */}
           <div className="bg-background p-8">
 

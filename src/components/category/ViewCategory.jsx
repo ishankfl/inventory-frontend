@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { deleteCategory, getAllCategories } from '../../api/category';
 import { useNavigate } from 'react-router-dom';
-import AddCategory from './AddCategory'
-import EditCategory from './EditCategory'
-
-
+import AddCategory from './AddCategory';
+import EditCategory from './EditCategory';
 import '../../styles/view.scss';
 import SearchBox from '../common/SearchBox';
 import Header from '../common/Header';
+
 const ViewCategory = () => {
   const [categories, setCategories] = useState([]);
-  const [orginalCategories, setOrginalCategories] = useState([]);
-
+  const [originalCategories, setOriginalCategories] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const [isAddModelOpened, setIsAddModelOpened] = useState(false);
-  const [isEditModelOpened, setIsEditModelOpened] = useState(false);
+  const [isAddModalOpened, setIsAddModalOpened] = useState(false);
+  const [isEditModalOpened, setIsEditModalOpened] = useState(false);
   const [categoryId, setCategoryId] = useState('');
   const navigate = useNavigate();
 
@@ -26,11 +24,9 @@ const ViewCategory = () => {
   const fetchCategories = async () => {
     try {
       const response = await getAllCategories();
-      console.log(response.status)
       if (response.status === 200) {
-        console.log(response.data)
         setCategories(response.data);
-        setOrginalCategories(response.data)
+        setOriginalCategories(response.data);
       } else {
         setError('Failed to fetch categories.');
       }
@@ -39,26 +35,21 @@ const ViewCategory = () => {
       setError('An error occurred while fetching categories.');
     } finally {
       setLoading(false);
-
     }
   };
 
-
-
   const handleEdit = (id) => {
-    console.log(id)
     setCategoryId(id);
-    setIsEditModelOpened(true);
-    // navigate(`/edit-product/${id}`);
+    setIsEditModalOpened(true);
   };
 
   const handleAddNewCategory = () => {
-    setIsAddModelOpened(true);
+    setIsAddModalOpened(true);
   };
 
   const closeModal = () => {
-    setIsAddModelOpened(false);
-    setIsEditModelOpened(false);
+    setIsAddModalOpened(false);
+    setIsEditModalOpened(false);
   };
 
   const handleDelete = async (categoryId) => {
@@ -67,92 +58,107 @@ const ViewCategory = () => {
 
     try {
       const response = await deleteCategory(categoryId);
-
       if (response.status === 200 || response.status === 204) {
         alert('Category deleted successfully.');
         fetchCategories();
       } else {
         alert('Failed to delete category. Please try again.');
-        console.error('Delete failed with status:', response.status);
       }
     } catch (error) {
       console.error('Error deleting category:', error);
       alert('An error occurred while deleting the category.');
     }
   };
-  // const handleAddNewCategory = ()=>{
-  //   // navigate('/add-product')
-  //   navigate('/add-category')
-  // }
 
   const handleSearchFilter = (details) => {
     if (!details) {
-      setCategories(orginalCategories);
+      setCategories(originalCategories);
       return;
     }
 
-    const filteredProduct = orginalCategories.filter(item =>
+    const filteredCategories = originalCategories.filter(item =>
       item.name.toLowerCase().startsWith(details.toLowerCase()) ||
       item.description.toLowerCase().startsWith(details.toLowerCase())
     );
-    setCategories(filteredProduct);
+    setCategories(filteredCategories);
   };
-  console.log("Data", categories);
-  console.log("error", error);
+
   return (
-    <div className="main-container-box relative">
-      <div className={`view-container  overflow-x-auto transition-all duration-300 ${(isAddModelOpened || isEditModelOpened) ? "blur-sm pointer-events-none select-none" : ""
-        }`}>
+    <div className="p-6">
+      <div className={`transition-all duration-300 ${(isAddModalOpened || isEditModalOpened) ? "blur-sm" : ""}`}>
+        <Header 
+          description="Manage and track all inventory issues" 
+          handleButton={handleAddNewCategory} 
+          title="Category Management" 
+          btnTitle="New Category" 
+        />
+        
+        <SearchBox handleSearchFilter={handleSearchFilter} label="Category" />
 
-        <div className='flex justify-between items-center'>
-          <Header description={'Manage and track all inventory issues'} handleButton={handleAddNewCategory} title={'Category Management'} btnTitle={' New'} />
-
-        </div>
         {loading && <p>Loading...</p>}
-        {error && <p className="error-msg">{error}</p>}
-
-        {!loading && !error && categories.length === 0 && <p>No categories found.</p>}
+        {error && <p className="text-red-500 mt-2">{error}</p>}
+        {!loading && !error && categories.length === 0 && (
+          <p className="empty-state">No categories found.</p>
+        )}
 
         {!loading && categories.length > 0 && (
-          <table>
-            <thead>
-              <tr>
-                <th>S.N.</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((cat, index) => (
-                <tr key={cat.id || index}>
-                  <td>{index + 1}</td>
-                  <td>{cat.name}</td>
-                  <td>{cat.description}</td>
-                  <td>
-                    <button onClick={() => handleEdit(cat.id)}>Edit</button>
-                    <button onClick={() => handleDelete(cat.id)} style={{ marginLeft: '10px' }}>
-                      Delete
-                    </button>
-                  </td>
+          <div className="table-container">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="table-header">S.N.</th>
+                  <th className="table-header">Name</th>
+                  <th className="table-header">Description</th>
+                  <th className="table-header text-center">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {categories.map((cat, index) => (
+                  <tr key={cat.id || index} className="hover:bg-gray-50">
+                    <td className="table-cell">{index + 1}</td>
+                    <td className="table-cell">{cat.name}</td>
+                    <td className="table-cell">{cat.description}</td>
+                    <td className="table-cell text-center space-x-2">
+                      <button
+                        className="action-button button-blue"
+                        onClick={() => handleEdit(cat.id)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="action-button button-red"
+                        onClick={() => handleDelete(cat.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
-      {(isAddModelOpened || isEditModelOpened) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[101]" onClick={closeModal}>
-          <div
-            className="bg-white p-6 rounded shadow-lg max-w-lg w-0"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {isAddModelOpened && <AddCategory closeModal={closeModal} />}
-            {isEditModelOpened && <EditCategory closeModal={closeModal} catId={categoryId} />}
+
+      {(isAddModalOpened || isEditModalOpened) && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            {isAddModalOpened && (
+              <AddCategory 
+                closeModal={closeModal} 
+                fetchCategories={fetchCategories}
+              />
+            )}
+            {isEditModalOpened && (
+              <EditCategory 
+                closeModal={closeModal} 
+                catId={categoryId}
+                fetchCategories={fetchCategories}
+              />
+            )}
           </div>
         </div>
       )}
-
     </div>
   );
 };

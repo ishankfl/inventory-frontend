@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import FormInput from '../common/FormInput';
 import FormSelect from '../common/FormSelect';
-import { FiPlus } from "react-icons/fi";
 import { itemSchema } from "../../utils/yup/receipt-form.vaid";
 
 const ItemManagementSection = ({
@@ -76,7 +75,6 @@ const ItemManagementSection = ({
       return;
     }
 
-    // New validation: Check if selected quantity exceeds available quantity
     if (quantity > newItem.availableQuantity) {
       alert(`The selected quantity exceeds the available stock of ${newItem.availableQuantity}`);
       return;
@@ -125,6 +123,17 @@ const ItemManagementSection = ({
     }
   };
 
+  // NEW: Handle clicking on an item row to populate the form for editing
+  const handleSelectItemForEdit = (item) => {
+    setNewItem({
+      itemId: item.itemId,
+      quantity: item.quantity.toString(),
+      rate: item.rate.toString(),
+      availableQuantity: item.availableQuantity || 0,
+      value: (item.quantity * item.rate).toFixed(2),
+      uom: item.uom
+    });
+  };
 
   return (
     <div className="flex flex-col md:flex-row gap-6 mb-6">
@@ -216,21 +225,19 @@ const ItemManagementSection = ({
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md flex-1">
-        {/* <div className="mb-4"> */}
         <h2 className="text-lg font-semibold text-gray-800 !mb-0">Items to Issue</h2>
-        {/* </div> */}
         <div className="overflow-auto mb-0">
           {errors.items && typeof errors.items === 'string' && (
             <p className="text-red-500 text-sm mb-2">{errors.items}</p>
           )}
-          <table className="">
-            <thead className="">
+          <table>
+            <thead>
               <tr>
-                <th className="">Item</th>
-                <th className="">Qty</th>
-                <th className="">Rate</th>
-                <th className="">Value</th>
-                <th className="">Action</th>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Rate</th>
+                <th>Value</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody className="min-h-full bg-white divide-y divide-gray-200">
@@ -242,7 +249,11 @@ const ItemManagementSection = ({
                 </tr>
               ) : (
                 formData.items.map(item => (
-                  <tr key={item.tempId}>
+                  <tr
+                    key={item.tempId}
+                    className="cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSelectItemForEdit(item)}
+                  >
                     <td className="px-4 py-2 text-sm">{item.itemName}</td>
                     <td className="px-4 py-2 text-sm">
                       {item.quantity} {item.uom}
@@ -257,7 +268,10 @@ const ItemManagementSection = ({
                     <td className="px-4 py-2 text-sm">
                       <button
                         type="button"
-                        onClick={() => onRemoveItem(item.tempId)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // prevent triggering row click
+                          onRemoveItem(item.tempId);
+                        }}
                         className="text-red-600 hover:text-red-800"
                       >
                         Remove

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { useUserContext } from '../../context/UserContext';
 import '../../styles/view.scss';
 import SearchBox from '../common/SearchBox';
@@ -59,58 +58,61 @@ const ViewAllUsers = () => {
   };
 
   return (
-    <div className="main-container-box">
-      <div className={`view-container ${addStaffIsOpened ? "blur-sm pointer-events-none select-none" : ""}`}>
-        <div className="flex justify-between items-center mb-4">
-          <Header
-            title="User Management"
-            description="Manage and monitor all system users"
-            btnTitle="Add User"
-            handleButton={handleAddNewUser}
-          />
-        </div>
-          <SearchBox handleSearchFilter={handleSearchFilter} label="User" />
+    <div className="p-6">
+      <div className={`transition-all duration-300 ${addStaffIsOpened ? "blur-sm" : ""}`}>
+        <Header
+          title="User Management"
+          description="Manage and monitor all system users"
+          btnTitle="Add User"
+          handleButton={handleAddNewUser}
+        />
+        
+        <SearchBox handleSearchFilter={handleSearchFilter} label="User" />
 
         {loading && <p>Loading...</p>}
-        {error && <p className="error-msg">{error}</p>}
-        {!loading && !error && users.length === 0 && <p>No users found.</p>}
+        {error && <p className="text-red-500 mt-2">{error}</p>}
+        {!loading && !error && users.length === 0 && (
+          <p className="empty-state">No users found.</p>
+        )}
 
         {!loading && users.length > 0 && (
-          <table>
-            <thead>
-              <tr>
-                <th>S.N.</th>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user, index) => (
-                <tr key={user.id || index}>
-                  <td>{index + 1}</td>
-                  <td>{user.fullName || user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{user.role === 1 ? "Staff" : "Admin"}</td>
-                  <td>
-                    <button onClick={() => handleDelete(user.id)} style={{ marginLeft: '10px' }}>
-                      Delete
-                    </button>
-                  </td>
+          <div className="table-container">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="table-header">S.N.</th>
+                  <th className="table-header">Full Name</th>
+                  <th className="table-header">Email</th>
+                  <th className="table-header">Role</th>
+                  <th className="table-header text-center">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {users.map((user, index) => (
+                  <tr key={user.id || index} className="hover:bg-gray-50">
+                    <td className="table-cell">{index + 1}</td>
+                    <td className="table-cell">{user.fullName || user.name}</td>
+                    <td className="table-cell">{user.email}</td>
+                    <td className="table-cell">{user.role === 1 ? "Staff" : "Admin"}</td>
+                    <td className="table-cell text-center">
+                      <button
+                        className="action-button button-red"
+                        onClick={() => handleDelete(user.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
       {addStaffIsOpened && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[101]" onClick={closeModal}>
-          <div
-            className="bg-white p-6 rounded shadow-lg max-w-lg w-0"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <AddStaff closeModal={closeModal} />
           </div>
         </div>
