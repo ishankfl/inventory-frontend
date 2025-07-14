@@ -37,7 +37,9 @@ function App() {
 
         {/* Main Content Area */}
         <div className={`flex-1 transition-all duration-300 ${showNavbar ? 'ml-[300px]' : 'ml-0'}`}>
-          <div className='p-8'>
+          {/* <div className='bg-[]'> */}
+          <div className="bg-background p-8">
+
             <CustomRouter />
             {isUserLoggedin && <CurrentActivityBox />}
           </div>

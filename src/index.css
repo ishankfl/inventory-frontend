@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+body{
+  background-color: `#fcf9f9;
+}
 /* styles.css */
 .btn-primary {
   @apply bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark;

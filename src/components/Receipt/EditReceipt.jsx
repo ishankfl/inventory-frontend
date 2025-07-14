@@ -8,6 +8,7 @@ import AddedItems from './AddedItems';
 import { itemSchema, validatePrimaryInfo, validateItem, primaryInfoSchema } from '../../utils/yup/receipt-form.vaid';
 import FormInput from '../common/FormInput';
 import FormSelect from '../common/FormSelect';
+import { Eye } from 'lucide-react';
 
 const PlusIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -348,15 +349,22 @@ const EditReceipt = () => {
     return (
         <div className="bg-gray-100 p-2 sm:p-2 lg:p-4 min-h-screen">
             <div className="mx-auto">
-                <div className="flex flex-col px-24 gap-8">
+                 <div className="flex flex-col px-24 gap-8">
+                    <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h1 className="text-3xl font-bold text-text mb-2">Create Issue</h1>
+                        <p className="text-gray-600">Manage and track all inventory issues</p>
+                    </div>
                     <button
                         onClick={handleViewReceipt}
-                        className="my-0 w-64 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200 shadow-md"
                     >
-                        <FiEye /> Back to Receipts
+                        <Eye className="h-5 w-5" />
+                        <span>View Previous</span>
                     </button>
-                    <h1 className="text-2xl font-bold text-gray-800">Edit Receipt</h1>
                 </div>
+                </div> 
+               
 
                 {showForm && (
                     <AddItemForm

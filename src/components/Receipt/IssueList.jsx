@@ -105,19 +105,7 @@ const IssuesList = () => {
                 {/* Header */}
                 <div className="mb-8">
                 <Header description={'Manage and track all inventory issues'} handleButton={handleAddIssue} title={'Issues Management'} btnTitle = {' New '}/>
-                    {/* <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h1 className="text-3xl font-bold text-text mb-2">Issues Management</h1>
-                            <p className="text-gray-600">Manage and track all inventory issues</p>
-                        </div>
-                        <button
-                            onClick={handleAddIssue}
-                            className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200 shadow-md"
-                        >
-                            <Plus className="h-5 w-5" />
-                            <span>Add New Issue</span>
-                        </button>
-                    </div> */}
+                  
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         {/* Total Issues Card */}

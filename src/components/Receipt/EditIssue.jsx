@@ -10,6 +10,7 @@ import FormSelect from '../common/FormSelect';
 import issueSchema from '../../utils/yup/issue-validation';
 import axios from 'axios';
 import AddItemForm from './AddItemForm';
+import { Eye } from 'lucide-react';
 
 const EditIssue = () => {
     const { id } = useParams();
@@ -187,7 +188,7 @@ const EditIssue = () => {
 
         try {
             setIsLoading(true);
-            const response = await updateIssue(id,{
+            const response = await updateIssue(id, {
                 issueId: formData.issueId,
                 issueDate: new Date(formData.issueDate).toISOString(),
                 invoiceNumber: formData.invoiceNumber,
@@ -234,15 +235,28 @@ const EditIssue = () => {
 
     return (
         <div className="view-container mx-auto py-4 px-4 md:px-24 max-w-6xl">
-            <button
+            {/* <button
                 onClick={handleViewIssue}
                 className="my-0 w-auto flex items-center text-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             >
                 <FiEye /> View Previous
             </button>
-            <br />
-            <h1 className="text-2xl font-bold mb-6">Edit Issue</h1>
 
+            <br />
+            <h1 className="text-2xl font-bold mb-6">Edit Issue</h1> */}
+            <div className="flex items-center justify-between mb-6">
+                <div>
+                    <h1 className="text-3xl font-bold text-text mb-2">Edit Issue</h1>
+                    <p className="text-gray-600">Manage and track all inventory issues</p>
+                </div>
+                <button
+                    onClick={handleViewIssue}
+                    className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200 shadow-md"
+                >
+                    <Eye className="h-5 w-5" />
+                    <span>View Previous</span>
+                </button>
+            </div>
             {isLoading ? (
                 <div className="text-center py-8">Loading issue data...</div>
             ) : (
@@ -342,8 +356,8 @@ const EditIssue = () => {
                             type="submit"
                             disabled={formData.items.length === 0 || isLoading}
                             className={`w-36 px-6 py-2 rounded-md ${formData.items.length === 0
-                                    ? 'bg-primary-400 cursor-not-allowed'
-                                    : 'bg-blue-600 hover:bg-blue-700'
+                                ? 'bg-primary-400 cursor-not-allowed'
+                                : 'bg-blue-600 hover:bg-blue-700'
                                 } text-white`}
                         >
                             {isLoading ? 'Updating...' : 'Update Issue'}
