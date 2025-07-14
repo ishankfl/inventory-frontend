@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, Edit, Plus, Search, Filter, Calendar, User, Package, DollarSign } from 'lucide-react';
-import { fetchAllIssue } from '../../api/receipt'; // Assuming this API call fetches your issue data
-import { useNavigate } from 'react-router-dom'; // Assuming you intend to use this for navigation
+import { fetchAllIssue } from '../../api/receipt';
+import { useNavigate } from 'react-router-dom';
+import Header from '../common/Header';
 
 const IssuesList = () => {
-    // Start with an empty array, as data will be fetched
     const [issues, setIssues] = useState([]);
 
-    const [loading, setLoading] = useState(true); // Set to true initially to show loading on mount
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     // Filter states
@@ -20,15 +20,14 @@ const IssuesList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const issuesPerPage = 10;
 
-    const navigate = useNavigate(); // Initialize useNavigate
+    const navigate = useNavigate();
 
-    // Fetch data on component mount
     useEffect(() => {
         const loadIssues = async () => {
             try {
-                setLoading(true); // Start loading
-                setError(null); // Clear any previous errors
-                const response = await fetchAllIssue(); // Call your API
+                setLoading(true);
+                setError(null);
+                const response = await fetchAllIssue();
                 if (response.status === 200) {
                     setIssues(response.data);
                 }
@@ -36,12 +35,12 @@ const IssuesList = () => {
                 console.error("Error fetching issues:", err);
                 setError(err.message || 'Failed to load issues. Please try again.');
             } finally {
-                setLoading(false); // End loading regardless of success or failure
+                setLoading(false);
             }
         };
 
         loadIssues();
-    }, []); 
+    }, []);
     const filteredIssues = issues.filter(issue => {
         const totalValue = issue.issueDetails.reduce((sum, item) => sum + item.quantity * item.issueRate, 0);
         return (
@@ -81,11 +80,11 @@ const IssuesList = () => {
     );
 
     const handleAddIssue = () => {
-        navigate('/add-issue'); 
+        navigate('/add-issue');
     };
 
     const handleEditIssue = (id) => {
-        navigate(`/edit-issue/${id}`); 
+        navigate(`/edit-issue/${id}`);
     };
 
     const handleViewIssue = (id) => {
@@ -105,7 +104,8 @@ const IssuesList = () => {
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
-                    <div className="flex items-center justify-between mb-6">
+                <Header description={'Manage and track all inventory issues'} handleButton={handleAddIssue} title={'Issues Management'} btnTitle = {' New '}/>
+                    {/* <div className="flex items-center justify-between mb-6">
                         <div>
                             <h1 className="text-3xl font-bold text-text mb-2">Issues Management</h1>
                             <p className="text-gray-600">Manage and track all inventory issues</p>
@@ -117,9 +117,8 @@ const IssuesList = () => {
                             <Plus className="h-5 w-5" />
                             <span>Add New Issue</span>
                         </button>
-                    </div>
+                    </div> */}
 
-                    {/* Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         {/* Total Issues Card */}
                         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -341,11 +340,10 @@ const IssuesList = () => {
                                             <button
                                                 key={pageNumber}
                                                 onClick={() => paginate(pageNumber)}
-                                                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
-                                                    currentPage === pageNumber
-                                                        ? 'bg-primary text-white'
-                                                        : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-                                                }`}
+                                                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${currentPage === pageNumber
+                                                    ? 'bg-primary text-white'
+                                                    : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                                                    }`}
                                             >
                                                 {pageNumber}
                                             </button>
