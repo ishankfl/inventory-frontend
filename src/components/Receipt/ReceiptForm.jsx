@@ -88,7 +88,7 @@ const Receipt = () => {
     try {
       setIsLoading(true);
       const response = await fetchAllItems();
-      if (response.status === 200) setItems(response.data);
+      if (response.status === 200) setItems(response.data.data);
     } catch (e) {
       console.error("Error fetching items:", e);
     } finally {

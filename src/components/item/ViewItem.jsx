@@ -4,13 +4,12 @@ import Header from '../common/Header';
 import SearchBox from '../common/SearchBox';
 import AddItemForm from '../Receipt/AddItemForm';
 import EditProduct from './EditItem';
-import '../../styles/view.scss'; // Import styles with @apply
 
 const ViewProducts = () => {
   const [products, setProducts] = useState([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit] = useState(7);
   const [error, setError] = useState('');
   const [isAddModal, setIsAddModal] = useState(false);
   const [isEditModal, setIsEditModal] = useState(false);

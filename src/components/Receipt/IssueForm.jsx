@@ -44,8 +44,9 @@ const IssueReceipt = () => {
       ]);
       console.log('initializing page ...........');
       console.log(user)
+      console.log(its);
       setDepartments(depts);
-      setItems(its);
+      setItems(its.data);
       setCurrentUser(user);
 
       if (depts.length > 0) {
