@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../../context/UserContext';
 import '../../styles/view.scss';
 import SearchBox from '../common/SearchBox';
+import Header from '../common/Header';
 import AddStaff from './AddStaff';
 
 const ViewAllUsers = () => {
@@ -13,7 +14,6 @@ const ViewAllUsers = () => {
     originalUsers,
     loading,
     error,
-    fetchUsers,
     removeUser
   } = useUserContext();
 
@@ -23,7 +23,6 @@ const ViewAllUsers = () => {
   const handleDelete = async (userId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this user?');
     if (!confirmDelete) return;
-
     await removeUser(userId);
   };
 
@@ -61,13 +60,16 @@ const ViewAllUsers = () => {
 
   return (
     <div className="main-container-box">
-      <button className='nav-item' onClick={handleAddNewUser}>+ Add New User</button>
-
       <div className={`view-container ${addStaffIsOpened ? "blur-sm pointer-events-none select-none" : ""}`}>
-        <div className="flex justify-between">
-          <h2>View All Users</h2>
-          <SearchBox handleSearchFilter={handleSearchFilter} label={'User '} />
+        <div className="flex justify-between items-center mb-4">
+          <Header
+            title="User Management"
+            description="Manage and monitor all system users"
+            btnTitle="Add User"
+            handleButton={handleAddNewUser}
+          />
         </div>
+          <SearchBox handleSearchFilter={handleSearchFilter} label="User" />
 
         {loading && <p>Loading...</p>}
         {error && <p className="error-msg">{error}</p>}

@@ -7,9 +7,10 @@ import EditCategory from './EditCategory'
 
 import '../../styles/view.scss';
 import SearchBox from '../common/SearchBox';
+import Header from '../common/Header';
 const ViewCategory = () => {
-const [categories,setCategories ] = useState([]);
-const [orginalCategories, setOrginalCategories] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [orginalCategories, setOrginalCategories] = useState([]);
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -38,7 +39,7 @@ const [orginalCategories, setOrginalCategories] = useState([]);
       setError('An error occurred while fetching categories.');
     } finally {
       setLoading(false);
-    
+
     }
   };
 
@@ -83,7 +84,7 @@ const [orginalCategories, setOrginalCategories] = useState([]);
   //   // navigate('/add-product')
   //   navigate('/add-category')
   // }
-  
+
   const handleSearchFilter = (details) => {
     if (!details) {
       setCategories(orginalCategories);
@@ -91,26 +92,22 @@ const [orginalCategories, setOrginalCategories] = useState([]);
     }
 
     const filteredProduct = orginalCategories.filter(item =>
-    item.name.toLowerCase().startsWith(details.toLowerCase()) ||
-    item.description.toLowerCase().startsWith(details.toLowerCase())
-  );
-  setCategories(filteredProduct); 
+      item.name.toLowerCase().startsWith(details.toLowerCase()) ||
+      item.description.toLowerCase().startsWith(details.toLowerCase())
+    );
+    setCategories(filteredProduct);
   };
-  console.log("Data",categories);
-  console.log("error",error);
+  console.log("Data", categories);
+  console.log("error", error);
   return (
     <div className="main-container-box relative">
-      <button className='nav-item' onClick={handleAddNewCategory}>+ Add New Category</button>
-
-      <div className={`view-container  overflow-x-auto transition-all duration-300 ${
-          (isAddModelOpened ||isEditModelOpened)  ? "blur-sm pointer-events-none select-none" :  ""
+      <div className={`view-container  overflow-x-auto transition-all duration-300 ${(isAddModelOpened || isEditModelOpened) ? "blur-sm pointer-events-none select-none" : ""
         }`}>
-          <div className='flex  justify-between'>
 
-        <h2>View All Categories</h2>
-        <SearchBox handleSearchFilter={handleSearchFilter} label={'Category '}/>
-          </div>
+        <div className='flex justify-between items-center'>
+          <Header description={'Manage and track all inventory issues'} handleButton={handleAddNewCategory} title={'Category Management'} btnTitle={' New'} />
 
+        </div>
         {loading && <p>Loading...</p>}
         {error && <p className="error-msg">{error}</p>}
 

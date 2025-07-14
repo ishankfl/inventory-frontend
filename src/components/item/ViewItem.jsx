@@ -6,6 +6,7 @@ import '../../styles/view.scss';
 import EditProduct from './EditItem';
 import SearchBox from '../common/SearchBox';
 import AddItemForm from '../Receipt/AddItemForm';
+import Header from '../common/Header';
 // import { fetchAllItems } from '../../api/receipt';
 
 const ViewProducts = () => {
@@ -37,16 +38,16 @@ const ViewProducts = () => {
     if (!confirmDelete) return;
 
     try {
-     const response =  await deleteProducts(id);
-     console.log(response.status)
-     if(response.status == 409){
+      const response = await deleteProducts(id);
+      console.log(response.status)
+      if (response.status == 409) {
 
-     }
+      }
       setProducts(products.filter((p) => p.id !== id));
       setError('');
 
     } catch (err) {
-      if(err.response.status == 409 ){
+      if (err.response.status == 409) {
 
       }
       console.error("Error deleting product:", err);
@@ -84,15 +85,16 @@ const ViewProducts = () => {
 
   return (
     <div className="main-container-box relative">
-      <button className="nav-item" onClick={handleAddNewProduct}>+ Add New Product</button>
+
+ 
 
       <div
         className={`view-container overflow-x-auto transition-all duration-300 ${isAddModelOpened || isEditModelOpened ? "blur-sm pointer-events-none select-none" : ""}`}
       >
         <div className='flex justify-between items-center'>
-          <h2>Product List</h2>
-          <SearchBox handleSearchFilter={handleSearchFilter} label={'Product'} />
+          <Header description={'Manage and track all inventory issues'} handleButton={handleAddNewProduct} title={'Product Management'} btnTitle={' New'} />
         </div>
+        <SearchBox handleSearchFilter={handleSearchFilter} label={'Product'} />
 
         {error && <p className="error-msg">{error}</p>}
 
