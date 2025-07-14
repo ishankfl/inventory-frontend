@@ -16,10 +16,12 @@ export const AddNewItem = async (name, unit, price) => {
     console.log(name, unit, price);
     return await axios.post(`${server}/api/Item`, { name, unit, price }, authHeader());
 }
-
 // ─── Receipt Endpoints ───────────────────────────────────────
-export const fetchAllReceipts = async () => {
-    return await axios.get(`${server}/api/Receipts`, authHeader());
+export const fetchAllReceipts = async (page = 1, limit = 6) => {
+    return await axios.get(
+        `${server}/api/Receipts/paginate?page=${page}&limit=${limit}`,
+        authHeader()
+    );
 };
 
 export const fetchReceiptById = async (id) => {
@@ -47,7 +49,7 @@ export const updateReceipt = async (id, receiptData) => {
 
 // ─── Issue Endpoints ─────────────────────────────────────────
 export const fetchAllIssue = async (page = 1, limit = 6) => {
-  return await axios.get(`${server}/api/Issue/paginated?page=${page}&limit=${limit}`, authHeader());
+    return await axios.get(`${server}/api/Issue/paginated?page=${page}&limit=${limit}`, authHeader());
 };
 
 
