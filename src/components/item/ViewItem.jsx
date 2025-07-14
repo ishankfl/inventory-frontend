@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getAllProducts, deleteProducts } from '../../api/item';
 import Header from '../common/Header';
 import SearchBox from '../common/SearchBox';
-import AddItemForm from '../Receipt/AddItemForm';
+import AddItemForm from '../common/AddItemForm';
 import EditProduct from './EditItem';
 
 const ViewProducts = () => {

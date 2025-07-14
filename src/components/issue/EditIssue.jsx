@@ -9,7 +9,7 @@ import FormInput from '../common/FormInput';
 import FormSelect from '../common/FormSelect';
 import issueSchema from '../../utils/yup/issue-validation';
 import axios from 'axios';
-import AddItemForm from './AddItemForm';
+import AddItemForm from '../common/AddItemForm';
 import { Eye } from 'lucide-react';
 
 const EditIssue = () => {

@@ -3,12 +3,13 @@ import { FiEye, FiPlus } from "react-icons/fi";
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAllVendors, fetchAllItems, fetchReceiptById, updateReceipt } from '../../api/receipt';
-import AddItemForm from './AddItemForm';
-import AddedItems from './AddedItems';
+import AddItemForm from '../common/AddItemForm';
+// import AddedItems from '..;
 import { itemSchema, validatePrimaryInfo, validateItem, primaryInfoSchema } from '../../utils/yup/receipt-form.vaid';
 import FormInput from '../common/FormInput';
 import FormSelect from '../common/FormSelect';
 import { Eye } from 'lucide-react';
+import AddedItems from '../issue/AddedItems';
 
 const PlusIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
