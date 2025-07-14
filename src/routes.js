@@ -1,31 +1,41 @@
 import { useState, useEffect } from "react";
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { isLoggedIn } from './utils/tokenutils';
-
-import Login from "./components/auth/Login";
-import ViewAllUsers from "./components/auth/ViewAllUsers";
-import AddStaff from "./components/auth/AddStaff";
 import AddCategory from "./components/category/AddCategory";
-import ViewCategory from "./components/category/ViewCategory";
 import EditCategory from "./components/category/EditCategory";
-import AddItem from "./components/item/AddItem";
-import ViewItem from "./components/item/ViewItem";
-import EditItem from "./components/item/EditItem";
-import ViewAllDepartments from "./components/departments/ViewDepartments";
-import EditDepartment from "./components/departments/EditDepartment";
-import AddDepartment from "./components/departments/AddDepartment";
-import IssuePage from "./components/issue/IssuePage";
-import ViewIssue from "./components/issue/ViewIssue";
-import LineChart from "./components/dashboard/LineChart";
+import ViewCategory from "./components/category/ViewCategory";
+
 import Dashboard from "./components/dashboard/Dashboard";
+import LineChart from "./components/dashboard/LineChart";
+
+import AddDepartment from "./components/departments/AddDepartment";
+import EditDepartment from "./components/departments/EditDepartment";
+import ViewAllDepartments from "./components/departments/ViewDepartments";
+
+import AddItem from "./components/item/AddItem";
+import EditItem from "./components/item/EditItem";
+import ViewItem from "./components/item/ViewItem";
+
+// import EditIssue from "./components/Receipt/EditIssue";
+import EditReceipt from "./components/Receipt/EditReceipt";
+// import IssueReceipt from "./components/Receipt/IssueForm";
+// import IssuesList from "./components/Receipt/IssueList";
 import Receipt from "./components/Receipt/ReceiptForm";
 import ReceiptDetails from "./components/Receipt/ReceiptDetails";
 import ReceiptList from "./components/Receipt/ReceiptsList";
-import EditReceipt from "./components/Receipt/EditReceipt";
-import IssueReceipt from "./components/Receipt/IssueForm";
-import IssuesList from "./components/Receipt/IssueList";
-import EditIssue from "./components/Receipt/EditIssue";
+
+import AddStaff from "./components/auth/AddStaff";
+import Login from "./components/auth/Login";
+import ViewAllUsers from "./components/auth/ViewAllUsers";
+
+import IssuePage from "./components/issue/IssuePage";
+import ViewIssue from "./components/issue/ViewIssue";
+
 import { UserProvider } from "./context/UserContext";
+import IssueReceipt from "./components/issue/IssueForm";
+import IssuesList from "./components/issue/IssueList";
+import EditIssue from "./components/issue/EditIssue";
+
 
 const CustomRouter = () => {
   const navigate = useNavigate();
