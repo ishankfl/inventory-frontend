@@ -13,6 +13,8 @@ import { fetchAllIssue } from '../../api/receipt';
 import { useNavigate } from 'react-router-dom';
 import Header from '../common/Header';
 import { IssueListTable } from './IssueListTable';
+import FilterInput from '../common/FilterInput';
+import StatCard from '../common/StatCard';
 
 const IssuesList = () => {
   const [issues, setIssues] = useState([]);
@@ -202,31 +204,6 @@ const IssuesList = () => {
   );
 };
 
-//  Stat Card Component
-const StatCard = ({ title, value, icon, bg }) => (
-  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-    <div className="flex items-center justify-between">
-      <div>
-        <h3 className="text-sm font-medium text-gray-600 mb-1">{title}</h3>
-        <p className="text-2xl font-bold text-text">{value}</p>
-      </div>
-      <div className={`${bg} p-3 rounded-lg`}>{icon}</div>
-    </div>
-  </div>
-);
 
-//  Filter Input
-const FilterInput = ({ icon: Icon, placeholder, value, onChange }) => (
-  <div className="relative">
-    <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-    <input
-      type="text"
-      placeholder={placeholder}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-    />
-  </div>
-);
 
 export default IssuesList;

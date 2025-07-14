@@ -1,0 +1,260 @@
+/* General Layout */
+.receipt-container {
+  @apply min-h-screen bg-gray-50;
+}
+
+.receipt-wrapper {
+  @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+}
+
+/* Loading / Error / Not Found */
+.center-box {
+  @apply min-h-screen bg-gray-50 flex items-center justify-center;
+}
+
+.spinner-box {
+  @apply text-center;
+}
+
+.spinner-icon {
+  @apply animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4;
+}
+
+.error-box {
+  @apply text-center max-w-md mx-auto;
+}
+
+.error-icon {
+  @apply bg-red-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center;
+}
+
+.error-title {
+  @apply text-2xl font-bold text-gray-800 mb-2;
+}
+
+.error-message {
+  @apply text-red-600 mb-6;
+}
+
+.back-button {
+  @apply bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200;
+}
+
+/* Header */
+.back-to-list {
+  @apply flex items-center text-gray-600 hover:text-gray-800 mb-6 transition-colors duration-200 ;
+}
+
+.back-icon {
+  @apply text-white w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform;
+}
+
+.back-text {
+  @apply font-medium text-white;
+}
+
+.header-content {
+  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4;
+}
+
+.receipt-header-left {
+  @apply flex items-center;
+}
+
+.receipt-icon-box {
+  @apply bg-blue-100 p-3 rounded-lg mr-4;
+}
+
+.receipt-title-box {
+  @apply text-2xl font-bold text-gray-800;
+}
+
+.receipt-id {
+  @apply text-gray-500;
+}
+
+/* Buttons */
+.button-wrap {
+  @apply flex flex-wrap gap-3;
+}
+
+.print-btn {
+  @apply flex items-center px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md;
+}
+
+.download-btn {
+  @apply flex items-center px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md;
+}
+
+/* Receipt Card */
+.receipt-card {
+  @apply bg-white rounded-xl shadow-md overflow-hidden border border-gray-100;
+}
+
+.receipt-card-header {
+  @apply bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6;
+}
+
+.receipt-card-header-grid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-6;
+}
+
+.header-item {
+  @apply flex items-start;
+}
+
+.header-icon {
+  @apply bg-white/20 p-2 rounded-lg mr-3;
+}
+
+.header-label {
+  @apply text-sm opacity-90;
+}
+
+.header-value {
+  @apply font-semibold text-lg;
+}
+
+/* Vendor Info */
+.vendor-section {
+  @apply mb-8;
+}
+
+.vendor-title {
+  @apply flex items-center mb-4;
+}
+
+.vendor-icon-box {
+  @apply bg-gray-100 p-2 rounded-lg mr-3;
+}
+
+.vendor-title-text {
+  @apply text-xl font-semibold text-gray-800;
+}
+
+.vendor-info-box {
+  @apply bg-gray-50 rounded-lg p-5 border border-gray-200;
+}
+
+.vendor-grid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-5;
+}
+
+.vendor-label {
+  @apply text-sm text-gray-500 font-medium mb-1;
+}
+
+.vendor-value {
+  @apply font-medium text-gray-800 text-lg;
+}
+
+.vendor-email {
+  @apply flex items-center;
+}
+
+.vendor-email-icon {
+  @apply w-4 h-4 text-gray-400 mr-2;
+}
+
+/* Items Table */
+.items-section {
+  @apply mb-8;
+}
+
+.items-title {
+  @apply flex items-center mb-4;
+}
+
+.items-icon-box {
+  @apply bg-gray-100 p-2 rounded-lg mr-3;
+}
+
+.items-title-text {
+  @apply text-xl font-semibold text-gray-800;
+}
+
+.items-table-container {
+  @apply overflow-x-auto rounded-lg border border-gray-200;
+}
+
+.items-table {
+  @apply w-full;
+}
+
+.items-thead {
+  @apply bg-gray-50;
+}
+
+.items-th {
+  @apply p-4 font-medium text-gray-700 border-b;
+}
+
+.items-td {
+  @apply p-4 border-b border-gray-200;
+}
+
+.items-row-white {
+  @apply bg-white;
+}
+
+.items-row-gray {
+  @apply bg-gray-50;
+}
+
+.item-name {
+  @apply font-medium text-gray-800;
+}
+
+.item-desc {
+  @apply text-sm text-gray-500 mt-1;
+}
+
+.unit-text {
+  @apply text-gray-600;
+}
+
+.qty-text {
+  @apply text-center font-medium;
+}
+
+.unit-price {
+  @apply text-right font-medium;
+}
+
+.total-price {
+  @apply text-right font-semibold;
+}
+
+/* Summary */
+.summary-container {
+  @apply flex justify-end;
+}
+
+.summary-box {
+  @apply w-full md:w-96 bg-gray-50 rounded-lg p-6 border border-gray-200;
+}
+
+.summary-title {
+  @apply text-lg font-semibold text-gray-800 mb-4 border-b pb-2;
+}
+
+.summary-line {
+  @apply flex justify-between items-center;
+}
+
+.summary-total-box {
+  @apply border-t border-gray-200 pt-4 mt-3;
+}
+
+.total-amount {
+  @apply text-lg font-semibold text-gray-800;
+}
+
+.total-value {
+  @apply text-xl font-bold text-blue-600;
+}
+
+/* Footer */
+.footer-note {
+  @apply mt-8 text-center text-gray-500 text-sm;
+}
