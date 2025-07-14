@@ -1,45 +1,38 @@
 import { useEffect, useState } from "react";
-import { fetchTop10ItemsByQty, fetchTop10IssuedProduct, fetchCountForCard } from '../../api/dashboard';
-import { Bar } from 'react-chartjs-2';
+import axios from "axios";
+import { Bar, Line } from 'react-chartjs-2';
 import { FaTags, FaBuilding, FaBox, FaUsers } from "react-icons/fa";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Title,
   Tooltip,
   Legend
 } from 'chart.js';
+import { fetchDasahboardData } from "../../api/dashboard";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
-  const [top10Items, setTop10ProductByQty] = useState([]);
-  const [topIssuedItems, setTopIssuedProduct] = useState([]);
-  const [cardCount, setCardCount] = useState([]);
+  const [data, setData] = useState(null); // will hold entire DashboardDataDto
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  const fetchData = async () => {
+  const fetchDashboardOverview = async () => {
     try {
       setLoading(true);
-      setErrorMsg(null); // Clear any previous error
+      setErrorMsg(null);
+      const response = await fetchDasahboardData();
+      setData(response.data);
 
-      const [quantityResponse, issuedResponse, countResponse] = await Promise.all([
-        fetchTop10ItemsByQty(),
-        fetchTop10IssuedProduct(),
-        fetchCountForCard()
-      ]);
-
-      setTop10ProductByQty(quantityResponse.data);
-      setTopIssuedProduct(issuedResponse.data);
-      setCardCount(countResponse.data);
     } catch (error) {
       if (error.response?.status === 401) {
         setErrorMsg("You are unable to perform this action.");
       } else {
-        
         console.error("Error fetching dashboard data:", error);
         setErrorMsg("An unexpected error occurred while loading the dashboard.");
       }
@@ -49,150 +42,144 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    fetchDashboardOverview();
   }, []);
 
-  const getChartOptions = (title) => ({
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  );
+
+  if (errorMsg) return (
+    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4 text-center">
+      {errorMsg}
+    </div>
+  );
+
+  if (!data) return null; // no data
+
+  // Prepare chart data
+  const inventoryData = {
+    labels: data.topProductsByQty.map(item => item.name),
+    datasets: [{
+      label: 'Inventory Quantity',
+      data: data.topProductsByQty.map(item => item.totalStockQuantity),
+      backgroundColor: 'rgba(59, 130, 246, 0.7)',
+      borderColor: 'rgba(59, 130, 246, 1)',
+      borderWidth: 1,
+      borderRadius: 4,
+    }],
+  };
+
+  const issuedData = {
+    labels: data.topIssuedItems.map(item => item.name),
+    datasets: [{
+      label: 'Issued Quantity',
+      data: data.topIssuedItems.map(item => item.totalIssuedQuantity),
+      backgroundColor: 'rgba(16, 185, 129, 0.7)',
+      borderColor: 'rgba(16, 185, 129, 1)',
+      borderWidth: 1,
+      borderRadius: 4,
+    }],
+  };
+
+  const dailyReceiptData = {
+    labels: data.dailyTotalReceiptValue.map(d => new Date(d.date).toLocaleDateString()),
+    datasets: [{
+      label: 'Daily Total Receipt Value',
+      data: data.dailyTotalReceiptValue.map(d => d.totalPrice),
+      fill: false,
+      borderColor: 'rgba(255, 99, 132, 0.7)',
+      backgroundColor: 'rgba(255, 99, 132, 0.5)',
+      tension: 0.3,
+    }],
+  };
+
+  const getChartOptions = (title, yLabel = 'Quantity') => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top',
-        labels: {
-          usePointStyle: true,
-          padding: 15
-        }
+        labels: { usePointStyle: true, padding: 15 },
       },
       title: {
         display: true,
         text: title,
         font: { weight: 'bold' },
-        padding: { bottom: 20 }
+        padding: { bottom: 20 },
       },
       tooltip: {
         callbacks: {
-          label: function (context) {
-            return `${context.dataset.label}: ${context.raw}`;
-          }
-        }
-      }
+          label: context => `${context.dataset.label}: ${context.parsed.y ?? context.parsed}`,
+        },
+      },
     },
     scales: {
       y: {
         beginAtZero: true,
-        title: { display: true, text: 'Quantity' },
+        title: { display: true, text: yLabel },
         ticks: { precision: 0 },
-        grid: { display: true, color: 'rgba(0, 0, 0, 0.05)' }
+        grid: { color: 'rgba(0, 0, 0, 0.05)' },
       },
       x: {
-        title: { display: true, text: 'Products' },
-        ticks: {
-          callback: function (value) {
-            return this.getLabelForValue(value);
-          }
-        },
-        grid: { display: false }
-      }
-    }
+        grid: { display: false },
+      },
+    },
   });
 
-  const inventoryData = {
-    labels: top10Items.map(item => item.name),
-    datasets: [{
-      label: 'Inventory Quantity',
-      data: top10Items.map(item => item.totalStockQuantity),
-      backgroundColor: 'rgba(59, 130, 246, 0.7)',
-      borderColor: 'rgba(59, 130, 246, 1)',
-      borderWidth: 1,
-      borderRadius: 4
-    }]
-  };
-
-  const issuedData = {
-    labels: topIssuedItems.map(item => item.name),
-    datasets: [{
-      label: 'Issued Quantity',
-      data: topIssuedItems.map(item => item.qty),
-      backgroundColor: 'rgba(16, 185, 129, 0.7)',
-      borderColor: 'rgba(16, 185, 129, 1)',
-      borderWidth: 1,
-      borderRadius: 4
-    }]
-  };
+  const { cardCounts } = data;
 
   return (
-    <div>
-      <div className="px-24">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Dashboard Analytics</h1>
+    <div className="px-24">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">Dashboard Analytics</h1>
 
-        {errorMsg && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4 text-center">
-            {errorMsg}
-          </div>
-        )}
+      <div className="flex flex-wrap gap-12 items-center justify-center py-12">
+        <StatCard icon={<FaUsers className="text-4xl mx-auto" />} title="Users" value={cardCounts.users ?? 0} bgClass="bg-primary" />
+        <StatCard icon={<FaBox className="text-4xl mx-auto" />} title="Products" value={cardCounts.products ?? 0} bgClass="bg-accent" />
+        <StatCard icon={<FaBuilding className="text-4xl mx-auto" />} title="Departments" value={cardCounts.departments ?? 0} bgClass="bg-success" />
+        <StatCard icon={<FaTags className="text-4xl mx-auto" />} title="Categories" value={cardCounts.categories ?? 0} bgClass="bg-primary-dark" />
+      </div>
 
-        <div className="flex flex-wrap gap-12 items-center justify-center py-12">
-          <div className="bg-primary text-white px-12 py-8 flex flex-col gap-4 custom-radius text-center w-[300px]">
-            <FaUsers className="text-4xl mx-auto" />
-            <h3 className="text-xl font-semibold">Users</h3>
-            <span className="text-3xl font-bold">{cardCount.users}</span>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 px-0">
+        <ChartCard title="Top 10 Items by Inventory Quantity">
+          <Bar data={inventoryData} options={getChartOptions('Top 10 Items by Inventory Quantity')} />
+        </ChartCard>
 
-          <div className="bg-accent text-white px-12 py-8 flex flex-col gap-4 rounded-[60px_70px_40px_140px] custom-radius text-center w-[300px]">
-            <FaBox className="text-4xl mx-auto" />
-            <h3 className="text-xl font-semibold">Products</h3>
-            <span className="text-3xl font-bold">{cardCount.products}</span>
-          </div>
+        <ChartCard title="Top 10 Issued Products">
+          <Bar data={issuedData} options={getChartOptions('Top 10 Issued Products')} />
+        </ChartCard>
 
-          <div className="bg-success text-white px-12 py-8 flex flex-col gap-4 rounded-[60px_70px_40px_140px] custom-radius text-center w-[300px]">
-            <FaBuilding className="text-4xl mx-auto" />
-            <h3 className="text-xl font-semibold">Departments</h3>
-            <span className="text-3xl font-bold">{cardCount.departments}</span>
-          </div>
-
-          <div className="bg-primary-dark text-white px-12 py-8 flex flex-col gap-4 rounded-[60px_70px_40px_140px] custom-radius text-center w-[300px]">
-            <FaTags className="text-4xl mx-auto" />
-            <h3 className="text-xl font-semibold">Categories</h3>
-            <span className="text-3xl font-bold">{cardCount.categories}</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-36">
-          <div className="bg-white rounded-xl shadow-md p-4 md:p-6">
-            <div className="md:h-80 lg:h-96">
-              {loading ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                </div>
-              ) : top10Items.length > 0 ? (
-                <Bar data={inventoryData} options={getChartOptions('Top 10 Items by Inventory Quantity')} />
-              ) : (
-                <div className="flex items-center justify-center h-full text-gray-500">
-                  No inventory data available
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-4 md:p-6">
-            <div className="h-64 md:h-80 lg:h-96">
-              {loading ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
-                </div>
-              ) : topIssuedItems.length > 0 ? (
-                <Bar data={issuedData} options={getChartOptions('Top 10 Issued Products')} />
-              ) : (
-                <div className="flex items-center justify-center h-full text-gray-500">
-                  No issued products data available
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+      
+      </div>
+      <br />
+      <br />
+      <div>
+          <ChartCard title="Daily Total Receipt Value" yAxisLabel="Amount">
+          <Line data={dailyReceiptData} options={getChartOptions('Daily Total Receipt Value', 'Amount')} />
+        </ChartCard>
       </div>
     </div>
   );
 };
+
+// Reusable stat card component
+const StatCard = ({ icon, title, value, bgClass }) => (
+  <div className={`${bgClass} text-white px-12 py-8 flex flex-col gap-4 custom-radius text-center w-[300px] rounded-lg`}>
+    {icon}
+    <h3 className="text-xl font-semibold">{title}</h3>
+    <span className="text-3xl font-bold">{value}</span>
+  </div>
+);
+
+// Reusable chart card container
+const ChartCard = ({ title, children, yAxisLabel }) => (
+  <div className="bg-white rounded-xl shadow-md p-4 md:p-6 h-96">
+    <div className="h-full">
+      {children}
+    </div>
+  </div>
+);
 
 export default Dashboard;
