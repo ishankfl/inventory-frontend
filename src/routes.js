@@ -35,6 +35,7 @@ import { UserProvider } from "./context/UserContext";
 import IssueReceipt from "./components/issue/IssueForm";
 import IssuesList from "./components/issue/IssueList";
 import EditIssue from "./components/issue/EditIssue";
+import { DashboardProvider } from "./context/DashboardContext";
 
 
 const CustomRouter = () => {
@@ -51,40 +52,45 @@ const CustomRouter = () => {
 
   return (
     <UserProvider>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/add-product" element={<AddItem />} />
-        <Route path="/view-products" element={<ViewItem />} />
-        <Route path="/edit-product/:id" element={<EditItem />} />
+      {/* <DashboardProvider> */}
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/add-product" element={<AddItem />} />
+          <Route path="/view-products" element={<ViewItem />} />
+          <Route path="/edit-product/:id" element={<EditItem />} />
 
-        <Route path="/add-category" element={<AddCategory />} />
-        <Route path="/view-category" element={<ViewCategory />} />
-        <Route path="/edit-category/:id" element={<EditCategory />} />
+          <Route path="/add-category" element={<AddCategory />} />
+          <Route path="/view-category" element={<ViewCategory />} />
+          <Route path="/edit-category/:id" element={<EditCategory />} />
 
-        <Route path="/add-user" element={<AddStaff />} />
+          <Route path="/add-user" element={<AddStaff />} />
+          <Route path="/view-users" element={<ViewAllUsers />} />
 
-        <Route path="/view-users" element={<ViewAllUsers />} />
+          <Route path="/view-departments" element={<ViewAllDepartments />} />
+          <Route path="/edit-department/:id" element={<EditDepartment />} />
+          <Route path="/add-department" element={<AddDepartment />} />
 
+          <Route path="/view-issues" element={<ViewIssue />} />
+          <Route path="/receipt" element={<Receipt />} />
+          <Route path="/receipt-details/:id" element={<ReceiptDetails />} />
+          <Route path="/receipt/edit/:id" element={<EditReceipt />} />
+          <Route path="/receipt-list" element={<ReceiptList />} />
 
-        <Route path="/view-departments" element={<ViewAllDepartments />} />
-        <Route path="/edit-department/:id" element={<EditDepartment />} />
-        <Route path="/add-department" element={<AddDepartment />} />
+          <Route path="/add-issue" element={<IssueReceipt />} />
+          <Route path="/issue-list" element={<IssuesList />} />
+          <Route path="/edit-issue/:id" element={<EditIssue />} />
 
-        {/* <Route path="/add-issue" element={<IssuePage />} /> */}
-        <Route path="/view-issues" element={<ViewIssue />} />
-
-        <Route path="/receipt" element={<Receipt />} />
-        <Route path="/receipt-details/:id" element={<ReceiptDetails />} />
-        <Route path="/receipt/edit/:id" element={<EditReceipt />} />
-        <Route path="/receipt-list" element={<ReceiptList />} />
-
-        <Route path="/add-issue" element={<IssueReceipt />} />
-        <Route path="/issue-list" element={<IssuesList />} />
-        <Route path="/edit-issue/:id" element={<EditIssue />} />
-
-        <Route path="/" element={<Dashboard />} />
-      </Routes>
+          <Route
+            path="/"
+            element={
+              <DashboardProvider>
+                <Dashboard />
+              </DashboardProvider>
+            }
+          />        </Routes>
+      {/* </DashboardProvider> */}
     </UserProvider>
+
   );
 };
 
