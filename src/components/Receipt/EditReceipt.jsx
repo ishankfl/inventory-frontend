@@ -418,7 +418,7 @@ const EditReceipt = () => {
 
 
                     {/* Action Buttons */}
-                    <div className="flex flex-row justify-end px-[5%] gap-12 ">
+                    {/* <div className="flex flex-row justify-end px-[5%] gap-12 ">
                         <button
                             type="button"
                             className="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700 min-w-[20%]"
@@ -435,8 +435,8 @@ const EditReceipt = () => {
                             className="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700  min-w-[20%]"
                         >
                             Add Item
-                        </button>
-                    </div>
+                        </button> */}
+                    {/* </div> */}
                 </form>
 
                 <div className="px-16">

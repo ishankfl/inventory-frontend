@@ -93,6 +93,26 @@ const ItemInformation = ({
           className="bg-gray-100"
         />
 
+        {/* Action Buttons */}
+        <div className="md:col-span-2 flex justify-end gap-3 mt-4">
+          <button
+            type="button"
+            className="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700"
+            onClick={() => {
+              setNewItem(initialNewItemState);
+              setSelectedItem(null);
+              setErrors(prev => ({ ...prev, item: {} }));
+            }}
+          >
+            Clear
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700"
+          >
+            Add Item
+          </button>
+        </div>
       </div>
     </div>
   );
