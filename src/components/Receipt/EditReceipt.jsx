@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAllVendors, fetchAllItems, fetchReceiptById, updateReceipt } from '../../api/receipt';
 import AddItemForm from '../common/AddItemForm';
-// import AddedItems from '..;
 import { itemSchema, validatePrimaryInfo, validateItem, primaryInfoSchema } from '../../utils/yup/receipt-form.vaid';
 import FormInput from '../common/FormInput';
 import FormSelect from '../common/FormSelect';
-import { Eye } from 'lucide-react';
+import { Eye, Key } from 'lucide-react';
 import AddedItems from '../issue/AddedItems';
+import SectionHeader from './SectionHeader';
+import PrimaryInfoBox from './PrimaryInfo';
+import ItemInformation from './ItemInformation';
+import AddedItemsTable from './AddedItemsTable';
 
 const PlusIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -17,11 +20,7 @@ const PlusIcon = () => (
     </svg>
 );
 
-const TrashIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-    </svg>
-);
+
 
 const EditReceipt = () => {
     const { id } = useParams();
@@ -32,6 +31,7 @@ const EditReceipt = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({ primary: {}, item: {} });
     const [selectedItem, setSelectedItem] = useState(null);
+    const [hoveredRow, setHoveredRow] = useState(null);
 
     const initialPrimaryInfo = {
         entryOf: 'PURCHASE',
@@ -138,7 +138,8 @@ const EditReceipt = () => {
         try {
             setIsLoading(true);
             const response = await fetchAllItems();
-            if (response.status === 200) setItems(response.data);
+            console.log('Fetch all items called', response)
+            if (response.status === 200) setItems(response.data.data);
         } catch (e) {
             console.error("Error fetching items:", e);
         } finally {
@@ -323,15 +324,25 @@ const EditReceipt = () => {
         }
     };
 
-    const SectionHeader = ({ title, icon }) => (
-        <div className="flex items-start gap-4 mb-4">
-            <h2 className="text-sm font-semibold text-gray-800">{title}</h2>
-            {icon && <span className="text-blue-600 bg-blue-100 rounded-full p-1">{icon}</span>}
-        </div>
-    );
-
     const handleViewReceipt = () => {
         navigate('/receipt-list');
+    };
+
+    const handleRowClick = (item) => {
+        setNewItem({
+            ...initialNewItemState,
+            itemId: item.itemId,
+            itemGroup: item.itemGroup,
+            uom: item.uom,
+            quantity: item.quantity,
+            rate: item.rate,
+            value: item.value,
+            currency: item.currency,
+            isComplimentary: item.isComplimentary,
+            taxStructure: item.taxStructure,
+            discountPercent: item.discountPercent,
+            discountAmount: item.discountAmount
+        });
     };
 
     if (isLoading) {
@@ -350,22 +361,22 @@ const EditReceipt = () => {
     return (
         <div className="bg-gray-100 p-2 sm:p-2 lg:p-4 min-h-screen">
             <div className="mx-auto">
-                 <div className="flex flex-col px-24 gap-8">
+                <div className="flex flex-col px-24 gap-8">
                     <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 className="text-3xl font-bold text-text mb-2">Create Issue</h1>
-                        <p className="text-gray-600">Manage and track all inventory issues</p>
+                        <div>
+                            <h1 className="text-3xl font-bold text-text mb-2">Edit Receipt</h1>
+                            <p className="text-gray-600">Manage and track all inventory issues</p>
+                        </div>
+                        <button
+                            onClick={handleViewReceipt}
+                            className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200 shadow-md"
+                        >
+                            <Eye className="h-5 w-5" />
+                            <span>View Previous</span>
+                        </button>
                     </div>
-                    <button
-                        onClick={handleViewReceipt}
-                        className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200 shadow-md"
-                    >
-                        <Eye className="h-5 w-5" />
-                        <span>View Previous</span>
-                    </button>
                 </div>
-                </div> 
-               
+
 
                 {showForm && (
                     <AddItemForm
@@ -378,206 +389,67 @@ const EditReceipt = () => {
                 <form onSubmit={handleAddItem}>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 py-4 justify-items-center">
                         <div className="bg-white py-8 px-4 rounded-lg shadow-md w-[80%]">
-                            <SectionHeader title="Primary Information" />
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Entry Of</label>
-                                    <select
-                                        name="entryOf"
-                                        value={primaryInfo.entryOf}
-                                        onChange={handlePrimaryChange}
-                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${errors.primary.entryOf ? 'border-red-500' : ''
-                                            }`}
-                                    >
-                                        <option value="PURCHASE">PURCHASE</option>
-                                        <option value="SALE">SALE</option>
-                                    </select>
-                                    {errors.primary.entryOf && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.primary.entryOf}</p>
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Receipt #</label>
-                                    <input
-                                        type="text"
-                                        name="receiptNo"
-                                        value={primaryInfo.receiptNo}
-                                        onChange={handlePrimaryChange}
-                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 bg-gray-100 ${errors.primary.receiptNo ? 'border-red-500' : ''
-                                            }`}
-                                        readOnly
-                                    />
-                                    {errors.primary.receiptNo && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.primary.receiptNo}</p>
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Receipt Date (AD)<span className="text-red-500">*</span></label>
-                                    <input
-                                        type="date"
-                                        name="receiptDateAD"
-                                        value={primaryInfo.receiptDateAD}
-                                        onChange={handlePrimaryChange}
-                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${errors.primary.receiptDateAD ? 'border-red-500' : ''
-                                            }`}
-                                        required
-                                    />
-                                    {errors.primary.receiptDateAD && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.primary.receiptDateAD}</p>
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Bill Number <span className="text-red-500">*</span></label>
-                                    <input
-                                        type="text"
-                                        name="billNo"
-                                        value={primaryInfo.billNo}
-                                        onChange={handlePrimaryChange}
-                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${errors.primary.billNo ? 'border-red-500' : ''
-                                            }`}
-                                        required
-                                    />
-                                    {errors.primary.billNo && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.primary.billNo}</p>
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Bill Date (AD)</label>
-                                    <input
-                                        type="date"
-                                        name="billDateAD"
-                                        value={primaryInfo.billDateAD}
-                                        onChange={handlePrimaryChange}
-                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${errors.primary.billDateAD ? 'border-red-500' : ''
-                                            }`}
-                                    />
-                                    {errors.primary.billDateAD && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.primary.billDateAD}</p>
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Vendor <span className="text-red-500">*</span></label>
-                                    <select
-                                        name="vendor"
-                                        value={primaryInfo.vendor}
-                                        onChange={handlePrimaryChange}
-                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${errors.primary.vendor ? 'border-red-500' : ''
-                                            }`}
-                                        required
-                                    >
-                                        <option value="">Select Vendor</option>
-                                        {vendors.map(v => (
-                                            <option key={v.id} value={v.id}>{v.name}</option>
-                                        ))}
-                                    </select>
-                                    {errors.primary.vendor && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.primary.vendor}</p>
-                                    )}
-                                </div>
-                            </div>
+                            {/* here primary box */}
+                            <PrimaryInfoBox errors={errors} handlePrimaryChange={handlePrimaryChange}
+                                key={Key}
+                                primaryInfo={primaryInfo}
+                                vendors={vendors}
+
+                            />
                         </div>
 
                         <div className="py-8 px-4 bg-white rounded-lg shadow-md w-[80%]">
-                            <SectionHeader title="Item Information" />
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                            {/* item info box here */}
+                            <ItemInformation
+                                items={items} // array of available items
+                                newItem={newItem} // current item being added
+                                errors={errors} // validation errors
+                                handleItemChange={handleItemChange} // handler for item select/input change
+                                handleQuantityOrRateChange={handleQuantityOrRateChange} // updates value based on quantity * rate
+                                handleOpenForm={handleOpenForm} // triggers item form modal/pop-up
+                                setNewItem={setNewItem} // resets new item fields
+                                setSelectedItem={setSelectedItem} // clears selected item if needed
+                                initialNewItemState={initialNewItemState} // default state to reset item form
+                                setErrors={setErrors} // used to reset validation errors
+                            />
 
-                                <FormSelect
-                                    label="Currency"
-                                    name="currency"
-                                    value={newItem.currency}
-                                    onChange={handleItemChange}
-                                    options={[
-                                        { value: "NPR", label: "NPR" },
-                                        { value: "USD", label: "USD" },
-                                        { value: "EUR", label: "EUR" },
-                                    ]}
-                                />
-
-                                <div className="relative">
-                                    <FormSelect
-                                        label="Item Name"
-                                        name="itemId"
-                                        value={newItem.itemId}
-                                        onChange={handleItemChange}
-                                        options={[
-                                            { value: "", label: "Choose Item" },
-                                            // ...items.map(i => ({ value: i.id, label: i.name })
-                                        // )
-                                        ]}
-                                        error={errors.item.itemId}
-                                        required
-                                        className={`border-green-500 ring-2 ring-green-200 pr-10 ${errors.item.itemId ? 'border-red-500 ring-red-200' : ''}`}
-                                    />
-                                    <button
-                                        type="button"
-                                        className="absolute right-2 top-9 p-1 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200"
-                                        onClick={handleOpenForm}
-                                    >
-                                        <PlusIcon />
-                                    </button>
-                                </div>
-
-                                <FormInput
-                                    label="Quantity"
-                                    name="quantity"
-                                    type="number"
-                                    placeholder="Quantity"
-                                    value={newItem.quantity}
-                                    onChange={handleQuantityOrRateChange}
-                                    error={errors.item.quantity}
-                                    required
-                                    className=""
-                                />
-
-                                <FormInput
-                                    label="Rate"
-                                    name="rate"
-                                    type="number"
-                                    placeholder="Rate"
-                                    value={newItem.rate}
-                                    onChange={handleQuantityOrRateChange}
-                                    error={errors.item.rate}
-                                    required
-                                />
-
-                                <FormInput
-                                    label="Value"
-                                    name="value"
-                                    type="text"
-                                    value={newItem.value}
-                                    readOnly
-                                    className="bg-gray-100"
-                                />
-
-                                <div className="md:col-span-2 flex justify-end gap-3 mt-4">
-                                    <button
-                                        type="button"
-                                        className="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700"
-                                        onClick={() => {
-                                            setNewItem(initialNewItemState);
-                                            setSelectedItem(null);
-                                            setErrors(prev => ({ ...prev, item: {} }));
-                                        }}
-                                    >
-                                        Clear
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700"
-                                    >
-                                        Add Item
-                                    </button>
-                                </div>
-                            </div>
                         </div>
+                    </div>
+
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-row justify-end px-[5%] gap-12 ">
+                        <button
+                            type="button"
+                            className="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700 min-w-[20%]"
+                            onClick={() => {
+                                setNewItem(initialNewItemState);
+                                setSelectedItem(null);
+                                setErrors(prev => ({ ...prev, item: {} }));
+                            }}
+                        >
+                            Clear
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700  min-w-[20%]"
+                        >
+                            Add Item
+                        </button>
                     </div>
                 </form>
 
-                <AddedItems
-                    addedItems={addedItems}
-                    handleRemoveItem={handleRemoveItem}
-                    calculateTotal={calculateTotal}
-                />
+                <div className="px-16">
+                  
+                    <AddedItemsTable
+                        addedItems={addedItems}
+                        hoveredRow={hoveredRow}
+                        setHoveredRow={setHoveredRow}
+                        handleRowClick={handleRowClick}
+                        handleRemoveItem={handleRemoveItem}
+                        calculateTotal={calculateTotal}
+                    />
+                </div>
 
                 <div className="mt-8 flex justify-end gap-4 px-24">
                     <button
@@ -593,7 +465,7 @@ const EditReceipt = () => {
                     </button>
                     <button
                         type="button"
-                        className={`px-6 py-2 rounded-md text-white font-semibold ${addedItems.length === 0 || isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+                        className={`px-6 py-2 rounded-md text-white font-semibold ${addedItems.length === 0 || isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-700'
                             }`}
                         onClick={handleSubmitReceipt}
                         disabled={addedItems.length === 0 || isLoading}
