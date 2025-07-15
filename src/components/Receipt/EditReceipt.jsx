@@ -501,7 +501,8 @@ const EditReceipt = () => {
                                         onChange={handleItemChange}
                                         options={[
                                             { value: "", label: "Choose Item" },
-                                            ...items.map(i => ({ value: i.id, label: i.name }))
+                                            // ...items.map(i => ({ value: i.id, label: i.name })
+                                        // )
                                         ]}
                                         error={errors.item.itemId}
                                         required
