@@ -27,9 +27,9 @@ const ViewProducts = () => {
   const [editProductId, setEditProductId] = useState('');
 
   const handleSearchFilter = (q) => {
-    setSearchQuery(q);
-    setCurrentPage(1);
-    fetchProducts(1);
+    // setSearchQuery(q);
+    // setCurrentPage(1);
+    // fetchProducts(1);
   };
 
   const handleDelete = async (id) => {
