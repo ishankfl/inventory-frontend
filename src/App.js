@@ -39,7 +39,7 @@ function App() {
           className={`flex-1 transition-all duration-300 ${showNavbar && isUserLoggedin ? 'ml-[300px]' : 'ml-0'
             }`}
         >
-          <div className="bg-background">
+          <div className="bg-background p-16">
             <CustomRouter />
             {isUserLoggedin && <CurrentActivityBox />}
           </div>
