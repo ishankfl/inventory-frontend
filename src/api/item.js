@@ -20,9 +20,8 @@ export const updateProduct = (id, name, unit, price) => {
   );
 };
 
-
-export const getAllProducts = (page = 1, limit = 10,) =>
-  axios.get(`${server}/api/item?page=${page}&limit=${limit}`,authHeader());
+export const getAllProducts = (page = 1, limit = 10, search = '') =>
+  axios.get(`${server}/api/item?page=${page}&limit=${limit}&search=${search}`, authHeader());
 
 // Delete Product (DELETE)
 export const deleteProducts = (id) => {

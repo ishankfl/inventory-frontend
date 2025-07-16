@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getAllProducts, deleteProducts } from '../api/item';
+import { debounce } from 'lodash';
 
 const ItemContext = createContext();
 
@@ -17,15 +18,11 @@ export const ItemProvider = ({ children }) => {
 
   const totalPages = Math.ceil(totalProducts / limit);
 
-  useEffect(() => {
-    fetchProducts(currentPage);
-  }, [currentPage]);
-
-  const fetchProducts = async (page = 1) => {
+  const fetchProducts = useCallback(async (page = 1, search = '') => {
     setLoading(true);
     setFetchError(null);
     try {
-      const res = await getAllProducts(page, limit, searchQuery);
+      const res = await getAllProducts(page, limit, search);
       setProducts(res.data.data);
       setTotalProducts(res.data.total);
     } catch (err) {
@@ -34,12 +31,16 @@ export const ItemProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [limit]);
+
+  useEffect(() => {
+    fetchProducts(currentPage, searchQuery);
+  }, [currentPage, fetchProducts, searchQuery]);
 
   const removeProduct = async (id) => {
     try {
       await deleteProducts(id);
-      fetchProducts(currentPage);
+      fetchProducts(currentPage, searchQuery);
     } catch (err) {
       setError(err.response?.data?.message || "Delete failed.");
     }

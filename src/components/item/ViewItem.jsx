@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../common/Header';
 import SearchBox from '../common/SearchBox';
 import AddItemForm from '../common/AddItemForm';
@@ -26,159 +26,146 @@ const ViewProducts = () => {
   const [isEditModal, setIsEditModal] = useState(false);
   const [editProductId, setEditProductId] = useState('');
 
-  const handleSearchFilter = (q) => {
-    // setSearchQuery(q);
-    // setCurrentPage(1);
-    // fetchProducts(1);
+  // Debounce searchQuery changes
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      fetchProducts(1, searchQuery);
+      setCurrentPage(1);
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [searchQuery]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure?")) return;
-    await removeProduct(id);
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    try {
+      await removeProduct(id);
+    } catch (err) {
+      setError("Failed to delete product. Please try again.");
+    }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-700">
-        <svg
-          className="animate-spin h-12 w-12 text-blue-500 mb-4"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-        </svg>
-        <p className="text-lg font-medium">Loading, please wait...</p>
-      </div>
-    );
-  }
-
-  if (fetchError) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-5 rounded-lg text-center shadow-lg max-w-md w-full">
-          <svg
-            className="w-12 h-12 text-red-500 mx-auto mb-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 9v2m0 4h.01M4.93 4.93l14.14 14.14M12 3v1m0 16v1m8.485-8.485l-1.414-1.414M3 12H2m1.515-3.515l1.414 1.414M16.95 7.05l1.414-1.414"
-            />
-          </svg>
-          <h3 className="text-lg font-semibold mb-2">Something went wrong</h3>
-          <p className="mb-4 break-words">{fetchError}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-200"
-          >
-            Refresh Page
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6">
       <Header
         title="Product Management"
-        btnTitle="New Product"
+        btnTitle="Add New Product"
         handleButton={() => setIsAddModal(true)}
-        description="Manage your inventory products"
+        description="View and manage your product inventory"
       />
 
-      <SearchBox handleSearchFilter={handleSearchFilter} label="Product" />
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+      <div className="flex justify-between items-center mb-4">
+        <SearchBox
+          value={searchQuery}
+          onChange={handleSearchChange}
+          label="Product"
+        />
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+      </div>
 
-      <div className="overflow-x-auto bg-white rounded-lg shadow-sm border mt-4">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="table-header">Name</th>
-              <th className="table-header">Quantity</th>
-              <th className="table-header">Price</th>
-              <th className="table-header text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.length > 0 ? (
-              products.map(p => {
-                const qty = Array.isArray(p.stock)
-                  ? p.stock.reduce((sum, s) => sum + (s.currentQuantity || 0), 0)
-                  : 0;
-
-                return (
-                  <tr key={p.id} className="hover:bg-gray-50">
-                    <td className="table-cell">{p.name}</td>
-                    <td className="table-cell">{qty}</td>
-                    <td className="table-cell">Rs. {p.price.toFixed(2)}</td>
-                    <td className="table-cell text-center space-x-2">
-                      <button
-                        onClick={() => { setEditProductId(p.id); setIsEditModal(true); }}
-                        className="action-button button-blue"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(p.id)}
-                        className="action-button button-red"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
+      <div className="overflow-x-auto bg-white rounded-lg shadow-sm border min-h-[300px]">
+        {loading ? (
+          <div className="text-center py-8 text-gray-500">Loading...</div>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <td colSpan="4" className="px-6 py-12 text-center text-gray-400">
-                  No products found.
-                </td>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {products.length > 0 ? (
+                products.map((product) => {
+                  const quantity = Array.isArray(product.stock)
+                    ? product.stock.reduce((sum, stock) => sum + (stock.currentQuantity || 0), 0)
+                    : 0;
+
+                  return (
+                    <tr key={product.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {product.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {quantity}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        Rs. {product.price?.toFixed(2)}
+                      </td>
+                      <td className="table-cell text-center space-x-2">
+                        <button
+                          onClick={() => { setEditProductId(product.id); setIsEditModal(true); }}
+                          className="action-button button-blue"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          className="action-button button-red"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="4" className="px-6 py-12 text-center text-gray-400">
+                    {searchQuery ? 'No products match your search.' : 'No products found.'}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
 
       <div className="flex justify-between items-center mt-4">
         <button
           onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
-          className="pagination-button"
+          className={`px-4 py-2 rounded ${currentPage === 1 ? 'bg-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
         >
           Previous
         </button>
-        <span className="text-sm">Page {currentPage} of {totalPages}</span>
+        <span className="text-sm text-gray-700">
+          Page {currentPage} of {totalPages}
+        </span>
         <button
           onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
           disabled={currentPage === totalPages}
-          className="pagination-button"
+          className={`px-4 py-2 rounded ${currentPage === totalPages ? 'bg-gray-200 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
         >
           Next
         </button>
       </div>
 
       {(isAddModal || isEditModal) && (
-        <div className="modal-overlay" onClick={() => { setIsAddModal(false); setIsEditModal(false); }}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div
+            className="bg-white rounded-lg p-6 w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
             {isAddModal && (
               <AddItemForm
                 onClose={() => setIsAddModal(false)}
-                fetchAllItem={() => fetchProducts(currentPage)}
+                fetchAllItem={() => fetchProducts(currentPage, searchQuery)}
               />
             )}
             {isEditModal && (
               <EditProduct
                 productId={editProductId}
                 onClose={() => setIsEditModal(false)}
-                fetchAllItem={() => fetchProducts(currentPage)}
+                fetchAllItem={() => fetchProducts(currentPage, searchQuery)}
               />
             )}
           </div>
