@@ -4,7 +4,7 @@ import { authHeader } from '../utils/tokenutils.js'; // Import authHeader
 
 //  Login (no token required)
 export const loginApi = (email, password) => {
-  console.log(email,password)
+  console.log(email, password)
   return axios.post(`${server}/api/Users/Login`, {
     email,
     password
@@ -29,4 +29,15 @@ export const addStaff = (fullName, email, password, role) => {
     password,
     role
   }, authHeader());
+};
+
+export const getUsersByPagination = (page, pageSize,  search) => {
+  // const pageSize = 6;
+  const params = { page, pageSize };
+  if (search) params.search = search;
+
+  return axios.get(`${server}/api/users/pagination`, {
+    params,
+    headers: authHeader().headers
+  });
 };

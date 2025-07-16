@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getAllUsers, deleteUser } from '../api/user';
+import { getUsersByPagination } from '../api/user'; // new api method supporting pagination/search
+import { deleteUser } from '../api/user';
 
 const UserContext = createContext();
 
@@ -7,16 +8,19 @@ export const useUserContext = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
-  const [originalUsers, setOriginalUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = 1, search = '') => {
     try {
-      const response = await getAllUsers();
+      setLoading(true);
+      const response = await getUsersByPagination(page, 6, search);
       if (response.status === 200) {
-        setUsers(response.data);
-        setOriginalUsers(response.data);
+        setUsers(response.data.users);
+        setTotalPages(response.data.totalPages);
       } else {
         setError('Failed to fetch users.');
       }
@@ -31,8 +35,7 @@ export const UserProvider = ({ children }) => {
     try {
       const response = await deleteUser(id);
       if (response.status === 200 || response.status === 204) {
-        setUsers((prev) => prev.filter((u) => u.id !== id));
-        setOriginalUsers((prev) => prev.filter((u) => u.id !== id));
+        await fetchUsers(currentPage, searchQuery);
       }
     } catch (err) {
       console.error('Error deleting user:', err);
@@ -40,19 +43,22 @@ export const UserProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers(currentPage, searchQuery);
+  }, [currentPage, searchQuery]);
 
   return (
     <UserContext.Provider
       value={{
         users,
-        setUsers,
-        originalUsers,
         loading,
         error,
+        searchQuery,
+        setSearchQuery,
+        currentPage,
+        setCurrentPage,
+        totalPages,
         fetchUsers,
-        removeUser
+        removeUser,
       }}
     >
       {children}
