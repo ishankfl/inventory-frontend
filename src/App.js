@@ -43,7 +43,7 @@ function App() {
             : 'ml-0 max-w-full'
           } flex-1`}
         >
-          <div className="bg-background p-4 md:p-10">
+          <div className="bg-gradient-to-br from-background-secondary via-primary-light to-background-tertiary p-4 md:p-10">
             <CustomRouter />
             {isUserLoggedin && <CurrentActivityBox />}
           </div>
