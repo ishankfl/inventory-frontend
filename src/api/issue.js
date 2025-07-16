@@ -39,3 +39,8 @@ export const removeProductFromIssue = (issueId, productId)=>{
 export const updateProduct = (issueId, productId, updated)=>{
   return axios.get(`${server}/api/issues/${issueId}/${productId}/${updated}`, authHeader());
 }
+
+export const deleteIssueByUser = (issueId)=>{
+  return axios.delete(`${server}/api/issue/${issueId}`, authHeader());
+}
+

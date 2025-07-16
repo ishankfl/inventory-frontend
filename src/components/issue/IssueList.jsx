@@ -76,6 +76,8 @@ const IssuesList = () => {
     );
   });
 
+
+
   if (loading)
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -174,6 +176,7 @@ const IssuesList = () => {
             currentIssues={filteredIssues}
             handleViewIssue={handleViewIssue}
             handleEditIssue={handleEditIssue}
+            setCurrentIssues={setIssues}
           />
 
           {/* Pagination Controls */}
