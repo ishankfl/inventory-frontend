@@ -26,6 +26,7 @@ import IssuesList from "./components/issue/IssueList";
 import EditIssue from "./components/issue/EditIssue";
 import { DashboardProvider } from "./context/DashboardContext";
 import { ItemProvider } from "./context/ItemContext";
+import { CategoryProvider } from "./context/CategoryContext";
 
 
 const CustomRouter = () => {
@@ -56,7 +57,15 @@ const CustomRouter = () => {
         <Route path="/edit-product/:id" element={<EditItem />} />
 
         <Route path="/add-category" element={<AddCategory />} />
-        <Route path="/view-category" element={<ViewCategory />} />
+        {/* <Route path="/view-category" element={<ViewCategory />} /> */}
+        <Route
+          path="/view-category"
+          element={
+            <CategoryProvider>
+              <ViewCategory />
+            </CategoryProvider>
+          }
+        />
         <Route path="/edit-category/:id" element={<EditCategory />} />
 
         <Route path="/add-user" element={<AddStaff />} />
