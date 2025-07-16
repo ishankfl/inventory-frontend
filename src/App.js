@@ -6,40 +6,44 @@ import './styles/main.scss';
 import { FaBars } from 'react-icons/fa';
 import CurrentActivityBox from './components/common/CurrentActivityBox';
 import { isLoggedIn } from './utils/tokenutils';
-import { Sidebar } from 'lucide-react';
 
 function App() {
   const [showNavbar, setShowNavbar] = useState(true);
-  const [isUserLoggedin, setIsUserLoggedin] = useState(isLoggedIn()); // Track login state
+  const [isUserLoggedin, setIsUserLoggedin] = useState(isLoggedIn());
 
   const toggleNavbar = () => setShowNavbar(prev => !prev);
 
-  // Recheck if the user is logged in when the component mounts or after login
   useEffect(() => {
     setIsUserLoggedin(isLoggedIn());
   }, []);
 
   return (
     <BrowserRouter>
-      <div className='flex min-h-screen'>
-        {/* Toggle Button (only shown when navbar is hidden) */}
+      <div className="flex min-h-screen">
+
+        {/* Toggle Button (only shown when sidebar is hidden) */}
         {!showNavbar && (
           <button
             onClick={toggleNavbar}
-            className='fixed top-4 left-4 z-50 p-2 text-white bg-primary rounded-full shadow-md hover:bg-purple-600'
+            className="fixed top-4 left-4 z-50 p-2 text-white bg-primary rounded-full shadow-md hover:bg-purple-600"
           >
             <FaBars />
           </button>
         )}
 
-        {/* Conditionally Render Navbar */}
-        {showNavbar && isUserLoggedin && <SideBar toggleNavbar={toggleNavbar} showNavbar={showNavbar} />}
+        {/* Sidebar */}
+        {showNavbar && isUserLoggedin && (
+          <SideBar toggleNavbar={toggleNavbar} showNavbar={showNavbar} />
+        )}
 
+        {/* Main Content */}
         <div
-          className={`flex-1 transition-all duration-300 ${showNavbar && isUserLoggedin ? 'ml-[300px]' : 'ml-0'
-            }`}
+          className={`transition-all duration-300 ${showNavbar && isUserLoggedin
+            ? 'ml-[260px] max-w-[calc(100%-260px)]'
+            : 'ml-0 max-w-full'
+          } flex-1`}
         >
-          <div className="bg-background p-16">
+          <div className="bg-background p-4 md:p-10">
             <CustomRouter />
             {isUserLoggedin && <CurrentActivityBox />}
           </div>
