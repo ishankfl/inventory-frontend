@@ -3,111 +3,57 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
+import ToastNotification from '../common/ToggleNotification';
+import FormInput from '../common/FormInput';
+import { loginApi } from '../../api/user';
+import { setToken } from '../../utils/tokenutils';
 
-// ✅ Validation Schema
 const validationSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Email is required'),
   password: Yup.string().required('Password is required'),
 });
 
-// ✅ FormInput Component
-const FormInput = ({ label, name, type, value, onChange, onBlur, placeholder, required, error }) => {
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [isFocused, setIsFocused] = React.useState(false);
+const loginUser = async (email, password, setToast) => {
+  try {
+    const response = await loginApi(email, password);
 
-  const getIcon = () => {
-    if (type === 'email') return <Mail className="w-5 h-5" />;
-    if (type === 'password') return <Lock className="w-5 h-5" />;
-    return null;
-  };
+    if (response.status === 200) {
+      setToken(response.data.token);
 
-  return (
-    <div className="relative">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <div className={`transition-colors duration-200 ${isFocused ? 'text-blue-500' : 'text-gray-400'}`}>
-            {getIcon()}
-          </div>
-        </div>
-        <input
-          type={type === 'password' && showPassword ? 'text' : type}
-          name={name}
-          value={value}
-          onChange={onChange}
-          onBlur={(e) => {
-            onBlur(e);
-            setIsFocused(false);
-          }}
-          onFocus={() => setIsFocused(true)}
-          placeholder={placeholder}
-          className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-0 ${
-            error
-              ? 'border-red-300 focus:border-red-500'
-              : isFocused
-              ? 'border-blue-500 shadow-lg shadow-blue-500/20'
-              : 'border-gray-200 focus:border-blue-500 hover:border-gray-300'
-          }`}
-        />
-        {type === 'password' && (
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
-          >
-            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-          </button>
-        )}
-      </div>
-      {error && (
-        <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-          <span className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-xs">!</span>
-          {error}
-        </p>
-      )}
-    </div>
-  );
+      setToast({
+        type: 'success',
+        message: 'Login successful!',
+        duration: 10000,
+      });
+
+      setTimeout(() => {
+        window.location = '/';
+      }, 4000);
+    } else {
+      setToast({
+        type: 'error',
+        message: 'Login failed!',
+        duration: 3000,
+      });
+    }
+  } catch (error) {
+    setToast({
+      type: 'error',
+      message: 'Invalid email or password.',
+      duration: 3000,
+    });
+  }
 };
 
-// ✅ Toast Notification
-const ToastNotification = ({ type, message, duration, onClose }) => {
-  React.useEffect(() => {
-    const timer = setTimeout(onClose, duration);
-    return () => clearTimeout(timer);
-  }, [duration, onClose]);
-
-  return (
-    <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`}>
-      {message}
-    </div>
-  );
-};
-
-// ✅ LoginSVG (simple placeholder or your existing full SVG)
 const LoginSVG = () => (
   <div className="w-64 h-64 bg-blue-300 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-md">
-    LOGO
+    IMS
   </div>
 );
 
-// ✅ Login Component
 const Login = () => {
   const navigate = useNavigate();
   const [toast, setToast] = React.useState(null);
-
-  const loginApi = async (email, password) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (email === 'demo@example.com' && password === 'password') {
-      return { status: 200, data: { token: 'demo-token' } };
-    }
-    throw new Error('Invalid credentials');
-  };
-
-  const setToken = (token) => {
-    localStorage.setItem('token', token);
-  };
 
   return (
     <>
@@ -121,9 +67,8 @@ const Login = () => {
         />
       )}
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row lg:h-[650px]">
-          
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-8">
+        <div className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row ">
           {/* Left side */}
           <div className="lg:w-1/2 bg-gradient-to-br from-blue-600 to-purple-700 p-8 flex items-center justify-center relative">
             <div className="absolute inset-0 bg-black/10"></div>
@@ -157,18 +102,7 @@ const Login = () => {
                 validationSchema={validationSchema}
                 onSubmit={async (values, { setSubmitting }) => {
                   try {
-                    const response = await loginApi(values.email, values.password);
-                    if (response.status === 200) {
-                      setToken(response.data.token);
-                      setToast({ type: 'success', message: 'Login successful! Redirecting...', duration: 3000 });
-                      setTimeout(() => {
-                        navigate('/');
-                      }, 2000);
-                    } else {
-                      setToast({ type: 'error', message: 'Login failed! Please try again.', duration: 3000 });
-                    }
-                  } catch (error) {
-                    setToast({ type: 'error', message: 'Invalid email or password.', duration: 3000 });
+                    await loginUser(values.email, values.password, setToast);
                   } finally {
                     setSubmitting(false);
                   }
@@ -207,10 +141,6 @@ const Login = () => {
                       error={touched.password && errors.password ? errors.password : ''}
                     />
                     <div className="flex items-center justify-between">
-                      <label className="flex items-center">
-                        <input type="checkbox" className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span className="ml-2 text-sm text-gray-600">Remember me</span>
-                      </label>
                       <a href="#" className="text-sm text-blue-600 hover:text-blue-500 transition-colors duration-200">
                         Forgot password?
                       </a>
@@ -240,7 +170,7 @@ const Login = () => {
                         <button
                           type="button"
                           onClick={() => console.log('Navigate to signup')}
-                          className="text-blue-600 hover:text-blue-500 font-semibold transition-colors duration-200 hover:underline"
+                          className="text-white-600 hover:text-white-500 font-semibold transition-colors duration-200 hover:underline"
                         >
                           Sign up here
                         </button>
