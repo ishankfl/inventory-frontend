@@ -19,7 +19,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen bg-gradient-to-br from-background-secondary via-primary-light to-background-tertiary">
 
         {/* Toggle Button (only shown when sidebar is hidden) */}
         {!showNavbar && (
@@ -43,7 +43,7 @@ function App() {
             : 'ml-0 max-w-full'
           } flex-1`}
         >
-          <div className="bg-gradient-to-br from-background-secondary via-primary-light to-background-tertiary p-4 md:p-10">
+          <div className=" p-4 md:p-10">
             <CustomRouter />
             {isUserLoggedin && <CurrentActivityBox />}
           </div>
