@@ -32,7 +32,7 @@ const Dashboard = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary-light to-background-secondary">
+      <div className="min-h-screen flex flex-col items-center justify-center">
         <div className="animate-pulse">
           <div className="bg-white p-8 rounded-2xl shadow-2xl">
             <svg
@@ -63,7 +63,7 @@ const Dashboard = () => {
 
   if (errorMsg)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-danger-light to-background-secondary px-4">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="bg-white border border-danger text-danger-dark px-8 py-10 rounded-2xl text-center shadow-2xl max-w-md w-full">
           <div className="flex justify-center mb-4">
             <svg
