@@ -2,6 +2,14 @@ import axios from 'axios';
 import { server } from './server';
 import { authHeader } from '../utils/tokenutils';
 
+// Correctly passes authHeader() as full config (includes headers inside)
+export const searchDepartments = (searchTerm = '', pageNumber = 1, pageSize = 6) => {
+  return axios.get(`${server}/api/Department/search`, {
+    ...authHeader(),
+    params: { searchTerm, pageNumber, pageSize },
+  });
+};
+
 export const getAllDepartments = () => {
   return axios.get(`${server}/api/Department`, authHeader());
 };
