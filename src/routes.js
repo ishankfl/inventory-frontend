@@ -27,6 +27,7 @@ import EditIssue from "./components/issue/EditIssue";
 import { DashboardProvider } from "./context/DashboardContext";
 import { ItemProvider } from "./context/ItemContext";
 import { CategoryProvider } from "./context/CategoryContext";
+import ViewAllVendors from "./components/vendors/ViewVendors";
 
 
 const CustomRouter = () => {
@@ -84,6 +85,9 @@ const CustomRouter = () => {
         <Route path="/add-issue" element={<IssueReceipt />} />
         <Route path="/issue-list" element={<IssuesList />} />
         <Route path="/edit-issue/:id" element={<EditIssue />} />
+
+        {/* vendor */}
+        <Route path="/view-vendor/" element={<ViewAllVendors />} />
 
         <Route
           path="/"

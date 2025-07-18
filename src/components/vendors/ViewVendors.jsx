@@ -5,8 +5,8 @@ import {
 } from "../../api/vendors"; // make sure this file exists
 import SearchBox from "../common/SearchBox";
 import Header from "../common/Header";
-import AddVendor from "./AddVendor"; // modal for adding vendor
-import EditVendor from "./EditVendor"; // modal for editing vendor
+// import AddVendor from "./AddVendor"; // modal for adding vendor
+// import EditVendor from "./EditVendor"; // modal for editing vendor
 import "../../styles/view.scss";
 
 const ViewAllVendors = () => {
@@ -78,12 +78,12 @@ const ViewAllVendors = () => {
         className={`transition-all duration-300 ${addVendorOpened || editVendorOpened ? "blur-sm" : ""
           }`}
       >
-        <Header
+        {/* <Header
           title="Vendor Management"
           description="Manage and track all company vendors"
           btnTitle="Add Vendor"
           handleButton={handleAddButtonClicked}
-        />
+        /> */}
 
         <SearchBox
           label="Vendors"
@@ -165,17 +165,18 @@ const ViewAllVendors = () => {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             {addVendorOpened && (
-              <AddVendor
-                onClose={closeModal}
-                fetchAllVendors={() => fetchVendors(searchTerm, pageNumber)}
-              />
+ <div></div>            //   <AddVendor
+            //     onClose={closeModal}
+            //     fetchAllVendors={() => fetchVendors(searchTerm, pageNumber)}
+            //   />
             )}
             {editVendorOpened && (
-              <EditVendor
-                onClose={closeModal}
-                id={selectedVendorId}
-                fetchAllVendors={() => fetchVendors(searchTerm, pageNumber)}
-              />
+                <div></div>
+            //   <EditVendor
+            //     onClose={closeModal}
+            //     id={selectedVendorId}
+            //     fetchAllVendors={() => fetchVendors(searchTerm, pageNumber)}
+            //   />
             )}
           </div>
         </div>
