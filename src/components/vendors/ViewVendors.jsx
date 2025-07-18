@@ -8,6 +8,7 @@ import Header from "../common/Header";
 // import AddVendor from "./AddVendor"; // modal for adding vendor
 // import EditVendor from "./EditVendor"; // modal for editing vendor
 import "../../styles/view.scss";
+import AddVendor from "./AddVendor";
 
 const ViewAllVendors = () => {
   const [vendors, setVendors] = useState([]);
@@ -27,7 +28,7 @@ const ViewAllVendors = () => {
     fetchVendors(searchTerm, pageNumber);
   }, [searchTerm, pageNumber]);
 
-  const fetchVendors = async (term = "", page = 1) => {
+  const fetchVendors = async (term = "a", page = 1) => {
     try {
       setLoading(true);
       const res = await searchVendors(term, page, pageSize);
@@ -78,12 +79,12 @@ const ViewAllVendors = () => {
         className={`transition-all duration-300 ${addVendorOpened || editVendorOpened ? "blur-sm" : ""
           }`}
       >
-        {/* <Header
+         <Header
           title="Vendor Management"
           description="Manage and track all company vendors"
           btnTitle="Add Vendor"
           handleButton={handleAddButtonClicked}
-        /> */}
+        /> 
 
         <SearchBox
           label="Vendors"
@@ -165,10 +166,10 @@ const ViewAllVendors = () => {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             {addVendorOpened && (
- <div></div>            //   <AddVendor
-            //     onClose={closeModal}
-            //     fetchAllVendors={() => fetchVendors(searchTerm, pageNumber)}
-            //   />
+                           <AddVendor
+                onClose={closeModal}
+                fetchAllVendors={() => fetchVendors(searchTerm, pageNumber)}
+              />
             )}
             {editVendorOpened && (
                 <div></div>

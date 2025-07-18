@@ -7,7 +7,7 @@ export const getAllVendors = () => {
   return axios.get(`${server}/api/Vendor`, authHeader());
 };
 // Get vendors with pagination and search
-export const searchVendors = (searchTerm = '', pageNumber = 1, pageSize = 10) => {
+export const searchVendors = (searchTerm = 'werwr', pageNumber = 1, pageSize = 10) => {
   return axios.get(`${server}/api/Vendor`, {
     params: { searchTerm, pageNumber, pageSize },
     ...authHeader()
