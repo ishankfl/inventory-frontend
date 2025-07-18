@@ -6,7 +6,13 @@ import { authHeader } from '../utils/tokenutils';
 export const getAllVendors = () => {
   return axios.get(`${server}/api/Vendor`, authHeader());
 };
-
+// Get vendors with pagination and search
+export const searchVendors = (searchTerm = '', pageNumber = 1, pageSize = 10) => {
+  return axios.get(`${server}/api/Vendor`, {
+    params: { searchTerm, pageNumber, pageSize },
+    ...authHeader()
+  });
+};
 // Get a single vendor by ID
 export const getVendorById = (id) => {
   return axios.get(`${server}/api/Vendor/${id}`, authHeader());
