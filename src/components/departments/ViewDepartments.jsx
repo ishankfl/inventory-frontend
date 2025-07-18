@@ -88,7 +88,7 @@ const ViewAllDepartments = () => {
         <Header
           title="Department Management"
           description="Manage and track all company departments"
-          btnTitle="Add Department"
+          btnTitle="Add"
           handleButton={handleAddButtonClicked}
         />
 
