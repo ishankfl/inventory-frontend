@@ -4,6 +4,7 @@ import SearchBox from '../common/SearchBox';
 import AddItemForm from '../common/AddItemForm';
 import EditProduct from './EditItem';
 import { useItem } from '../../context/ItemContext';
+import AddEditItemForm from './AddEditItemForm';
 
 const ViewProducts = () => {
   const {
@@ -149,7 +150,7 @@ const ViewProducts = () => {
         </button>
       </div>
 
-      {(isAddModal || isEditModal) && (
+      {/* {(isAddModal || isEditModal) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div
             className="bg-white rounded-lg p-6 w-full max-w-md"
@@ -170,7 +171,25 @@ const ViewProducts = () => {
             )}
           </div>
         </div>
+      )} */}
+      {(isAddModal || isEditModal) && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div
+            className="bg-white rounded-lg p-6 w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <AddEditItemForm
+              initialData={isEditModal ? { id: editProductId } : null} // you can pass full object if you want
+              onClose={() => {
+                if (isAddModal) setIsAddModal(false);
+                if (isEditModal) setIsEditModal(false);
+              }}
+              onSubmitSuccess={() => fetchProducts(currentPage, searchQuery)}
+            />
+          </div>
+        </div>
       )}
+
     </div>
   );
 };
