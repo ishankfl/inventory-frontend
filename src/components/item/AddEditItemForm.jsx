@@ -8,6 +8,7 @@ import { productUnits } from "../../utils/unit/unit";
 
 import FormInput from "../common/FormInput";
 import FormSelect from "../common/FormSelect";
+import ToastNotification from "../common/ToggleNotification";
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().trim().required("Item name is required."),
@@ -20,9 +21,7 @@ const validationSchema = Yup.object().shape({
 
 const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
   const [initialValues, setInitialValues] = useState({ name: "", unit: "", price: "" });
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
+  const [toast, setToast] = useState(null);
   const isEditMode = Boolean(initialData?.id);
 
   useEffect(() => {
@@ -37,7 +36,11 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
             price: data.price != null ? data.price.toString() : "",
           });
         } catch {
-          setErrorMessage("Failed to load product details.");
+          setToast({
+            type: "error",
+            message: "Failed to load product details.",
+            duration: 4000,
+          });
         }
       } else if (isEditMode) {
         setInitialValues({
@@ -54,8 +57,6 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
   }, [initialData]);
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    setErrorMessage("");
-
     try {
       const priceNumber = parseFloat(values.price);
       let response;
@@ -67,18 +68,31 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
       }
 
       if (response.status === 200 || response.status === 201) {
+        setToast({
+          type: "success",
+          message: isEditMode ? "Item updated successfully." : "Item added successfully.",
+          duration: 3000,
+        });
         onSubmitSuccess?.();
-        onClose?.();
+        setTimeout(() => {
+          onClose?.();
+        }, 1500);
       } else {
-        setErrorMessage("Failed to save item. Please try again.");
+        setToast({
+          type: "error",
+          message: "Failed to save item. Please try again.",
+          duration: 3000,
+        });
       }
     } catch (error) {
-      console.error("Error saving item:", error);
-      setErrorMessage(
-        error.response?.data?.message ||
+      setToast({
+        type: "error",
+        message:
+          error.response?.data?.message ||
           error.response?.data?.title ||
-          "Unexpected error occurred."
-      );
+          "Unexpected error occurred.",
+        duration: 3000,
+      });
     } finally {
       setSubmitting(false);
     }
@@ -86,7 +100,18 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-40 z-40" onClick={onClose} />
+      {toast && (
+        <ToastNotification
+          key={Date.now()}
+          type={toast.type}
+          message={toast.message}
+          duration={toast.duration}
+          onClose={() => setToast(null)}
+        />
+      )}
+
+      <div className="fixed inset-0 " onClick={onClose} />
+      {/* Modal */}
       <div className="fixed inset-0 flex justify-center items-center z-50">
         <div
           className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 relative p-6"
@@ -104,10 +129,6 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
               <FiX size={22} />
             </button>
           </div>
-
-          {errorMessage && (
-            <div className="bg-red-100 text-red-700 rounded p-3 mb-4">{errorMessage}</div>
-          )}
 
           <Formik
             enableReinitialize
@@ -129,7 +150,7 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
                   placeholder="e.g., Apple, Notebook"
                 />
 
-                <div className="flex gap-4">
+                <div className="flex gap-2 flex-row justify-between">
                   <FormSelect
                     label="Unit"
                     name="unit"
@@ -143,7 +164,7 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
                     error={touched.unit && errors.unit}
                     required
                     disabled={isSubmitting}
-                    className="w-1/2"
+                    className="w-[150%]"
                   />
 
                   <FormInput
@@ -157,7 +178,6 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
                     required
                     disabled={isSubmitting}
                     placeholder="e.g., 100, 50.5"
-                    className="w-1/2"
                   />
                 </div>
 
@@ -171,8 +191,8 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
                       ? "Saving..."
                       : "Adding..."
                     : isEditMode
-                    ? "Save Changes"
-                    : "Add Item"}
+                      ? "Save Changes"
+                      : "Add Item"}
                 </button>
               </Form>
             )}
