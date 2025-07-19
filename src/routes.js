@@ -8,8 +8,6 @@ import Dashboard from "./components/dashboard/Dashboard";
 import AddDepartment from "./components/departments/AddDepartment";
 import EditDepartment from "./components/departments/EditDepartment";
 import ViewAllDepartments from "./components/departments/ViewDepartments";
-import AddItem from "./components/item/AddItem";
-import EditItem from "./components/item/EditItem";
 import ViewItem from "./components/item/ViewItem";
 import EditReceipt from "./components/Receipt/EditReceipt";
 import Receipt from "./components/Receipt/ReceiptForm";
@@ -46,7 +44,7 @@ const CustomRouter = () => {
     <UserProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/add-product" element={<AddItem />} />
+        {/* <Route path="/add-product" element={<AddItem />} /> */}
         <Route
           path="/view-products"
           element={
@@ -55,7 +53,7 @@ const CustomRouter = () => {
             </ItemProvider>
           }
         />
-        <Route path="/edit-product/:id" element={<EditItem />} />
+        {/* <Route path="/edit-product/:id" element={<EditItem />} /> */}
 
         <Route path="/add-category" element={<AddCategory />} />
         {/* <Route path="/view-category" element={<ViewCategory />} /> */}

@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../common/Header';
 import SearchBox from '../common/SearchBox';
-import AddItemForm from '../common/AddItemForm';
-import EditProduct from './EditItem';
 import { useItem } from '../../context/ItemContext';
 import AddEditItemForm from './AddEditItemForm';
 

@@ -10,7 +10,7 @@ export const ItemProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [limit] = useState(7);
+  const [limit] = useState(6);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
   const [error, setError] = useState('');
