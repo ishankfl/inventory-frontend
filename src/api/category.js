@@ -2,10 +2,10 @@ import axios from 'axios';
 import { server } from './server.js';
 import { authHeader } from '../utils/tokenutils.js';
 
-export const addCategory = (name, description, userId) => {
+export const addCategory = (name, description) => {
   return axios.post(
     `${server}/api/Category`,
-    { name, description, userId },
+    { name, description },
     authHeader()
   );
 };

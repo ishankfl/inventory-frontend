@@ -4,37 +4,30 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 import { addCategory, getCategoryById, updateCategory } from "../../api/category";
-import { getUserId } from "../../utils/tokenutils";
 import FormInput from "../common/FormInput";
 import ToastNotification from "../common/ToggleNotification";
 
 const categorySchema = Yup.object().shape({
-  categoryName: Yup.string().trim().required("Category name is required."),
-  categoryDescription: Yup.string().trim().required("Description is required."),
+  name: Yup.string().trim().required("Category name is required."),
+  description: Yup.string().trim(),
 });
 
 const AddEditCategoryForm = ({ initialData = null, catId = null, onClose, onSubmitSuccess }) => {
-  const [initialValues, setInitialValues] = useState({
-    categoryName: "",
-    categoryDescription: "",
-  });
-
+  const [initialValues, setInitialValues] = useState({ name: "", description: "" });
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(false);
-  const isEditMode = Boolean(catId);
+  const isEditMode = Boolean(catId || initialData?.id);
 
+  // Load category data if in edit mode
   useEffect(() => {
-    const loadCategory = async () => {
-      if (isEditMode) {
+    const loadCategoryData = async () => {
+      if (catId) {
         setLoading(true);
         try {
           const res = await getCategoryById(catId);
-          console.log("Category..")
-          console.log(res.data, res.status, res)
-          const data = res.data;
           setInitialValues({
-            categoryName: data.name || "",
-            categoryDescription: data.description || "",
+            name: res.data.name || "",
+            description: res.data.description || "",
           });
         } catch (error) {
           setToast({
@@ -47,26 +40,31 @@ const AddEditCategoryForm = ({ initialData = null, catId = null, onClose, onSubm
         }
       } else if (initialData) {
         setInitialValues({
-          categoryName: initialData.categoryName || "",
-          categoryDescription: initialData.categoryDescription || "",
+          name: initialData.name || "",
+          description: initialData.description || "",
         });
       }
     };
 
-    loadCategory();
+    loadCategoryData();
   }, [catId, initialData]);
 
+  // Auto-dismiss toast after duration
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), toast.duration || 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
   const handleSubmit = async (values, { setSubmitting }) => {
-    const userId = getUserId();
-
     try {
-      let response;
+      setLoading(true);
+      const categoryId = catId || initialData?.id;
 
-      if (isEditMode) {
-        response = await updateCategory(catId, values.categoryName, values.categoryDescription);
-      } else {
-        response = await addCategory(values.categoryName, values.categoryDescription, userId);
-      }
+      const response = isEditMode
+        ? await updateCategory(categoryId, values.name, values.description)
+        : await addCategory(values.name, values.description);
 
       if (response.status === 200 || response.status === 201) {
         setToast({
@@ -74,12 +72,8 @@ const AddEditCategoryForm = ({ initialData = null, catId = null, onClose, onSubm
           message: isEditMode ? "Category updated successfully." : "Category added successfully.",
           duration: 3000,
         });
-
-        onSubmitSuccess?.();
-
-        setTimeout(() => {
-          onClose?.();
-        }, 1500);
+        // onSubmitSuccess?.();
+        setTimeout(() => onClose?.(), 1500);
       } else {
         setToast({
           type: "error",
@@ -88,16 +82,13 @@ const AddEditCategoryForm = ({ initialData = null, catId = null, onClose, onSubm
         });
       }
     } catch (error) {
-      console.error(error);
       setToast({
         type: "error",
-        message:
-          error.response?.data?.message ||
-          error.response?.data?.title ||
-          "Unexpected error occurred.",
+        message: error.response?.data?.message || "Unexpected error occurred.",
         duration: 3000,
       });
     } finally {
+      setLoading(false);
       setSubmitting(false);
     }
   };
@@ -106,7 +97,11 @@ const AddEditCategoryForm = ({ initialData = null, catId = null, onClose, onSubm
 
   return (
     <>
-      {toast && (
+ 
+      <div className="fixed inset-0 bg-black bg-opacity-30 z-40" onClick={onClose}></div>
+
+      <div className="fixed inset-0 flex justify-center items-center z-50">
+             {toast && (
         <ToastNotification
           key={Date.now()}
           type={toast.type}
@@ -116,9 +111,6 @@ const AddEditCategoryForm = ({ initialData = null, catId = null, onClose, onSubm
         />
       )}
 
-      <div className="fixed inset-0 bg-black bg-opacity-30 z-40" onClick={onClose}></div>
-
-      <div className="fixed inset-0 flex justify-center items-center z-50">
         <div
           className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 relative p-6"
           onClick={(e) => e.stopPropagation()}
@@ -146,11 +138,11 @@ const AddEditCategoryForm = ({ initialData = null, catId = null, onClose, onSubm
               <Form className="space-y-4">
                 <FormInput
                   label="Category Name"
-                  name="categoryName"
-                  value={values.categoryName}
+                  name="name"
+                  value={values.name}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={touched.categoryName && errors.categoryName}
+                  error={touched.name && errors.name}
                   required
                   disabled={isSubmitting}
                   placeholder="e.g., Electronics, Stationery"
@@ -158,33 +150,28 @@ const AddEditCategoryForm = ({ initialData = null, catId = null, onClose, onSubm
 
                 <FormInput
                   label="Category Description"
-                  name="categoryDescription"
-                  value={values.categoryDescription}
+                  name="description"
+                  value={values.description}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={touched.categoryDescription && errors.categoryDescription}
-                  required
+                  error={touched.description && errors.description}
                   disabled={isSubmitting}
                   placeholder="e.g., Items used in office or home"
                 />
 
-                <div className="flex justify-between gap-4 mt-4">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-2 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-700 transition disabled:opacity-50"
-                  >
-                    {isSubmitting
-                      ? isEditMode
-                        ? "Saving..."
-                        : "Adding..."
-                      : isEditMode
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-2 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-700 transition disabled:opacity-50"
+                >
+                  {isSubmitting
+                    ? isEditMode
+                      ? "Saving..."
+                      : "Adding..."
+                    : isEditMode
                       ? "Save Changes"
                       : "Add Category"}
-                  </button>
-
-       
-                </div>
+                </button>
               </Form>
             )}
           </Formik>

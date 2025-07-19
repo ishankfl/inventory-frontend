@@ -23,12 +23,12 @@ const ViewCategory = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const handleAdd = () => {
-    setSelectedCategory(null); // No initial data = add mode
+    setSelectedCategory(null);
     setModalOpen(true);
   };
 
   const handleEdit = (category) => {
-    setSelectedCategory(category); // Pass full category object
+    setSelectedCategory(category);
     setModalOpen(true);
   };
 
@@ -36,6 +36,7 @@ const ViewCategory = () => {
     if (window.confirm('Are you sure you want to delete this category?')) {
       try {
         await removeCategory(id);
+        fetchCategories();
       } catch {
         alert('Error deleting category.');
       }
@@ -53,7 +54,7 @@ const ViewCategory = () => {
   };
 
   const handleSuccess = () => {
-    fetchCategories(); // refresh list after add/edit
+    fetchCategories();
     handleCloseModal();
   };
 
@@ -153,15 +154,12 @@ const ViewCategory = () => {
 
       {/* Add/Edit Modal */}
       {modalOpen && (
-        <div
-          className="modal-overlay"
-          onClick={handleCloseModal}
-        >
-            <AddEditCategoryForm
-              initialData={selectedCategory}
-              onClose={handleCloseModal}
-              onSubmitSuccess={handleSuccess}
-            />
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <AddEditCategoryForm
+            initialData={selectedCategory}
+            onClose={handleCloseModal}
+            onSubmitSuccess={handleSuccess}
+          />
         </div>
       )}
     </div>
