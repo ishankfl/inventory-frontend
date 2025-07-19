@@ -110,8 +110,12 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
         />
       )}
 
-      <div className="fixed inset-0 " onClick={onClose} />
-      {/* Modal */}
+      {/* Proper full-screen clickable overlay */}
+      <div
+        className="fixed inset-0 bg-black bg-opacity-30 z-40"
+        onClick={onClose}
+      ></div>
+
       <div className="fixed inset-0 flex justify-center items-center z-50">
         <div
           className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 relative p-6"
@@ -191,8 +195,8 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
                       ? "Saving..."
                       : "Adding..."
                     : isEditMode
-                      ? "Save Changes"
-                      : "Add Item"}
+                    ? "Save Changes"
+                    : "Add Item"}
                 </button>
               </Form>
             )}

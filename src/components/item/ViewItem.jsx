@@ -186,13 +186,11 @@ const ViewProducts = () => {
 
       {(isAddModal || isEditModal) && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <AddEditItemForm
               initialData={isEditModal ? { id: editProductId } : null}
               onClose={closeModal}
               onSubmitSuccess={() => fetchProducts(currentPage, searchQuery)}
             />
-          </div>
         </div>
       )}
     </div>
