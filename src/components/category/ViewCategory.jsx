@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useCategory } from '../../context/CategoryContext';
-import AddCategory from './AddCategory';
-import EditCategory from './EditCategory';
+import AddEditCategoryForm from './AddEditCategoryForm';
 import SearchBox from '../common/SearchBox';
 import Header from '../common/Header';
 import '../../styles/view.scss';
@@ -16,17 +15,21 @@ const ViewCategory = () => {
     currentPage,
     setCurrentPage,
     totalPages,
-    fetchCategories,
     removeCategory,
+    fetchCategories,
   } = useCategory();
 
-  const [isAddModalOpened, setIsAddModalOpened] = useState(false);
-  const [isEditModalOpened, setIsEditModalOpened] = useState(false);
-  const [categoryId, setCategoryId] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const handleEdit = (id) => {
-    setCategoryId(id);
-    setIsEditModalOpened(true);
+  const handleAdd = () => {
+    setSelectedCategory(null); // No initial data = add mode
+    setModalOpen(true);
+  };
+
+  const handleEdit = (category) => {
+    setSelectedCategory(category); // Pass full category object
+    setModalOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -44,12 +47,22 @@ const ViewCategory = () => {
     setCurrentPage(1);
   };
 
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedCategory(null);
+  };
+
+  const handleSuccess = () => {
+    fetchCategories(); // refresh list after add/edit
+    handleCloseModal();
+  };
+
   return (
     <div className="p-6">
-      <div className={`transition-all duration-300 ${(isAddModalOpened || isEditModalOpened) ? 'blur-sm' : ''}`}>
+      <div className={`transition-all duration-300 ${modalOpen ? 'blur-sm' : ''}`}>
         <Header
           description="Manage and track all inventory categories"
-          handleButton={() => setIsAddModalOpened(true)}
+          handleButton={handleAdd}
           title="Category Management"
           btnTitle="New Category"
         />
@@ -60,7 +73,6 @@ const ViewCategory = () => {
           label="Category"
         />
 
-        {/* Table Container */}
         <div className="table-container mt-4 min-h-[300px] border rounded overflow-hidden shadow">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -93,7 +105,7 @@ const ViewCategory = () => {
                     <td className="table-cell text-center space-x-2">
                       <button
                         className="action-button button-blue"
-                        onClick={() => handleEdit(cat.id)}
+                        onClick={() => handleEdit(cat)}
                       >
                         Edit
                       </button>
@@ -139,23 +151,17 @@ const ViewCategory = () => {
         )}
       </div>
 
-      {/* Modals */}
-      {(isAddModalOpened || isEditModalOpened) && (
+      {/* Add/Edit Modal */}
+      {modalOpen && (
         <div
           className="modal-overlay"
-          onClick={() => {
-            setIsAddModalOpened(false);
-            setIsEditModalOpened(false);
-          }}
+          onClick={handleCloseModal}
         >
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            {isAddModalOpened && (
-              <AddCategory closeModal={() => setIsAddModalOpened(false)} fetchCategories={fetchCategories} />
-            )}
-            {isEditModalOpened && (
-              <EditCategory closeModal={() => setIsEditModalOpened(false)} catId={categoryId} fetchCategories={fetchCategories} />
-            )}
-          </div>
+            <AddEditCategoryForm
+              initialData={selectedCategory}
+              onClose={handleCloseModal}
+              onSubmitSuccess={handleSuccess}
+            />
         </div>
       )}
     </div>
