@@ -69,7 +69,9 @@ const Receipt = () => {
       setIsLoading(true);
       const response = await fetchAllVendors();
       if (response.status === 200) {
-        setVendors(response.data);
+        console.log("All vendors")
+        console.log(response.data);
+        setVendors(response.data.data);
         if (response.data.length > 0) {
           setPrimaryInfo(prev => ({
             ...prev,
@@ -267,6 +269,7 @@ const Receipt = () => {
         setPrimaryInfo(initialPrimaryInfo);
         setAddedItems([]);
         generateRandom();
+        handleViewReceipt()
       }
     } catch (error) {
       console.error("Error saving receipt:", error);

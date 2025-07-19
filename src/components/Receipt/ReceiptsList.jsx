@@ -89,7 +89,7 @@ const ReceiptsList = () => {
     sum + receipt.receiptDetails.reduce((itemSum, item) => itemSum + (item.quantity * item.rate), 0), 0);
 
   if (loading) return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="flex items-center space-x-2">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         <span className="text-text font-medium">Loading receipts...</span>
@@ -98,7 +98,7 @@ const ReceiptsList = () => {
   );
 
   if (error) return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="text-danger text-xl mb-2">⚠️</div>
         <div className="text-danger font-medium">Error: {error}</div>
@@ -107,7 +107,7 @@ const ReceiptsList = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <Header

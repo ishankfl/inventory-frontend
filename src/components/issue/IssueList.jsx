@@ -42,7 +42,7 @@ const IssuesList = () => {
         setError(null);
         const response = await fetchAllIssue(currentPage, issuesPerPage);
         if (response.status === 200) {
-          setIssues(response.data.data); 
+          setIssues(response.data.data);
           setTotalPages(response.data.pagination.totalPages);
         }
       } catch (err) {
@@ -80,7 +80,7 @@ const IssuesList = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="flex items-center space-x-2">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           <span className="text-text font-medium">Loading issues...</span>
@@ -90,7 +90,7 @@ const IssuesList = () => {
 
   if (error)
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="text-danger text-xl mb-2">⚠️</div>
           <div className="text-danger font-medium">Error: {error}</div>
@@ -131,7 +131,7 @@ const IssuesList = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen  p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">

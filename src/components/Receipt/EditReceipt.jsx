@@ -125,7 +125,7 @@ const EditReceipt = () => {
             setIsLoading(true);
             const response = await fetchAllVendors();
             if (response.status === 200) {
-                setVendors(response.data);
+                setVendors(response.data.data);
             }
         } catch (e) {
             console.error("Error fetching vendors:", e);
