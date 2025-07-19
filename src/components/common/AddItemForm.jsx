@@ -2,6 +2,10 @@ import { useState } from "react";
 import { FiX } from "react-icons/fi";
 import { AddNewItem } from "../../api/receipt";
 import * as Yup from "yup";
+import { productUnits } from "../../utils/unit/unit";
+
+import FormInput from "../common/FormInput";
+import FormSelect from "../common/FormSelect";
 
 const AddItemForm = ({ onClose, fetchAllItem }) => {
   const [newItem, setNewItem] = useState({ name: "", unit: "", price: "" });
@@ -35,11 +39,8 @@ const AddItemForm = ({ onClose, fetchAllItem }) => {
       const priceNumber = parseFloat(newItem.price);
 
       const response = await AddNewItem(newItem.name, newItem.unit, priceNumber);
-      console.log("Response:", response);
-
       if (response.status === 201) {
         fetchAllItem();
-        console.log("Item added:", newItem);
         setNewItem({ name: "", unit: "", price: "" });
         onClose();
       } else {
@@ -68,70 +69,57 @@ const AddItemForm = ({ onClose, fetchAllItem }) => {
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 relative p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-800">Add New Item</h2>
-            <button onClick={onClose} className="text-white-500 hover:text-white-800">
+            <button onClick={onClose} className=" bg-red-500  text-white-500 hover:text-white-800 hover:bg-red-800">
               <FiX size={22} />
             </button>
           </div>
 
           {errorMessage && (
-            <div className="bg-red-100 text-red-700 rounded p-3 mb-4">
-              {errorMessage}
-            </div>
+            <div className="bg-red-100 text-red-700 rounded p-3 mb-4">{errorMessage}</div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block font-medium mb-1">
-                Item Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={newItem.name}
+            <FormInput
+              label="Item Name"
+              name="name"
+              value={newItem.name}
+              onChange={handleNewItemChange}
+              error={errorMessage && !newItem.name ? "Item name is required." : ""}
+              required
+              disabled={isSubmitting}
+              placeholder="e.g., Apple, Notebook"
+            />
+
+            <div className="flex gap-1 flex-row justify-between ">
+              {/* <div className="w-100% !bg-red-590"> */}
+
+              <FormSelect
+                label="Unit"
+                name="unit"
+                value={newItem.unit}
                 onChange={handleNewItemChange}
+                options={[{ label: "Select unit", value: "" }, ...productUnits.map((u) => ({ label: u, value: u }))]}
+                error={errorMessage && !newItem.unit ? "Unit is required." : ""}
+                required
                 disabled={isSubmitting}
-                className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 ${errorMessage && !newItem.name ? "border-red-300 bg-red-50" : "border-gray-300"
-                  }`}
-                placeholder="e.g., Apple, Notebook"
+                className="w-[150%]"
+              // className="w-1/2"
               />
-            </div>
-            <div className="flex flex-row gap-12">
+            
 
-
-              <div>
-                <label htmlFor="unit" className="block font-medium mb-1">
-                  Unit <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="unit"
-                  name="unit"
-                  type="text"
-                  value={newItem.unit}
-                  onChange={handleNewItemChange}
-                  disabled={isSubmitting}
-                  className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 ${errorMessage && !newItem.unit ? "border-red-300 bg-red-50" : "border-gray-300"
-                    }`}
-                  placeholder="e.g., kg, pcs"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="price" className="block font-medium mb-1">
-                  Price <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="price"
-                  name="price"
-                  type="text"
-                  value={newItem.price}
-                  onChange={handleNewItemChange}
-                  disabled={isSubmitting}
-                  className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 ${errorMessage && !newItem.price ? "border-red-300 bg-red-50" : "border-gray-300"
-                    }`}
-                  placeholder="e.g., 100, 50.5"
-                />
-              </div>
+              <FormInput
+                label="Price"
+                name="price"
+                type="text"
+                value={newItem.price}
+                onChange={handleNewItemChange}
+                error={errorMessage && !newItem.price ? "Price is required." : ""}
+                required
+                disabled={isSubmitting}
+                placeholder="e.g., 100, 50.5"
+              // className="w-1/2"
+              />
+              {/* </div> */}
             </div>
 
             <button

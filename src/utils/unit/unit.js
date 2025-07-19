@@ -1,4 +1,4 @@
-const productUnits = [
+export const productUnits = [
     // Weight-related units
     "mg",   // Milligram
     "cg",   // Centigram
@@ -29,4 +29,4 @@ const productUnits = [
 ];
 
 
-export default productUnits;
+// export default productUnits;
