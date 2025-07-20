@@ -1,32 +1,29 @@
 export const productUnits = [
     // Weight-related units
-    "mg",   // Milligram
-    "cg",   // Centigram
-    "dg",   // Decigram
-    "g",    // Gram
-    "dag",  // Dekagram
-    "hg",   // Hectogram
-    "kg",   // Kilogram
-    "q",    // Quintal
-    "MT",   // Metric Ton
-    "T",    // Metric Ton (alternative)
-    "lb",   // Pound
-    "oz",   // Ounce
+    { value: "mg", label: "mg (Milligram)" },
+    { value: "cg", label: "cg (Centigram)" },
+    { value: "dg", label: "dg (Decigram)" },
+    { value: "g", label: "g (Gram)" },
+    { value: "dag", label: "dag (Dekagram)" },
+    { value: "hg", label: "hg (Hectogram)" },
+    { value: "kg", label: "kg (Kilogram)" },
+    { value: "q", label: "q (Quintal)" },
+    { value: "MT", label: "MT (Metric Ton)" },
+    { value: "T", label: "T (Metric Ton)" },
+    { value: "lb", label: "lb (Pound)" },
+    { value: "oz", label: "oz (Ounce)" },
 
     // Common real-world sale units
-    "piece", // Single item
-    "pc",    // Piece (abbreviation)
-    "unit",  // General unit
-    "pkt",   // Packet
-    "box",   // Box
-    "bag",   // Bag
-    "btl",   // Bottle
+    { value: "piece", label: "piece (Single item)" },
+    { value: "pc", label: "pc (Piece)" },
+    { value: "unit", label: "unit (General unit)" },
+    { value: "pkt", label: "pkt (Packet)" },
+    { value: "box", label: "box (Box)" },
+    { value: "bag", label: "bag (Bag)" },
+    { value: "btl", label: "btl (Bottle)" },
 
     // Liquid/Volume based (for weight-equivalent sale)
-    "ml",    // Milliliter
-    "l",     // Liter
-    "L"      // Liter (capital)
+    { value: "ml", label: "ml (Milliliter)" },
+    { value: "l", label: "l (Liter)" },
+    { value: "L", label: "L (Liter)" }
 ];
-
-
-// export default productUnits;

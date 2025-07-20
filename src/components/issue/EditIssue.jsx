@@ -9,8 +9,6 @@ import FormInput from '../common/FormInput';
 import FormSelect from '../common/FormSelect';
 import issueSchema from '../../utils/yup/issue-validation';
 import AddEditItemForm from '../item/AddEditItemForm';
-// import axios from 'axios';
-// import AddItemForm from '../common/toremoveAddItemForm';
 import { Eye } from 'lucide-react';
 
 const EditIssue = () => {
@@ -368,25 +366,10 @@ const EditIssue = () => {
             )}
 
             {showForm && (
-                /*  <AddItemForm
-                    onClose={() => setShowForm(false)}
-                    onItemAdded={() => {
-                        getItems();
-                        setShowForm(false);
-                        )} */
-                // }}
-                // />
-
-                <div className="modal-overlay" onClick={closeModal}>
-                    {/* <AddEditItemForm
-                        initialData={isEditModal ? { id: editProductId } : null}
-                        onClose={closeModal}
-                        onSubmitSuccess={() => fetchProducts(currentPage, searchQuery)}
-                    /> */}
+                <div className="modal-overlay" onClick={showForm}>
                     {(showForm && (
-                        <div className="modal-overlay" onClick={closeModal}>
+                        <div className="modal-overlay" onClick={showForm}>
                             <AddEditItemForm
-
                                 onClose={setShowForm}
                                 onSubmitSuccess={() => {
                                     getItems();

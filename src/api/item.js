@@ -2,6 +2,12 @@ import axios from "axios";
 import { server } from "./server";
 import { authHeader } from "../utils/tokenutils";
 
+
+export const AddNewItem = async (name, unit, price) => {
+    console.log(name, unit, price);
+    return await axios.post(`${server}/api/Item`, { name, unit, price }, authHeader());
+}
+
 // Create Product (POST)
 export const addProduct = (name, description, quantity, price, categoryId, userId) => {
   return axios.post(

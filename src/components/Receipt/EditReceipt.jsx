@@ -3,13 +3,9 @@ import { FiEye, FiPlus } from "react-icons/fi";
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAllVendors, fetchAllItems, fetchReceiptById, updateReceipt } from '../../api/receipt';
-import AddItemForm from '../common/toremoveAddItemForm';
+import AddEditItemForm from '../item/AddEditItemForm';
 import { itemSchema, validatePrimaryInfo, validateItem, primaryInfoSchema } from '../../utils/yup/receipt-form.vaid';
-import FormInput from '../common/FormInput';
-import FormSelect from '../common/FormSelect';
 import { Eye, Key } from 'lucide-react';
-import AddedItems from '../issue/AddedItems';
-import SectionHeader from './SectionHeader';
 import PrimaryInfoBox from './PrimaryInfo';
 import ItemInformation from './ItemInformation';
 import AddedItemsTable from './AddedItemsTable';
@@ -378,13 +374,25 @@ const EditReceipt = () => {
                 </div>
 
 
-                {showForm && (
+                {/* {showForm && (
                     <AddItemForm
                         onClose={handleCloseForm}
                         onItemAdded={handleItemAdded}
                         fetchAllItem={getItems}
                     />
+                )} */}
+                {showForm && (
+                    <div className="modal-overlay">
+                        <AddEditItemForm
+                            onClose={() => setShowForm(false)}
+                            onSubmitSuccess={() => {
+                                getItems();
+                                setShowForm(false);
+                            }}
+                        />
+                    </div>
                 )}
+
 
                 <form onSubmit={handleAddItem}>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 py-4 justify-items-center">
@@ -440,7 +448,7 @@ const EditReceipt = () => {
                 </form>
 
                 <div className="px-16">
-                  
+
                     <AddedItemsTable
                         addedItems={addedItems}
                         hoveredRow={hoveredRow}

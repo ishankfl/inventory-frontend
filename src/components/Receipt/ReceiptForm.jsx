@@ -3,12 +3,12 @@ import { FiEye, FiPlus } from "react-icons/fi";
 import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { fetchAllVendors, fetchAllItems, createReceipt } from '../../api/receipt';
-// import AddItemForm from '../common/toremoveAddItemForm';
 import AddedItems from '../issue/AddedItems';
 import { itemSchema, validatePrimaryInfo, validateItem, primaryInfoSchema } from '../../utils/yup/receipt-form.vaid';
 import FormInput from '../common/FormInput';
 import FormSelect from '../common/FormSelect';
 import { Eye } from 'lucide-react';
+import AddEditItemForm from '../item/AddEditItemForm';
 
 const PlusIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -306,12 +306,17 @@ const Receipt = () => {
 
 
         {showForm && (
-          <AddItemForm
-            onClose={handleCloseForm}
-            onItemAdded={handleItemAdded}
-            fetchAllItem={getItems}
-          />
+          <div className="modal-overlay">
+            <AddEditItemForm
+              onClose={() => setShowForm(false)}
+              onSubmitSuccess={() => {
+                getItems(); 
+                setShowForm(false); 
+              }}
+            />
+          </div>
         )}
+
         <div className="flex  justify-between mb-6 mx-auto py-4  md:px-24 ">
           <div>
             <h1 className="text-3xl font-bold text-text mb-2">Create Receipts</h1>

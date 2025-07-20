@@ -12,10 +12,6 @@ export const fetchAllItems = async () => {
     return await axios.get(`${server}/api/Item`, authHeader());
 };
 
-export const AddNewItem = async (name, unit, price) => {
-    console.log(name, unit, price);
-    return await axios.post(`${server}/api/Item`, { name, unit, price }, authHeader());
-}
 // ─── Receipt Endpoints ───────────────────────────────────────
 export const fetchAllReceipts = async (page = 1, limit = 6) => {
     return await axios.get(
