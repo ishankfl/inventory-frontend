@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { isLoggedIn } from './utils/tokenutils';
-import AddCategory from "./components/category/AddCategory";
-import EditCategory from "./components/category/EditCategory";
+// import AddCategory from "./components/category/AddCategory";
+// import EditCategory from "./components/category/EditCategory";
+
 import ViewCategory from "./components/category/ViewCategory";
 import Dashboard from "./components/dashboard/Dashboard";
 import AddDepartment from "./components/departments/AddDepartment";
@@ -55,7 +56,7 @@ const CustomRouter = () => {
         />
         {/* <Route path="/edit-product/:id" element={<EditItem />} /> */}
 
-        <Route path="/add-category" element={<AddCategory />} />
+        {/* <Route path="/add-category" element={<AddCategory />} /> */}
         {/* <Route path="/view-category" element={<ViewCategory />} /> */}
         <Route
           path="/view-category"
@@ -65,7 +66,7 @@ const CustomRouter = () => {
             </CategoryProvider>
           }
         />
-        <Route path="/edit-category/:id" element={<EditCategory />} />
+        {/* <Route path="/edit-category/:id" element={<EditCategory />} /> */}
 
         <Route path="/add-user" element={<AddStaff />} />
         <Route path="/view-users" element={<ViewAllUsers />} />

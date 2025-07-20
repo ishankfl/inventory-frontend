@@ -18,7 +18,7 @@ export const getAllCategories = () => {
 export const getAllCategoriesByPagination = (page = 1, query = '') => {
   const params = new URLSearchParams();
   params.append('page', page);
-  if (query) params.append('search', query); // depends on your backend param name
+  if (query) params.append('search', query); 
 
   return axios.get(`${server}/api/Category/pagination?${params.toString()}`, authHeader());
 }
