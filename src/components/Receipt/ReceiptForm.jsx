@@ -3,7 +3,7 @@ import { FiEye, FiPlus } from "react-icons/fi";
 import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { fetchAllVendors, fetchAllItems, createReceipt } from '../../api/receipt';
-import AddItemForm from '../common/AddItemForm';
+// import AddItemForm from '../common/toremoveAddItemForm';
 import AddedItems from '../issue/AddedItems';
 import { itemSchema, validatePrimaryInfo, validateItem, primaryInfoSchema } from '../../utils/yup/receipt-form.vaid';
 import FormInput from '../common/FormInput';

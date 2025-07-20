@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiPlus } from "react-icons/fi";
-import AddItemForm from '../common/AddItemForm';
+// import AddItemForm from '../common/toremoveAddItemForm';
 import { createIssue } from "../../api/receipt";
 import { fetchAllItems } from "../../api/receipt";
 import { getAllDepartments } from '../../api/departments';

@@ -8,8 +8,9 @@ import ItemManagementSection from './ItemManagementSection';
 import FormInput from '../common/FormInput';
 import FormSelect from '../common/FormSelect';
 import issueSchema from '../../utils/yup/issue-validation';
-import axios from 'axios';
-import AddItemForm from '../common/AddItemForm';
+import AddEditItemForm from '../item/AddEditItemForm';
+// import axios from 'axios';
+// import AddItemForm from '../common/toremoveAddItemForm';
 import { Eye } from 'lucide-react';
 
 const EditIssue = () => {
@@ -367,14 +368,34 @@ const EditIssue = () => {
             )}
 
             {showForm && (
-                <AddItemForm
+                /*  <AddItemForm
                     onClose={() => setShowForm(false)}
                     onItemAdded={() => {
                         getItems();
                         setShowForm(false);
-                    }}
-                />
-            )}
+                        )} */
+                // }}
+                // />
+
+                <div className="modal-overlay" onClick={closeModal}>
+                    {/* <AddEditItemForm
+                        initialData={isEditModal ? { id: editProductId } : null}
+                        onClose={closeModal}
+                        onSubmitSuccess={() => fetchProducts(currentPage, searchQuery)}
+                    /> */}
+                    {(showForm && (
+                        <div className="modal-overlay" onClick={closeModal}>
+                            <AddEditItemForm
+
+                                onClose={setShowForm}
+                                onSubmitSuccess={() => {
+                                    getItems();
+                                    setShowForm(false);
+                                }}
+                            />
+                        </div>
+                    ))}
+                </div>)}
         </div>
     );
 };
