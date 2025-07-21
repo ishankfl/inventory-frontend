@@ -1,59 +1,36 @@
-import { useEffect, useState } from "react";
-import {
-  searchVendors,
-  deleteVendorById,
-} from "../../api/vendors";
-
+import { useState } from "react";
+import { useVendor } from "../../context/VendorContext";
 import SearchBox from "../common/SearchBox";
 import Header from "../common/Header";
 import "../../styles/view.scss";
-import AddEditVendorForm from "./AddEditVendorForm"; // Unified form
+import AddEditVendorForm from "./AddEditVendorForm";
 
 const ViewAllVendors = () => {
-  const [vendors, setVendors] = useState([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const {
+    vendors,
+    loading,
+    error,
+    pageNumber,
+    totalPages,
+    searchTerm,
+    setSearchTerm,
+    setPageNumber,
+    fetchVendors,
+    deleteVendor,
+  } = useVendor();
 
   const [addVendorOpened, setAddVendorOpened] = useState(false);
   const [editVendorOpened, setEditVendorOpened] = useState(false);
   const [selectedVendorId, setSelectedVendorId] = useState(null);
 
-  const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize] = useState(6);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-
-  useEffect(() => {
-    fetchVendors(searchTerm, pageNumber);
-  }, [searchTerm, pageNumber]);
-
-  const fetchVendors = async (term = "a", page = 1) => {
-    try {
-      setLoading(true);
-      const res = await searchVendors(term, page, pageSize);
-      if (res.status === 200) {
-        setVendors(res.data.data);
-        setTotalPages(res.data.totalPages || 1);
-      } else {
-        setError("Failed to fetch vendors.");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("An error occurred while fetching vendors.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this vendor?")) return;
 
     try {
-      await deleteVendorById(id);
+      await deleteVendor(id);
       alert("Vendor deleted successfully.");
-      fetchVendors(searchTerm, pageNumber);
-    } catch (error) {
-      console.error("Error deleting vendor:", error);
+    } catch (err) {
+      console.error("Error deleting vendor:", err);
       alert("Failed to delete vendor.");
     }
   };
@@ -76,9 +53,8 @@ const ViewAllVendors = () => {
   return (
     <div className="p-6">
       <div
-        className={`transition-all duration-300 ${
-          addVendorOpened || editVendorOpened ? "blur-sm" : ""
-        }`}
+        className={`transition-all duration-300 ${addVendorOpened || editVendorOpened ? "blur-sm" : ""
+          }`}
       >
         <Header
           title="Vendor Management"
@@ -116,7 +92,7 @@ const ViewAllVendors = () => {
                   {vendors.map((vendor, index) => (
                     <tr key={vendor.id} className="hover:bg-gray-50">
                       <td className="table-cell">
-                        {(pageNumber - 1) * pageSize + index + 1}
+                        {(pageNumber - 1) * 6 + index + 1}
                       </td>
                       <td className="table-cell">{vendor.name}</td>
                       <td className="table-cell">{vendor.email}</td>
@@ -163,7 +139,6 @@ const ViewAllVendors = () => {
         )}
       </div>
 
-      {/* Modal: Add/Edit Vendor */}
       {(addVendorOpened || editVendorOpened) && (
         <AddEditVendorForm
           id={editVendorOpened ? selectedVendorId : null}

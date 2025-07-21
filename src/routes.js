@@ -26,6 +26,7 @@ import ViewAllVendors from "./components/vendors/ViewVendors";
 import ReceiptForm from "./components/Receipt/ReceiptForm";
 import IssueForm from "./components/issue/IssueForm";
 import EditVendor from "./components/vendors/EditVendor";
+import { VendorProvider } from "./context/VendorContext";
 
 
 const CustomRouter = () => {
@@ -66,7 +67,15 @@ const CustomRouter = () => {
         <Route path="/add-user" element={<AddStaff />} />
         <Route path="/view-users" element={<ViewAllUsers />} />
 
-        <Route path="/vendors" element={<ViewAllVendors />} />
+        {/* <Route path="/vendors" element={<ViewAllVendors />} /> */}
+        <Route
+          path="/vendors"
+          element={
+            <VendorProvider>
+              <ViewAllVendors />
+            </VendorProvider>
+          }
+        />
         <Route path="/vendors/edit/:id" element={<EditVendor />} />
 
         <Route path="/view-departments" element={<ViewAllDepartments />} />
