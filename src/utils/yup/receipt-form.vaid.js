@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 
 export const primaryInfoSchema = Yup.object().shape({
     entryOf: Yup.string().required('Please select an entry type'),
-    receiptNo: Yup.string().required('Receipt number is required'),
+    receiptId: Yup.string().required('Receipt Id is required'),
     receiptDateAD: Yup.date()
         .required('Receipt date is required')
         .max(new Date(), 'Receipt date cannot be in the future'),

@@ -33,15 +33,15 @@ const PrimaryInfoBox = ({
                     <label className="block text-sm font-medium text-gray-700">Receipt #</label>
                     <input
                         type="text"
-                        name="receiptNo"
-                        value={primaryInfo.receiptNo}
+                        name="receiptId"
+                        value={primaryInfo.receiptId}
                         onChange={handlePrimaryChange}
-                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 bg-gray-100 ${errors.primary.receiptNo ? "border-red-500" : ""
+                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 bg-gray-100 ${errors.primary.receiptId ? "border-red-500" : ""
                             }`}
                         readOnly
                     />
-                    {errors.primary.receiptNo && (
-                        <p className="mt-1 text-sm text-red-600">{errors.primary.receiptNo}</p>
+                    {errors.primary.receiptId && (
+                        <p className="mt-1 text-sm text-red-600">{errors.primary.receiptId}</p>
                     )}
                 </div>
 

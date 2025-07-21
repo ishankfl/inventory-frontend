@@ -10,8 +10,6 @@ import AddDepartment from "./components/departments/AddDepartment";
 import EditDepartment from "./components/departments/EditDepartment";
 import ViewAllDepartments from "./components/departments/ViewDepartments";
 import ViewItem from "./components/item/ViewItem";
-import EditReceipt from "./components/Receipt/EditReceipt";
-import Receipt from "./components/Receipt/ReceiptForm";
 import ReceiptDetails from "./components/Receipt/ReceiptDetails";
 import ReceiptList from "./components/Receipt/ReceiptsList";
 import AddStaff from "./components/auth/AddStaff";
@@ -55,10 +53,7 @@ const CustomRouter = () => {
             </ItemProvider>
           }
         />
-        {/* <Route path="/edit-product/:id" element={<EditItem />} /> */}
-
-        {/* <Route path="/add-category" element={<AddCategory />} /> */}
-        {/* <Route path="/view-category" element={<ViewCategory />} /> */}
+    
         <Route
           path="/view-category"
           element={
@@ -67,7 +62,6 @@ const CustomRouter = () => {
             </CategoryProvider>
           }
         />
-        {/* <Route path="/edit-category/:id" element={<EditCategory />} /> */}
 
         <Route path="/add-user" element={<AddStaff />} />
         <Route path="/view-users" element={<ViewAllUsers />} />
@@ -81,10 +75,8 @@ const CustomRouter = () => {
         <Route path="/receipt/edit/:id" element={<ReceiptForm isEdit={true} />} />
         <Route path="/receipts" element={<ReceiptList />} />
 
-        {/* <Route path="/receipt" element={<Receipt />} /> */}
         <Route path="/receipt-details/:id" element={<ReceiptDetails />} />
-        <Route path="/receipt/edit/:id" element={<EditReceipt />} />
-        {/* <Route path="/receipt-list" element={<ReceiptList />} /> */}
+        {/* <Route path="/receipt/edit/:id" element={<EditReceipt />} /> */}
 
         <Route path="/add-issue" element={<IssueReceipt />} />
         <Route path="/issue-list" element={<IssuesList />} />
