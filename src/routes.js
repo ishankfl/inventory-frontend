@@ -18,7 +18,6 @@ import ViewAllUsers from "./components/auth/ViewAllUsers";
 import ViewIssue from "./components/issue/ViewIssue";
 
 import { UserProvider } from "./context/UserContext";
-import IssueReceipt from "./components/issue/IssueForm";
 import IssuesList from "./components/issue/IssueList";
 import EditIssue from "./components/issue/EditIssue";
 import { DashboardProvider } from "./context/DashboardContext";
@@ -26,6 +25,7 @@ import { ItemProvider } from "./context/ItemContext";
 import { CategoryProvider } from "./context/CategoryContext";
 import ViewAllVendors from "./components/vendors/ViewVendors";
 import ReceiptForm from "./components/Receipt/ReceiptForm";
+import IssueForm from "./components/issue/IssueForm";
 
 
 const CustomRouter = () => {
@@ -53,7 +53,7 @@ const CustomRouter = () => {
             </ItemProvider>
           }
         />
-    
+
         <Route
           path="/view-category"
           element={
@@ -71,6 +71,7 @@ const CustomRouter = () => {
         <Route path="/add-department" element={<AddDepartment />} />
 
         <Route path="/view-issues" element={<ViewIssue />} />
+
         <Route path="/receipt" element={<ReceiptForm isEdit={false} />} />
         <Route path="/receipt/edit/:id" element={<ReceiptForm isEdit={true} />} />
         <Route path="/receipts" element={<ReceiptList />} />
@@ -78,9 +79,9 @@ const CustomRouter = () => {
         <Route path="/receipt-details/:id" element={<ReceiptDetails />} />
         {/* <Route path="/receipt/edit/:id" element={<EditReceipt />} /> */}
 
-        <Route path="/add-issue" element={<IssueReceipt />} />
+        <Route path="/add-issue" element={<IssueForm />} />
         <Route path="/issue-list" element={<IssuesList />} />
-        <Route path="/edit-issue/:id" element={<EditIssue />} />
+        <Route path="/edit-issue/:id" element={<IssueForm isEdit={true} />} />
 
         {/* vendor */}
         <Route path="/view-vendor/" element={<ViewAllVendors />} />
