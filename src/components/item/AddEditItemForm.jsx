@@ -7,7 +7,6 @@ import FormInput from "../common/FormInput";
 import FormSelect from "../common/FormSelect";
 import ToastNotification from "../common/ToggleNotification";
 
-// Validation schema
 const validationSchema = Yup.object().shape({
   name: Yup.string()
     .trim()
@@ -55,22 +54,19 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
           });
         }
       } else {
-        // --- FIX START ---
-        // Reset initialValues when in Add mode
         setInitialValues({
           name: "",
           unit: "",
           price: "",
         });
-        // --- FIX END ---
       }
     };
     loadData();
-  }, [initialData, isEditMode]); // Dependency array should be fine as is
+  }, [initialData, isEditMode]);
 
   const handleSubmit = async (values, { setSubmitting, setTouched }) => {
     try {
-      console.log("values",values)
+      console.log("values", values)
       const priceNumber = parseFloat(values.price);
       if (isNaN(priceNumber)) {
         throw new Error("Invalid price value");
@@ -84,6 +80,7 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
       } else {
         console.log("Adding")
         response = await AddNewItem(payload);
+        console.log(response.data);
       }
 
       if (response.status === 200 || response.status === 201) {
@@ -93,10 +90,8 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
           duration: 3000,
         });
         onSubmitSuccess?.();
-        // Give some time for toast to be seen before closing
         setTimeout(() => onClose?.(), 1500);
       } else {
-        // Handle API errors where status is not 2xx but not caught by catch block (e.g., 400 with generic error)
         setToast({
           type: "error",
           message: response.data?.message || "Failed to save item. Please try again.",
@@ -152,11 +147,14 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ isSubmitting, errors, touched }) => (
+          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
             <Form className="space-y-4 mt-4">
               <FormInput
                 label="Item Name"
                 name="name"
+                value={values.name}
+                onChange={handleChange}
+                onBlur={handleBlur}
                 required
                 placeholder="e.g., Apple, Notebook"
                 disabled={isSubmitting}
@@ -168,6 +166,9 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
                   <FormSelect
                     label="Unit"
                     name="unit"
+                    value={values.unit}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
                     options={productUnits}
                     required
                     disabled={isSubmitting}
@@ -179,8 +180,9 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
                     label="Price"
                     name="price"
                     type="number"
-                    min="0"
-                    step="0.01"
+                    value={values.price}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
                     required
                     placeholder="e.g., 100, 50.5"
                     disabled={isSubmitting}
@@ -205,6 +207,7 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
             </Form>
           )}
         </Formik>
+
       </div>
     </div>
   );
