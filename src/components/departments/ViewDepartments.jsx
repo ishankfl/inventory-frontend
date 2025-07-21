@@ -129,18 +129,18 @@ const ViewAllDepartments = () => {
 
       {(addDepartmentOpened || editDepartmentOpened) && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            {addDepartmentOpened && (
-              <AddDepartment onClose={closeModal} fetchAllDepartments={fetchDepartments} />
-            )}
-            {editDepartmentOpened && (
-              <EditDepartment
-                onClose={closeModal}
-                id={selectedDepartmentId}
-                fetchAllDepartments={fetchDepartments}
-              />
-            )}
-          </div>
+          {/* <div className="modal-box" onClick={(e) => e.stopPropagation()}> */}
+          {addDepartmentOpened && (
+            <AddDepartment onClose={closeModal} fetchAllDepartments={fetchDepartments} />
+          )}
+          {editDepartmentOpened && (
+            <EditDepartment
+              onClose={closeModal}
+              id={selectedDepartmentId}
+              fetchAllDepartments={fetchDepartments}
+            />
+          )}
+          {/* </div> */}
         </div>
       )}
     </div>
