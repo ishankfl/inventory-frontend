@@ -164,7 +164,7 @@ const ViewAllVendors = () => {
 
       {(addVendorOpened || editVendorOpened) && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+          {/* <div className="modal-box" onClick={(e) => e.stopPropagation()}> */}
             {addVendorOpened && (
                            <AddVendor
                 onClose={closeModal}
@@ -179,7 +179,7 @@ const ViewAllVendors = () => {
             //     fetchAllVendors={() => fetchVendors(searchTerm, pageNumber)}
             //   />
             )}
-          </div>
+          {/* </div> */}
         </div>
       )}
     </div>

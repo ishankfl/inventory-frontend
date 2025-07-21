@@ -9,6 +9,7 @@ import {
   FaReceipt,
   FaFileInvoice,
   FaTag,
+  FaSellsy,
 } from 'react-icons/fa';
 import { LogOut } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -28,6 +29,7 @@ const SideBar = ({ toggleNavbar }) => {
     { path: '/view-category', icon: FaTag, label: 'Categories' },
     { path: '/view-users', icon: FaUsers, label: 'Staff' },
     { path: '/view-departments', icon: FaBuilding, label: 'Departments' },
+    { path: '/vendors', icon: FaSellsy, label: 'Vendors' },
   ];
 
   useEffect(() => {
