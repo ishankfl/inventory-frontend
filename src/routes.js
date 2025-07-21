@@ -25,7 +25,6 @@ import { CategoryProvider } from "./context/CategoryContext";
 import ViewAllVendors from "./components/vendors/ViewVendors";
 import ReceiptForm from "./components/Receipt/ReceiptForm";
 import IssueForm from "./components/issue/IssueForm";
-import EditVendor from "./components/vendors/EditVendor";
 import { VendorProvider } from "./context/VendorContext";
 
 
@@ -76,7 +75,7 @@ const CustomRouter = () => {
             </VendorProvider>
           }
         />
-        <Route path="/vendors/edit/:id" element={<EditVendor />} />
+        {/* <Route path="/vendors/edit/:id" element={<EditVendor />} /> */}
 
         <Route path="/view-departments" element={<ViewAllDepartments />} />
         <Route path="/edit-department/:id" element={<EditDepartment />} />
