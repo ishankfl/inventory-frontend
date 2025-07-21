@@ -204,7 +204,6 @@ const IssueForm = ({ isEdit = false }) => {
       if (response.data) {
         alert(`Issue ${isEdit ? 'updated' : 'created'} successfully!`);
         if (isEdit) {
-          navigate('/issue-list');
         } else {
           // Reset form for new entry
           setFormData({
@@ -218,6 +217,8 @@ const IssueForm = ({ isEdit = false }) => {
           });
           setErrors({});
         }
+          navigate('/issue-list');
+return;
       }
     } catch (error) {
       console.error(`Error ${isEdit ? 'updating' : 'creating'} issue:`, error);
