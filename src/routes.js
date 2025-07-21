@@ -27,6 +27,7 @@ import { DashboardProvider } from "./context/DashboardContext";
 import { ItemProvider } from "./context/ItemContext";
 import { CategoryProvider } from "./context/CategoryContext";
 import ViewAllVendors from "./components/vendors/ViewVendors";
+import ReceiptForm from "./components/Receipt/ReceiptForm";
 
 
 const CustomRouter = () => {
@@ -76,10 +77,14 @@ const CustomRouter = () => {
         <Route path="/add-department" element={<AddDepartment />} />
 
         <Route path="/view-issues" element={<ViewIssue />} />
-        <Route path="/receipt" element={<Receipt />} />
+        <Route path="/receipt" element={<ReceiptForm isEdit={false} />} />
+        <Route path="/receipt/edit/:id" element={<ReceiptForm isEdit={true} />} />
+        <Route path="/receipts" element={<ReceiptList />} />
+
+        {/* <Route path="/receipt" element={<Receipt />} /> */}
         <Route path="/receipt-details/:id" element={<ReceiptDetails />} />
         <Route path="/receipt/edit/:id" element={<EditReceipt />} />
-        <Route path="/receipt-list" element={<ReceiptList />} />
+        {/* <Route path="/receipt-list" element={<ReceiptList />} /> */}
 
         <Route path="/add-issue" element={<IssueReceipt />} />
         <Route path="/issue-list" element={<IssuesList />} />

@@ -24,7 +24,7 @@ const SideBar = ({ toggleNavbar }) => {
     { path: '/', icon: FaHome, label: 'Dashboard' },
     { path: '/view-products', icon: FaBox, label: 'Products' },
     { path: '/issue-list', icon: FaFileInvoice, label: 'Issues' },
-    { path: '/receipt-list', icon: FaReceipt, label: 'Receipts' },
+    { path: '/receipts', icon: FaReceipt, label: 'Receipts' },
     { path: '/view-category', icon: FaTag, label: 'Categories' },
     { path: '/view-users', icon: FaUsers, label: 'Staff' },
     { path: '/view-departments', icon: FaBuilding, label: 'Departments' },

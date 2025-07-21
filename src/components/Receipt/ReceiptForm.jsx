@@ -1,14 +1,19 @@
 import * as Yup from 'yup';
-import { FiEye, FiPlus } from "react-icons/fi";
 import { useEffect, useState } from 'react';
-import { useNavigate } from "react-router-dom";
-import { fetchAllVendors, fetchAllItems, createReceipt } from '../../api/receipt';
-import AddedItems from '../issue/AddedItems';
-import { itemSchema, validatePrimaryInfo, validateItem, primaryInfoSchema } from '../../utils/yup/receipt-form.vaid';
-import FormInput from '../common/FormInput';
-import FormSelect from '../common/FormSelect';
-import { Eye } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+  fetchAllVendors,
+  fetchAllItems,
+  fetchReceiptById,
+  createReceipt,
+  updateReceipt
+} from '../../api/receipt';
 import AddEditItemForm from '../item/AddEditItemForm';
+import { itemSchema, validatePrimaryInfo, validateItem, primaryInfoSchema } from '../../utils/yup/receipt-form.vaid';
+import { Eye } from 'lucide-react';
+import PrimaryInfoBox from './PrimaryInfo';
+import ItemInformation from './ItemInformation';
+import AddedItemsTable from './AddedItemsTable';
 
 const PlusIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -16,15 +21,17 @@ const PlusIcon = () => (
   </svg>
 );
 
-const Receipt = () => {
+const ReceiptForm = ({ isEdit = false }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [vendors, setVendors] = useState([]);
   const [items, setItems] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [randomForReceipt, setRandomForReceipt] = useState('');
-  const navigate = useNavigate();
-  const [selectedItem, setSelectedItem] = useState(null);
   const [errors, setErrors] = useState({ primary: {}, item: {} });
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [hoveredRow, setHoveredRow] = useState(null);
+  const [randomForReceipt, setRandomForReceipt] = useState('');
 
   const initialPrimaryInfo = {
     entryOf: 'PURCHASE',
@@ -61,21 +68,76 @@ const Receipt = () => {
   useEffect(() => {
     getVendors();
     getItems();
-    generateRandom();
-  }, []);
+    if (!isEdit) {
+      generateRandom();
+    } else {
+      loadReceiptData();
+    }
+  }, [id]);
+
+  const generateRandom = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '#__';
+    for (let i = 0; i < 12; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setRandomForReceipt(result);
+  };
+
+  const loadReceiptData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetchReceiptById(id);
+      if (response.data) {
+        const receipt = response.data;
+        const receiptDate = new Date(receipt.receiptDate);
+        const formattedDate = receiptDate.toISOString().split('T')[0];
+
+        setPrimaryInfo({
+          ...initialPrimaryInfo,
+          receiptNo: receipt.id,
+          receiptDateAD: formattedDate,
+          billNo: receipt.billNo,
+          billDateAD: formattedDate,
+          vendor: receipt.vendorId,
+        });
+
+        const formattedItems = receipt.receiptDetails.map(item => ({
+          tempId: `${item.id}-${Date.now()}`,
+          id: item.id,
+          itemId: item.itemId,
+          itemName: item.item?.name || 'Unknown Item',
+          currency: 'NPR',
+          itemGroup: item.item?.itemGroup || '',
+          uom: item.item?.unit || '',
+          isComplimentary: 'NO',
+          taxStructure: '',
+          quantity: item.quantity.toString(),
+          rate: item.rate.toString(),
+          value: (item.quantity * item.rate).toFixed(2),
+          discountPercent: '0',
+          discountAmount: '0.00'
+        }));
+
+        setAddedItems(formattedItems);
+      }
+    } catch (e) {
+      console.error("Error loading receipt:", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getVendors = async () => {
     try {
       setIsLoading(true);
       const response = await fetchAllVendors();
       if (response.status === 200) {
-        console.log("All vendors")
-        console.log(response.data);
         setVendors(response.data.data);
-        if (response.data.length > 0) {
+        if (!isEdit && response.data.data.length > 0) {
           setPrimaryInfo(prev => ({
             ...prev,
-            vendor: response.data[0].id.toString()
+            vendor: response.data.data[0].id.toString()
           }));
         }
       }
@@ -90,7 +152,6 @@ const Receipt = () => {
     try {
       setIsLoading(true);
       const response = await fetchAllItems();
-      console.log('getitemssss',response)
       if (response.status === 200) setItems(response.data);
     } catch (e) {
       console.error("Error fetching items:", e);
@@ -130,7 +191,6 @@ const Receipt = () => {
           updatedItem.itemGroup = selected.itemGroup || '';
           updatedItem.uom = selected.uom || '';
           updatedItem.rate = selected.price || '';
-          updatedItem.unit = selected.unit || '';
           setSelectedItem(selected);
         } else {
           setSelectedItem(null);
@@ -226,11 +286,6 @@ const Receipt = () => {
   const handleOpenForm = () => setShowForm(true);
   const handleCloseForm = () => setShowForm(false);
 
-  const handleItemAdded = async () => {
-    await getItems();
-    handleCloseForm();
-  };
-
   const calculateTotal = () => {
     return addedItems.reduce((sum, item) => {
       return sum + (parseFloat(item.value) || 0);
@@ -239,8 +294,10 @@ const Receipt = () => {
 
   const handleSubmitReceipt = async (e) => {
     e.preventDefault();
-    console.log(primaryInfo)
-    primaryInfo.receiptNo = randomForReceipt;
+
+    if (!isEdit) {
+      primaryInfo.receiptNo = randomForReceipt;
+    }
 
     const isPrimaryValid = await validatePrimaryInfo(setErrors, primaryInfo);
     if (!isPrimaryValid) return;
@@ -251,11 +308,12 @@ const Receipt = () => {
     }
 
     const receiptData = {
-      receiptId: randomForReceipt,
+      id: isEdit ? id : randomForReceipt,
       receiptDate: primaryInfo.receiptDateAD,
       billNo: primaryInfo.billNo,
       vendorId: primaryInfo.vendor,
       receiptDetails: addedItems.map(item => ({
+        id: item.id || undefined,
         itemId: item.itemId,
         quantity: parseFloat(item.quantity),
         rate: parseFloat(item.rate)
@@ -264,48 +322,76 @@ const Receipt = () => {
 
     try {
       setIsLoading(true);
-      const response = await createReceipt(receiptData);
+      const response = isEdit
+        ? await updateReceipt(receiptData.id, receiptData)
+        : await createReceipt(receiptData);
 
       if (response.data) {
-        alert("Receipt saved successfully!");
-        setPrimaryInfo(initialPrimaryInfo);
-        setAddedItems([]);
-        generateRandom();
-        handleViewReceipt()
+        alert(`Receipt ${isEdit ? 'updated' : 'saved'} successfully!`);
+        navigate('/receipt-list');
       }
     } catch (error) {
-      console.error("Error saving receipt:", error);
-      alert(`Error: ${error.response?.data?.message || error.message || "Failed to save receipt"}`);
+      console.error(`Error ${isEdit ? 'updating' : 'saving'} receipt:`, error);
+      alert(`Error: ${error.response?.data?.message || error.message || `Failed to ${isEdit ? 'update' : 'save'} receipt`}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const SectionHeader = ({ title, icon }) => (
-    <div className="flex items-start gap-4 mb-4">
-      <h2 className="text-sm font-semibold text-gray-800">{title}</h2>
-      {icon && <span className="text-blue-600 bg-blue-100 rounded-full p-1">{icon}</span>}
-    </div>
-  );
-
-  const generateRandom = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '#__';
-
-    for (let i = 0; i < 12; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    setRandomForReceipt(result);
-  };
-
   const handleViewReceipt = () => {
-    navigate('/receipt-list');
+    navigate('/receipts');
   };
+
+  const handleRowClick = (item) => {
+    setNewItem({
+      ...initialNewItemState,
+      itemId: item.itemId,
+      itemGroup: item.itemGroup,
+      uom: item.uom,
+      quantity: item.quantity,
+      rate: item.rate,
+      value: item.value,
+      currency: item.currency,
+      isComplimentary: item.isComplimentary,
+      taxStructure: item.taxStructure,
+      discountPercent: item.discountPercent,
+      discountAmount: item.discountAmount
+    });
+  };
+
+  if (isLoading && isEdit) {
+    return (
+      <div className="bg-gray-100 p-2 sm:p-2 lg:p-4 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="sr-only">Loading...</span>
+          </div>
+          <p>Loading receipt data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className=" p-2 sm:p-2 lg:p-4 min-h-screen">
-      <div className="mx-auto ">
-
+    <div className="bg-gray-100 p-2 sm:p-2 lg:p-4 min-h-screen">
+      <div className="mx-auto">
+        <div className="flex flex-col px-24 gap-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-text mb-2">
+                {isEdit ? 'Edit Receipt' : 'Create Receipt'}
+              </h1>
+              <p className="text-gray-600">Manage and track all inventory receipts</p>
+            </div>
+            <button
+              onClick={handleViewReceipt}
+              className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200 shadow-md"
+            >
+              <Eye className="h-5 w-5" />
+              <span>View Previous</span>
+            </button>
+          </div>
+        </div>
 
         {showForm && (
           <div className="modal-overlay">
@@ -319,218 +405,69 @@ const Receipt = () => {
           </div>
         )}
 
-        <div className="flex  justify-between mb-6 mx-auto py-4  md:px-24 ">
-          <div>
-            <h1 className="text-3xl font-bold text-text mb-2">Create Receipts</h1>
-            <p className="text-gray-600">Manage and track all inventory issues</p>
-          </div>
-          <button
-            onClick={handleViewReceipt}
-            className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200 shadow-md"
-          >
-            <Eye className="h-5 w-5" />
-            <span>View Previous</span>
-          </button>
-        </div>
         <form onSubmit={handleAddItem}>
-
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 py-4 justify-items-center">
             <div className="bg-white py-8 px-4 rounded-lg shadow-md w-[80%]">
-              <SectionHeader title="Primary Information" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                <FormSelect
-                  label="Entry Of"
-                  name="entryOf"
-                  value={primaryInfo.entryOf}
-                  onChange={handlePrimaryChange}
-                  options={[
-                    { value: "PURCHASE", label: "PURCHASE" },
-                    { value: "SALE", label: "SALE" }
-                  ]}
-                  error={errors.primary.entryOf}
-                />
-                <FormInput
-                  label="Receipt #"
-                  name="receiptNo"
-                  type="text"
-                  value={randomForReceipt}
-                  onChange={handlePrimaryChange}
-                  error={errors.primary.receiptNo}
-                  readOnly
-                />
-                <FormInput
-                  label="Receipt Date (AD)"
-                  name="receiptDateAD"
-                  type="date"
-                  value={primaryInfo.receiptDateAD}
-                  onChange={handlePrimaryChange}
-                  error={errors.primary.receiptDateAD}
-                  required
-                />
-                <FormInput
-                  label="Bill Number"
-                  name="billNo"
-                  type="text"
-                  value={primaryInfo.billNo}
-                  onChange={handlePrimaryChange}
-                  error={errors.primary.billNo}
-                  required
-                />
-                <FormInput
-                  label="Bill Date (AD)"
-                  name="billDateAD"
-                  type="date"
-                  value={primaryInfo.billDateAD}
-                  onChange={handlePrimaryChange}
-                  error={errors.primary.billDateAD}
-                />
-                <FormSelect
-                  label="Vendor"
-                  name="vendor"
-                  value={primaryInfo.vendor}
-                  onChange={handlePrimaryChange}
-                  options={[
-                    { value: "", label: "Select Vendor" },
-                    ...vendors.map(v => ({ value: v.id, label: v.name }))
-                  ]}
-                  error={errors.primary.vendor}
-                  required
-                />
-              </div>
+              <PrimaryInfoBox
+                errors={errors}
+                handlePrimaryChange={handlePrimaryChange}
+                primaryInfo={primaryInfo}
+                vendors={vendors}
+                isEdit={isEdit}
+                randomForReceipt={randomForReceipt}
+              />
             </div>
 
             <div className="py-8 px-4 bg-white rounded-lg shadow-md w-[80%]">
-              <SectionHeader title="Item Information" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                <FormSelect
-                  label="Currency"
-                  name="currency"
-                  value={newItem.currency}
-                  onChange={handleItemChange}
-                  options={[
-                    { value: "NPR", label: "NPR" },
-                    { value: "USD", label: "USD" },
-                    { value: "EUR", label: "EUR" }
-                  ]}
-                />
-                <div className="relative">
-                  <FormSelect
-                    label="Item Name"
-                    name="itemId"
-                    value={newItem.itemId}
-                    onChange={handleItemChange}
-                    options={[
-                      { value: "", label: "Choose Item" },
-                      ...items.map(i => ({ value: i.id, label: i.name }))
-                    ]}
-                    error={errors.item.itemId}
-                    required
-                    className={`border-green-500 ring-2 ring-green-200 pr-10 ${errors.item.itemId ? 'border-red-500 ring-red-200' : ''
-                      }`}
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-2 top-9 p-1 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200"
-                    onClick={handleOpenForm}
-                  >
-                    <PlusIcon />
-                  </button>
-                </div>
-                <FormInput
-                  label="Quantity"
-                  name="quantity"
-                  type="number"
-                  placeholder="Quantity"
-                  value={newItem.quantity}
-                  onChange={handleQuantityOrRateChange}
-                  error={errors.item.quantity}
-                  required
-                  min="0.01"
-                  step="0.01"
-                />
-                    <FormInput
-                  label="Unit"
-                  name="unit"
-                  // type="number"
-                  placeholder="Unit"
-                  value={newItem.unit}
-                  // onChange={handleQuantityOrRateChange}
-                  error={errors.item.unit}
-                  required
-                  min="0.01"
-                  step="0.01"
-                />
-                <FormInput
-                  label="Rate"
-                  name="rate"
-                  type="number"
-                  placeholder="Rate"
-                  value={newItem.rate}
-                  onChange={handleQuantityOrRateChange}
-                  error={errors.item.rate}
-                  required
-                  min="0.01"
-                  step="0.01"
-                />
-                <FormInput
-                  label="Value"
-                  name="value"
-                  type="text"
-                  value={newItem.value}
-                  readOnly
-                  className="bg-gray-100"
-                />
-                <div className="md:col-span-2 flex justify-end gap-3 mt-4">
-                  <button
-                    type="button"
-                    className="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700"
-                    onClick={() => {
-                      setNewItem(initialNewItemState);
-                      setSelectedItem(null);
-                      setErrors(prev => ({ ...prev, item: {} }));
-                    }}
-                  >
-                    Clear
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700"
-                  >
-                    Add Item
-                  </button>
-                </div>
-              </div>
+              <ItemInformation
+                items={items}
+                newItem={newItem}
+                errors={errors}
+                handleItemChange={handleItemChange}
+                handleQuantityOrRateChange={handleQuantityOrRateChange}
+                handleOpenForm={handleOpenForm}
+                setNewItem={setNewItem}
+                setSelectedItem={setSelectedItem}
+                initialNewItemState={initialNewItemState}
+                setErrors={setErrors}
+              />
             </div>
           </div>
         </form>
 
-        <AddedItems
-          addedItems={addedItems}
-          handleRemoveItem={handleRemoveItem}
-          calculateTotal={calculateTotal}
-        />
+        <div className="px-16">
+          <AddedItemsTable
+            addedItems={addedItems}
+            hoveredRow={hoveredRow}
+            setHoveredRow={setHoveredRow}
+            handleRowClick={handleRowClick}
+            handleRemoveItem={handleRemoveItem}
+            calculateTotal={calculateTotal}
+          />
+        </div>
 
         <div className="mt-8 flex justify-end gap-4 px-24">
           <button
             type="button"
             className="px-6 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700"
             onClick={() => {
-              setPrimaryInfo(initialPrimaryInfo);
-              setAddedItems([]);
-              setErrors({ primary: {}, item: {} });
-              generateRandom();
+              if (window.confirm('Are you sure you want to discard changes?')) {
+                navigate('/receipt-list');
+              }
             }}
           >
             Cancel
           </button>
           <button
             type="button"
-            className={`px-6 py-2 rounded-md text-white font-semibold ${addedItems.length === 0 || isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+            className={`px-6 py-2 rounded-md text-white font-semibold ${addedItems.length === 0 || isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-700'
               }`}
             onClick={handleSubmitReceipt}
             disabled={addedItems.length === 0 || isLoading}
           >
-            {isLoading ? 'Saving...' : 'Save Receipt'}
+            {isLoading
+              ? (isEdit ? 'Updating...' : 'Saving...')
+              : (isEdit ? 'Update Receipt' : 'Save Receipt')}
           </button>
         </div>
       </div>
@@ -538,4 +475,4 @@ const Receipt = () => {
   );
 };
 
-export default Receipt;
+export default ReceiptForm;
