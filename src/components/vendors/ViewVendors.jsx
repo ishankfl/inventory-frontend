@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 import {
   searchVendors,
   deleteVendorById,
-} from "../../api/vendors"; // make sure this file exists
+} from "../../api/vendors";
+
 import SearchBox from "../common/SearchBox";
 import Header from "../common/Header";
-// import AddVendor from "./AddVendor"; // modal for adding vendor
-// import EditVendor from "./EditVendor"; // modal for editing vendor
 import "../../styles/view.scss";
-import AddVendor from "./AddVendor";
+import AddEditVendorForm from "./AddEditVendorForm"; // Unified form
 
 const ViewAllVendors = () => {
   const [vendors, setVendors] = useState([]);
@@ -17,7 +16,7 @@ const ViewAllVendors = () => {
 
   const [addVendorOpened, setAddVendorOpened] = useState(false);
   const [editVendorOpened, setEditVendorOpened] = useState(false);
-  const [selectedVendorId, setSelectedVendorId] = useState("");
+  const [selectedVendorId, setSelectedVendorId] = useState(null);
 
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize] = useState(6);
@@ -71,20 +70,22 @@ const ViewAllVendors = () => {
   const closeModal = () => {
     setAddVendorOpened(false);
     setEditVendorOpened(false);
+    setSelectedVendorId(null);
   };
 
   return (
     <div className="p-6">
       <div
-        className={`transition-all duration-300 ${addVendorOpened || editVendorOpened ? "blur-sm" : ""
-          }`}
+        className={`transition-all duration-300 ${
+          addVendorOpened || editVendorOpened ? "blur-sm" : ""
+        }`}
       >
-         <Header
+        <Header
           title="Vendor Management"
           description="Manage and track all company vendors"
           btnTitle="Add Vendor"
           handleButton={handleAddButtonClicked}
-        /> 
+        />
 
         <SearchBox
           label="Vendors"
@@ -162,25 +163,13 @@ const ViewAllVendors = () => {
         )}
       </div>
 
+      {/* Modal: Add/Edit Vendor */}
       {(addVendorOpened || editVendorOpened) && (
-        <div className="modal-overlay" onClick={closeModal}>
-          {/* <div className="modal-box" onClick={(e) => e.stopPropagation()}> */}
-            {addVendorOpened && (
-                           <AddVendor
-                onClose={closeModal}
-                fetchAllVendors={() => fetchVendors(searchTerm, pageNumber)}
-              />
-            )}
-            {editVendorOpened && (
-                <div></div>
-            //   <EditVendor
-            //     onClose={closeModal}
-            //     id={selectedVendorId}
-            //     fetchAllVendors={() => fetchVendors(searchTerm, pageNumber)}
-            //   />
-            )}
-          {/* </div> */}
-        </div>
+        <AddEditVendorForm
+          id={editVendorOpened ? selectedVendorId : null}
+          onClose={closeModal}
+          fetchAllVendors={() => fetchVendors(searchTerm, pageNumber)}
+        />
       )}
     </div>
   );
