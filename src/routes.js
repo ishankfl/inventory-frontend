@@ -6,8 +6,6 @@ import { isLoggedIn } from './utils/tokenutils';
 
 import ViewCategory from "./components/category/ViewCategory";
 import Dashboard from "./components/dashboard/Dashboard";
-import AddDepartment from "./components/departments/AddDepartment";
-import EditDepartment from "./components/departments/EditDepartment";
 import ViewAllDepartments from "./components/departments/ViewDepartments";
 import ViewItem from "./components/item/ViewItem";
 import ReceiptDetails from "./components/Receipt/ReceiptDetails";
@@ -80,8 +78,8 @@ const CustomRouter = () => {
 
         <Route path="/view-departments" element={<DepartmentProvider>
           <ViewAllDepartments /> </DepartmentProvider>} />
-        <Route path="/edit-department/:id" element={<EditDepartment />} />
-        <Route path="/add-department" element={<AddDepartment />} />
+        {/* <Route path="/edit-department/:id" element={<EditDepartment />} /> */}
+        {/* <Route path="/add-department" element={<AddDepartment />} /> */}
 
         <Route path="/view-issues" element={<ViewIssue />} />
 

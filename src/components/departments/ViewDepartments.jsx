@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useDepartmentContext } from "../../context/DepartmentContext";
 import SearchBox from "../common/SearchBox";
 import Header from "../common/Header";
-import AddDepartment from "./AddDepartment";
-import EditDepartment from "./EditDepartment";
+// import AddDepartment from "./AddDepartment";
+// import EditDepartment from "./EditDepartment";
 import "../../styles/view.scss";
+import AddEditDepartmentForm from "./AddEditDepartmentForm";
 
 const ViewAllDepartments = () => {
   const {
@@ -126,23 +127,18 @@ const ViewAllDepartments = () => {
           </>
         )}
       </div>
-
       {(addDepartmentOpened || editDepartmentOpened) && (
         <div className="modal-overlay" onClick={closeModal}>
           {/* <div className="modal-box" onClick={(e) => e.stopPropagation()}> */}
-          {addDepartmentOpened && (
-            <AddDepartment onClose={closeModal} fetchAllDepartments={fetchDepartments} />
-          )}
-          {editDepartmentOpened && (
-            <EditDepartment
+            <AddEditDepartmentForm
+              id={editDepartmentOpened ? selectedDepartmentId : null}
               onClose={closeModal}
-              id={selectedDepartmentId}
               fetchAllDepartments={fetchDepartments}
             />
-          )}
-          {/* </div> */}
-        </div>
+          </div>
+        // </div>
       )}
+
     </div>
   );
 };
