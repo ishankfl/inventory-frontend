@@ -90,7 +90,8 @@ const Receipt = () => {
     try {
       setIsLoading(true);
       const response = await fetchAllItems();
-      if (response.status === 200) setItems(response.data.data);
+      console.log('getitemssss',response)
+      if (response.status === 200) setItems(response.data);
     } catch (e) {
       console.error("Error fetching items:", e);
     } finally {
@@ -129,6 +130,7 @@ const Receipt = () => {
           updatedItem.itemGroup = selected.itemGroup || '';
           updatedItem.uom = selected.uom || '';
           updatedItem.rate = selected.price || '';
+          updatedItem.unit = selected.unit || '';
           setSelectedItem(selected);
         } else {
           setSelectedItem(null);
@@ -310,8 +312,8 @@ const Receipt = () => {
             <AddEditItemForm
               onClose={() => setShowForm(false)}
               onSubmitSuccess={() => {
-                getItems(); 
-                setShowForm(false); 
+                getItems();
+                setShowForm(false);
               }}
             />
           </div>
@@ -442,6 +444,18 @@ const Receipt = () => {
                   value={newItem.quantity}
                   onChange={handleQuantityOrRateChange}
                   error={errors.item.quantity}
+                  required
+                  min="0.01"
+                  step="0.01"
+                />
+                    <FormInput
+                  label="Unit"
+                  name="unit"
+                  // type="number"
+                  placeholder="Unit"
+                  value={newItem.unit}
+                  // onChange={handleQuantityOrRateChange}
+                  error={errors.item.unit}
                   required
                   min="0.01"
                   step="0.01"

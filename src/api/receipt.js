@@ -9,7 +9,7 @@ export const fetchAllVendors = async () => {
 
 // ─── Item Endpoints ──────────────────────────────────────────
 export const fetchAllItems = async () => {
-    return await axios.get(`${server}/api/Item`, authHeader());
+    return await axios.get(`${server}/api/Item/allname`, authHeader());
 };
 
 // ─── Receipt Endpoints ───────────────────────────────────────
