@@ -48,6 +48,7 @@ const ItemManagementSection = ({
 
   const handleItemChange = (e) => {
     const { name, value } = e.target;
+    console.log(name,value)
     setNewItem(prev => ({ ...prev, [name]: value }));
   };
 

@@ -19,7 +19,6 @@ import ViewIssue from "./components/issue/ViewIssue";
 
 import { UserProvider } from "./context/UserContext";
 import IssuesList from "./components/issue/IssueList";
-import EditIssue from "./components/issue/EditIssue";
 import { DashboardProvider } from "./context/DashboardContext";
 import { ItemProvider } from "./context/ItemContext";
 import { CategoryProvider } from "./context/CategoryContext";
