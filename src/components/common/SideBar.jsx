@@ -15,7 +15,7 @@ import { LogOut } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { isLoggedIn, removeToken } from '../../utils/tokenutils';
 
-const SideBar = ({ toggleNavbar }) => {
+const SideBar = ({ closeNavbar }) => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [activeLabel, setActiveLabel] = useState(null);
   const navigate = useNavigate();
@@ -68,6 +68,7 @@ const SideBar = ({ toggleNavbar }) => {
       removeToken();
       window.location.href = '/login';
     } else {
+      closeNavbar();
       navigate(path);
       // toggleNavbar();
     }

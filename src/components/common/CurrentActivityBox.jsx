@@ -121,7 +121,7 @@ const CurrentActivityBox = () => {
   // Floating Action Button
   if (!isOpen) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-0 right-6 z-50">
         <button
           onClick={handleToggle}
           className="relative group bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white h-16 w-16 rounded-2xl flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border border-primary/20"

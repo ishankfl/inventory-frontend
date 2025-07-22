@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Eye,
-  Edit,
-  Plus,
   Search,
   Filter,
   Calendar,
@@ -40,7 +37,6 @@ const ReceiptsList = () => {
         setLoading(true);
         setError(null);
         const response = await fetchAllReceipts(currentPage, receiptsPerPage);
-        console.log('pagination receiptiso', response);
         if (response.status === 200 && response.data.success) {
           setReceipts(response.data.data || []);
           setTotalPages(response.data.pagination.totalPages);
@@ -48,7 +44,6 @@ const ReceiptsList = () => {
           setError('Failed to load receipts.');
         }
       } catch (err) {
-        console.error("Error fetching receipts:", err);
         setError(err.message || 'Failed to load receipts. Please try again.');
       } finally {
         setLoading(false);
@@ -58,8 +53,6 @@ const ReceiptsList = () => {
     loadReceipts();
   }, [currentPage]);
 
-  // Apply client-side filtering here if backend doesn't support filtering (optional)
-  // NOTE: Filtering affects only current page data, which may cause confusion in pagination
   const filteredReceipts = receipts.filter(receipt => {
     const totalAmount = receipt.receiptDetails.reduce(
       (sum, item) => sum + item.quantity * item.rate, 0
@@ -75,7 +68,6 @@ const ReceiptsList = () => {
     );
   });
 
-  // Use filteredReceipts directly as currentReceipts since backend handles pagination
   const currentReceipts = filteredReceipts;
 
   const handleAddReceipt = () => navigate('/receipt');
@@ -88,50 +80,70 @@ const ReceiptsList = () => {
   const totalValue = receipts.reduce((sum, receipt) =>
     sum + receipt.receiptDetails.reduce((itemSum, item) => itemSum + (item.quantity * item.rate), 0), 0);
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="flex items-center space-x-2">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        <span className="text-text font-medium">Loading receipts...</span>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="text-text font-medium">Loading receipts...</span>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
-  if (error) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-danger text-xl mb-2">⚠️</div>
-        <div className="text-danger font-medium">Error: {error}</div>
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-danger text-xl mb-2">⚠️</div>
+          <div className="text-danger font-medium">Error: {error}</div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <Header
-            description={'Manage and track all inventory receipts'}
-            handleButton={handleAddReceipt}
-            title={'Receipts Management'}
-            btnTitle={' Add New'}
-          />
+    <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <Header
+          description="Manage and track all inventory receipts"
+          handleButton={handleAddReceipt}
+          title="Receipts Management"
+          btnTitle=" Add New"
+        />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <StatCard title="Total Receipts" value={totalReceipts} icon={<Package className="h-6 w-6 text-primary" />} bg="bg-card1color" />
-            <StatCard title="Total Items Purchased" value={totalItemsPurchased} icon={<Package className="h-6 w-6 text-success" />} bg="bg-card2color" />
-            <StatCard title="Total Value" value={`Rs. ${totalValue.toLocaleString()}`} icon={<DollarSign className="h-6 w-6 text-accent" />} bg="bg-card3color" />
-          </div>
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <StatCard
+            title="Total Receipts"
+            value={totalReceipts}
+            icon={<Package className="h-6 w-6 text-primary" />}
+            bg="bg-card1color"
+          />
+          <StatCard
+            title="Total Items Purchased"
+            value={totalItemsPurchased}
+            icon={<Package className="h-6 w-6 text-success" />}
+            bg="bg-card2color"
+          />
+          <StatCard
+            title="Total Value"
+            value={`Rs. ${totalValue.toLocaleString()}`}
+            icon={<DollarSign className="h-6 w-6 text-accent" />}
+            bg="bg-card3color"
+          />
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Filter Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-center space-x-2 mb-4">
               <Filter className="h-5 w-5 text-gray-500" />
               <h3 className="text-lg font-semibold text-text">Filter Receipts</h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <FilterInput icon={Search} placeholder="Bill No" value={filterBillNo} onChange={setFilterBillNo} />
               <FilterInput icon={Calendar} placeholder="Date" value={filterDate} onChange={setFilterDate} />
               <FilterInput icon={User} placeholder="Vendor" value={filterVendor} onChange={setFilterVendor} />
@@ -140,6 +152,7 @@ const ReceiptsList = () => {
             </div>
           </div>
 
+          {/* Receipt Table */}
           <ReceiptListTable
             currentReceipts={currentReceipts}
             handleEditReceipt={handleEditReceipt}
@@ -147,7 +160,7 @@ const ReceiptsList = () => {
           />
 
           {/* Pagination */}
-          <div className="p-4 flex justify-between space-x-4 border-t border-gray-100">
+          <div className="p-4 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-100">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
@@ -171,9 +184,5 @@ const ReceiptsList = () => {
     </div>
   );
 };
-
-
-// Filter Input Component
-
 
 export default ReceiptsList;

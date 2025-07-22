@@ -26,15 +26,16 @@ function App() {
         {isUserLoggedin && (
           <button
             onClick={toggleNavbar}
-            className={`fixed top-4 z-50 p-3 text-white bg-primary rounded-full shadow-md hover:bg-purple-600 transition-all
-  left-4 sm:left-6
-  ${showNavbar ? 'left-[calc(260px+1rem)] lg:left-[280px]' : 'lg:left-4'}
-`}
-
+            className={`fixed top-4 z-50 p-3 text-white bg-primary rounded-full shadow-md hover:bg-purple-600
+    transition-all duration-300 ease-in-out
+    ${showNavbar ? 'left-[calc(260px+1rem)] lg:left-[280px]' : 'left-4 lg:left-4'}
+    sm:left-6'
+  `}
             aria-label={showNavbar ? "Close sidebar" : "Open sidebar"}
           >
             {showNavbar ? <FaTimes /> : <FaBars />}
           </button>
+
         )}
 
         {/* Sidebar */}
@@ -64,7 +65,7 @@ function App() {
 
         {/* Main Content */}
         <main
-          className={`flex-1 overflow-auto transition-all duration-300
+          className={`flex-1 overflow-auto transition-all duration-3000
             ${isUserLoggedin && showNavbar ? 'sm:ml-[260px] lg:ml-[0]' : ''}
           `}
           style={{ height: '100vh' }}
