@@ -45,10 +45,11 @@ const loginUser = async (email, password, setToast) => {
 };
 
 const LoginSVG = () => (
-  <div className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 bg-blue-300 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-md">
-    IMS
+  <div className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 bg-blue-300 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-md overflow-hidden">
+    <img src="/images/inventory-management.png" alt="Login illustration" className="w-[80%] h-[80%] object-cover" />
   </div>
 );
+
 
 const Login = () => {
   const [toast, setToast] = React.useState(null);
@@ -188,15 +189,7 @@ const Login = () => {
                       </p>
                     </div>
 
-                    {/* Demo credentials */}
-                    <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200 text-xs sm:text-sm">
-                      <p className="text-blue-800 font-medium mb-2">Demo Credentials:</p>
-                      <p className="text-blue-600">
-                        Email: demo@example.com
-                        <br />
-                        Password: password
-                      </p>
-                    </div>
+                
                   </form>
                 )}
               </Formik>
