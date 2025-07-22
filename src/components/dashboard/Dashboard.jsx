@@ -170,7 +170,7 @@ const Dashboard = () => {
   const { cardCounts } = data;
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-10">
+    <div className="min-h-screen p-6 sm:p-6 lg:p-10">
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
