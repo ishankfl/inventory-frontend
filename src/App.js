@@ -43,7 +43,7 @@ function App() {
             : 'ml-0 max-w-full'
           } flex-1`}
         >
-          <div className="mt-10 ml-10">
+          <div className="lg:mt-10 lg:ml-10 sm:m-0 sm:p-0">
             <CustomRouter />
             {isUserLoggedin && <CurrentActivityBox />}
           </div>
