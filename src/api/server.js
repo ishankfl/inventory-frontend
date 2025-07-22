@@ -1,1 +1,1 @@
-export const server='https://localhost:7194'
+export const server='http://192.168.20.52:5194'

@@ -1,7 +1,6 @@
+import React from "react";
 import { Bar, Line } from "react-chartjs-2";
-import { FaTags, FaBuilding, FaBox, FaUsers, FaChartBar, FaUps } from "react-icons/fa";
 import { useDashboard } from "../../context/DashboardContext";
-
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,10 +11,18 @@ import {
   Title,
   Tooltip,
   Legend,
-
 } from "chart.js";
 
-// Register required components
+import {
+  FaTags,
+  FaBuilding,
+  FaBox,
+  FaUsers,
+  FaChartBar,
+  FaUps,
+} from "react-icons/fa";
+
+// Register Chart.js modules
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -30,177 +37,132 @@ ChartJS.register(
 const Dashboard = () => {
   const { dashboardData: data, loading, errorMsg } = useDashboard();
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <div className="animate-pulse">
-          <div className="bg-white p-8 rounded-2xl shadow-2xl">
+      <div className="min-h-screen flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin text-primary mb-4">
             <svg
-              className="animate-spin h-16 w-16 text-primary mb-6 mx-auto"
-              xmlns="http://www.w3.org/2000/svg"
+              className="h-10 w-10"
               fill="none"
               viewBox="0 0 24 24"
+              stroke="currentColor"
             >
               <circle
                 className="opacity-25"
                 cx="12"
                 cy="12"
                 r="10"
-                stroke="currentColor"
                 strokeWidth="4"
-              ></circle>
+              />
               <path
                 className="opacity-75"
                 fill="currentColor"
                 d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-              ></path>
-            </svg>
-            <p className="text-xl font-semibold text-text text-center">Loading Dashboard...</p>
-          </div>
-        </div>
-      </div>
-    );
-
-  if (errorMsg)
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="bg-white border border-danger text-danger-dark px-8 py-10 rounded-2xl text-center shadow-2xl max-w-md w-full">
-          <div className="flex justify-center mb-4">
-            <svg
-              className="w-16 h-16 text-danger"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 9v2m0 4h.01M4.93 4.93l14.14 14.14M12 3v1m0 16v1m8.485-8.485l-1.414-1.414M3 12H2m1.515-3.515l1.414 1.414M16.95 7.05l1.414-1.414"
               />
             </svg>
           </div>
-          <h3 className="text-xl font-bold mb-3">Something went wrong</h3>
-          <p className="mb-6 text-text-secondary break-words">{errorMsg}</p>
+          <p className="text-gray-600 text-lg font-medium">Loading Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (errorMsg) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="bg-white shadow-lg border border-red-300 p-6 rounded-lg text-center">
+          <h2 className="text-lg font-bold text-red-600 mb-2">Error Loading Dashboard</h2>
+          <p className="text-gray-600 mb-4">{errorMsg}</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-danger text-white px-6 py-3 rounded-lg hover:bg-danger-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-danger focus:ring-opacity-50 font-medium"
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
           >
-            Refresh Page
+            Retry
           </button>
         </div>
       </div>
     );
+  }
 
   if (!data) return null;
 
+  // Chart datasets
   const inventoryData = {
-    labels: data.topProductsByQty.map((item) => item.name),
+    labels: data.topProductsByQty?.map((item) => item.name),
     datasets: [
       {
-        label: "Inventory Quantity",
-        data: data.topProductsByQty.map((item) => item.totalStockQuantity),
+        label: "Stock Quantity",
+        data: data.topProductsByQty?.map((item) => item.totalStockQuantity),
         backgroundColor: "rgba(59, 130, 246, 0.8)",
-        borderColor: "rgba(59, 130, 246, 1)",
-        borderWidth: 2,
-        borderRadius: 8,
-        borderSkipped: false,
+        borderRadius: 6,
       },
     ],
   };
 
   const issuedData = {
-    labels: data.topIssuedItems.map((item) => item.name),
+    labels: data.topIssuedItems?.map((item) => item.name),
     datasets: [
       {
         label: "Issued Quantity",
-        data: data.topIssuedItems.map((item) => item.totalIssuedQuantity),
+        data: data.topIssuedItems?.map((item) => item.totalIssuedQuantity),
         backgroundColor: "rgba(16, 185, 129, 0.8)",
-        borderColor: "rgba(16, 185, 129, 1)",
-        borderWidth: 2,
-        borderRadius: 8,
-        borderSkipped: false,
+        borderRadius: 6,
       },
     ],
   };
 
   const dailyReceiptData = {
-    labels: data.dailyTotalReceiptValue.map((d) =>
+    labels: data.dailyTotalReceiptValue?.map((d) =>
       new Date(d.date).toLocaleDateString()
     ),
     datasets: [
       {
-        label: "Daily Total Receipt Value",
-        data: data.dailyTotalReceiptValue.map((d) => d.totalPrice),
+        label: "Daily Total Receipt",
+        data: data.dailyTotalReceiptValue?.map((d) => d.totalPrice),
         fill: true,
-        borderColor: "rgba(245, 158, 11, 1)",
+        borderColor: "#f59e0b",
         backgroundColor: "rgba(245, 158, 11, 0.1)",
         tension: 0.4,
         borderWidth: 3,
-        pointBackgroundColor: "rgba(245, 158, 11, 1)",
-        pointBorderColor: "#ffffff",
+        pointBackgroundColor: "#f59e0b",
+        pointBorderColor: "#fff",
         pointBorderWidth: 2,
-        pointRadius: 6,
-        pointHoverRadius: 8,
+        pointRadius: 5,
       },
     ],
   };
 
-  const getChartOptions = (title, yLabel = "Quantity") => ({
+  const chartOptions = (title = "", yLabel = "Qty") => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { 
-        position: "top", 
-        labels: { 
-          usePointStyle: true, 
-          padding: 20,
-          font: { size: 12, weight: '600' },
-          color: '#1e293b'
-        } 
+      legend: {
+        position: "top",
+        labels: {
+          color: "#1e293b",
+          font: { size: 12 },
+        },
       },
       title: {
-        display: true,
+        display: !!title,
         text: title,
-        font: { weight: "bold", size: 16 },
-        padding: { bottom: 30 },
-        color: '#1e293b'
-      },
-      tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: '#ffffff',
-        bodyColor: '#ffffff',
-        borderColor: '#3b82f6',
-        borderWidth: 1,
-        cornerRadius: 8,
-        callbacks: {
-          label: (context) =>
-            `${context.dataset.label}: ${context.parsed.y ?? context.parsed}`,
-        },
+        color: "#1e293b",
+        font: { size: 16, weight: "bold" },
       },
     },
     scales: {
       y: {
         beginAtZero: true,
-        title: { 
-          display: true, 
+        ticks: { color: "#64748b" },
+        title: {
+          display: true,
           text: yLabel,
-          color: '#64748b',
-          font: { weight: '600' }
-        },
-        ticks: { 
-          precision: 0,
-          color: '#64748b'
-        },
-        grid: { 
-          color: "rgba(148, 163, 184, 0.2)",
-          borderDash: [5, 5]
+          color: "#64748b",
         },
       },
-      x: { 
-        grid: { display: false },
-        ticks: { color: '#64748b' }
+      x: {
+        ticks: { color: "#64748b" },
       },
     },
   });
@@ -208,117 +170,55 @@ const Dashboard = () => {
   const { cardCounts } = data;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background-secondary via-primary-light to-background-tertiary">
-      <div className="px-6 md:px-12 lg:px-24 py-8">
-        {/* Header Section */}
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-text mb-4 bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
-            Dashboard Analytics
-          </h1>
-          <p className="text-text-secondary text-lg max-w-2xl mx-auto">
-            Get insights into your inventory management system with real-time analytics and key performance indicators.
-          </p>
-        </div>
+    <div className="min-h-screen p-4 sm:p-6 lg:p-10">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
+        <p className="text-gray-500 text-sm mt-1">Inventory Analytics Overview</p>
+      </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <StatCard
-            icon={<FaUsers className="text-4xl" />}
-            title="Users"
-            value={cardCounts.users ?? 0}
-            bgClass="bg-gradient-to-br from-primary to-primary-dark"
-            iconBg="bg-white/20"
-          />
-          <StatCard
-            icon={<FaBox className="text-4xl" />}
-            title="Products"
-            value={cardCounts.products ?? 0}
-            bgClass="bg-gradient-to-br from-accent to-accent-dark"
-            iconBg="bg-white/20"
-          />
-          <StatCard
-            icon={<FaBuilding className="text-4xl" />}
-            title="Departments"
-            value={cardCounts.departments ?? 0}
-            bgClass="bg-gradient-to-br from-success to-success-dark"
-            iconBg="bg-white/20"
-          />
-          <StatCard
-            icon={<FaTags className="text-4xl" />}
-            title="Categories"
-            value={cardCounts.categories ?? 0}
-            bgClass="bg-gradient-to-br from-secondary to-secondary-dark"
-            iconBg="bg-white/20"
-          />
-        </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <StatCard icon={<FaUsers />} label="Users" value={cardCounts?.users} />
+        <StatCard icon={<FaBox />} label="Products" value={cardCounts?.products} />
+        <StatCard icon={<FaBuilding />} label="Departments" value={cardCounts?.departments} />
+        <StatCard icon={<FaTags />} label="Categories" value={cardCounts?.categories} />
+      </div>
 
-        {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <ChartCard 
-            title="Top 10 Items by Inventory Quantity" 
-            icon={<FaChartBar className="text-primary" />}
-          >
-            <Bar
-              data={inventoryData}
-              options={getChartOptions("Top 10 Items by Inventory Quantity")}
-            />
-          </ChartCard>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <ChartCard title="Top 10 by Inventory">
+          <Bar data={inventoryData} options={chartOptions("Top 10 Items by Quantity")} />
+        </ChartCard>
 
-          <ChartCard 
-            title="Top 10 Issued Products" 
-            icon={<FaChartBar className="text-success" />}
-          >
-            <Bar
-              data={issuedData}
-              options={getChartOptions("Top 10 Issued Products")}
-            />
-          </ChartCard>
-        </div>
+        <ChartCard title="Top 10 Issued Products">
+          <Bar data={issuedData} options={chartOptions("Top 10 Issued Items")} />
+        </ChartCard>
+      </div>
 
-        {/* Full Width Chart */}
-        <div className="mb-8">
-          <ChartCard 
-            title="Daily Total Receipt Value" 
-            icon={<FaUps className="text-accent" />}
-            isFullWidth
-          >
-            <Line
-              data={dailyReceiptData}
-              options={getChartOptions("Daily Total Receipt Value", "Amount")}
-            />
-          </ChartCard>
-        </div>
+      <div className="mt-6">
+        <ChartCard title="Daily Receipt Value (Last 30 Days)">
+          <Line data={dailyReceiptData} options={chartOptions("Receipt Trend", "Amount")} />
+        </ChartCard>
       </div>
     </div>
   );
 };
 
-const StatCard = ({ icon, title, value, bgClass, iconBg }) => (
-  <div className={`${bgClass} text-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group`}>
-    <div className="flex items-center justify-between mb-4">
-      <div className={`${iconBg} p-3 rounded-xl group-hover:scale-110 transition-transform duration-300`}>
-        {icon}
-      </div>
-      <div className="text-right">
-        <h3 className="text-sm font-medium opacity-90 uppercase tracking-wide">{title}</h3>
-        <span className="text-3xl font-bold block mt-1">{value}</span>
-      </div>
-    </div>
-    <div className="w-full bg-white/20 h-1 rounded-full">
-      <div className="bg-white h-1 rounded-full w-3/4 group-hover:w-full transition-all duration-500"></div>
+const StatCard = ({ icon, label, value }) => (
+  <div className="bg-white shadow rounded-lg p-4 flex items-center gap-4 lg:p-8 ">
+    <div className="text-4xl text-primary ">{icon}</div>
+    <div>
+      <p className="text-gray-500 text-sm ">{label}</p>
+      <p className="text-lg font-semibold text-gray-800">{value ?? 0}</p>
     </div>
   </div>
 );
 
-const ChartCard = ({ title, children, icon, isFullWidth = false }) => (
-  <div className={`bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 ${isFullWidth ? 'col-span-full' : ''} border border-border`}>
-    <div className="flex items-center gap-3 mb-6">
-      {icon}
-      <h3 className="text-xl font-bold text-text">{title}</h3>
-    </div>
-    <div className="h-96">
-      {children}
-    </div>
+const ChartCard = ({ title, children }) => (
+  <div className="bg-white shadow rounded-lg p-4">
+    <h3 className="text-md font-semibold text-gray-700 mb-3">{title}</h3>
+    <div className="h-80">{children}</div>
   </div>
 );
 

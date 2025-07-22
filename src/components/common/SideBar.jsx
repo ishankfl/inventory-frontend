@@ -69,7 +69,7 @@ const SideBar = ({ toggleNavbar }) => {
       window.location.href = '/login';
     } else {
       navigate(path);
-      toggleNavbar();
+      // toggleNavbar();
     }
   };
 
@@ -78,13 +78,13 @@ const SideBar = ({ toggleNavbar }) => {
       {/* Header */}
       <div className="px-6 py-5 border-b border-[#292A53] flex items-center justify-between">
         <h1 className="text-xl font-semibold tracking-wider">IMS PORTAL</h1>
-        <div
+        {/* <div
           onClick={toggleNavbar}
           className="bg-red-400 text-white text-xl p-2 rounded-full hover:bg-red-800 hover:text-white transition duration-300 cursor-pointer"
           aria-label="Close sidebar"
         >
           <FaTimes />
-        </div>
+        </div> */}
       </div>
 
       {/* Breadcrumb */}
