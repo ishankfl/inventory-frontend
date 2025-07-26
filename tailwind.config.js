@@ -46,12 +46,12 @@ module.exports = {
         'text-secondary': '#475569',  // Secondary text
         'text-muted': '#94a3b8',     // Muted text for labels
         
-        // Card Colors (Enhanced)
-        card1color: '#dbeafe',       // Light blue (keeping your naming)
-        card2color: '#dcfce7',       // Light green (keeping your naming)
-        card3color: '#fef3c7',       // Light yellow (keeping your naming)
-        card4color: '#fee2e2',       // Light red (additional)
-        card5color: '#e0f2fe',       // Light cyan (additional)
+     // Card Colors (Enhanced)
+        card1color: '#8CCDEB',       
+        card2color: '#FFE3A9',       
+        card3color: '#725CAD',       
+        card4color: '#0B1D51',       
+        card5color: '#c2e6f6',     
         
         'card-text': '#1e293b',      // Your current card text
         

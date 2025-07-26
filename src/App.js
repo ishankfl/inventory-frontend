@@ -20,7 +20,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="flex min-h-screen bg-gradient-to-br from-background-secondary via-primary-light to-background-tertiary relative">
+      <div className="flex min-h-screen bg-gradient-to-br bg-gradient-to-br from-background-tertiary  via-primary-light to-primary overflow-hidden relative">
 
         {/* Toggle Button - shown when user is logged in */}
         {isUserLoggedin && (
