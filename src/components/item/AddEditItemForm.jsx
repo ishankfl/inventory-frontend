@@ -74,6 +74,7 @@ const AddEditItemForm = ({ initialData = null, onClose, onSubmitSuccess }) => {
 
       const payload = { ...values, price: priceNumber };
       let response;
+      console.log('update item payload ', payload, initialData.id);
 
       if (isEditMode) {
         response = await updateProduct(initialData.id, payload);

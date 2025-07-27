@@ -16,10 +16,10 @@ export const addProduct = (name, description, quantity, price, categoryId, userI
 };
 
 // Update Product (PUT)
-export const updateProduct = (id, name, unit, price) => {
+export const updateProduct = (id, payload) => {
   return axios.put(
     `${server}/api/Item/${id}`,
-    { name, unit, price },
+    payload ,
     authHeader()
   );
 };

@@ -1,55 +1,65 @@
-import React, { useState } from 'react';
-import { Formik } from 'formik';
-import { useNavigate } from 'react-router-dom';
-import { staffSchema } from '../../utils/yup/staff-validation';
-import { addStaff } from '../../api/user';
-import ToastNotification from '../common/ToggleNotification';
-import FormInput from '../common/FormInput'; // Adjust path if needed
+import React, { useState } from "react";
+import { Formik } from "formik";
+import { useNavigate } from "react-router-dom";
+import { staffSchema } from "../../utils/yup/staff-validation";
+import { addStaff } from "../../api/user";
+import ToastNotification from "../common/ToggleNotification";
+import FormInput from "../common/FormInput"; // Adjust path if needed
 
 const AddStaff = ({ closeModal }) => {
   const navigate = useNavigate();
   const [toast, setToast] = useState(null);
 
   return (
-    <>
-      {toast && (
-        <ToastNotification
-          key={Date.now()}
-          type={toast.type}
-          message={toast.message}
-          duration={toast.duration}
-          onClose={() => setToast(null)}
-        />
-      )}
+    <div className="fixed inset-0 bg-black bg-opacity-40 z-40 flex justify-center items-center">
+      <div className="absolute inset-0" onClick={closeModal} />
 
-      <div className="!bg-white container p-6 rounded-md shadow-md">
+      <div
+        className="relative bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 z-50"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {toast && (
+          <ToastNotification
+            key={Date.now()}
+            type={toast.type}
+            message={toast.message}
+            duration={toast.duration}
+            onClose={() => setToast(null)}
+          />
+        )}
+
         <h2 className="text-lg font-semibold mb-4">Add New Staff</h2>
 
         <Formik
-          initialValues={{ name: '', email: '', password: '', role: '' }}
+          initialValues={{ name: "", email: "", password: "", role: "" }}
           validationSchema={staffSchema}
           onSubmit={async (values, { setSubmitting, setErrors }) => {
             try {
-              const response = await addStaff(values.name, values.email, values.password, values.role);
+              const response = await addStaff(
+                values.name,
+                values.email,
+                values.password,
+                values.role
+              );
 
               if (response.status === 201) {
                 setToast({
-                  type: 'success',
-                  message: 'Staff added successfully!',
+                  type: "success",
+                  message: "Staff added successfully!",
                   duration: 4000,
                 });
                 setTimeout(() => {
-                  navigate('/view-users');
+                  navigate("/view-users");
                 }, 3000);
               } else {
                 setToast({
-                  type: 'error',
-                  message: 'Something went wrong. Please try again.',
+                  type: "error",
+                  message: "Something went wrong. Please try again.",
                   duration: 3000,
                 });
               }
             } catch (err) {
-              if (err.name === 'ValidationError') {
+              if (err.name === "ValidationError") {
                 const fieldErrors = {};
                 err.inner.forEach((e) => {
                   fieldErrors[e.path] = e.message;
@@ -57,14 +67,14 @@ const AddStaff = ({ closeModal }) => {
                 setErrors(fieldErrors);
               } else if (err.response?.status === 400) {
                 setToast({
-                  type: 'error',
-                  message: 'Invalid data provided. Please check your input.',
+                  type: "error",
+                  message: "Invalid data provided. Please check your input.",
                   duration: 4000,
                 });
               } else {
                 setToast({
-                  type: 'error',
-                  message: 'Unexpected error occurred. Please try again.',
+                  type: "error",
+                  message: "Unexpected error occurred. Please try again.",
                   duration: 4000,
                 });
                 console.error(err);
@@ -84,7 +94,6 @@ const AddStaff = ({ closeModal }) => {
             isSubmitting,
           }) => (
             <form onSubmit={handleSubmit} className="space-y-4">
-
               <FormInput
                 label="Name"
                 name="name"
@@ -93,7 +102,7 @@ const AddStaff = ({ closeModal }) => {
                 onBlur={handleBlur}
                 placeholder="Enter name"
                 required
-                error={touched.name && errors.name ? errors.name : ''}
+                error={touched.name && errors.name ? errors.name : ""}
               />
 
               <FormInput
@@ -105,7 +114,7 @@ const AddStaff = ({ closeModal }) => {
                 onBlur={handleBlur}
                 placeholder="Enter email"
                 required
-                error={touched.email && errors.email ? errors.email : ''}
+                error={touched.email && errors.email ? errors.email : ""}
               />
 
               <FormInput
@@ -117,7 +126,7 @@ const AddStaff = ({ closeModal }) => {
                 onBlur={handleBlur}
                 placeholder="Enter password"
                 required
-                error={touched.password && errors.password ? errors.password : ''}
+                error={touched.password && errors.password ? errors.password : ""}
               />
 
               <div>
@@ -129,8 +138,8 @@ const AddStaff = ({ closeModal }) => {
                   value={values.role}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 px-3 ${
-                    touched.role && errors.role ? 'border-red-500' : ''
+                  className={`mt-1 block w-full rounded-md border border-gray-300 h-12 px-3 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    touched.role && errors.role ? "border-red-500" : ""
                   }`}
                   required
                 >
@@ -147,14 +156,14 @@ const AddStaff = ({ closeModal }) => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-700"
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Submitting...' : 'Add'}
+                  {isSubmitting ? "Submitting..." : "Add"}
                 </button>
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full"
                 >
                   Cancel
                 </button>
@@ -163,7 +172,7 @@ const AddStaff = ({ closeModal }) => {
           )}
         </Formik>
       </div>
-    </>
+    </div>
   );
 };
 
