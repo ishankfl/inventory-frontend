@@ -6,12 +6,12 @@ import AddedItemsTable from './AddedItemsTable';
 import { useReceipt } from './useReceipt';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ToastNotification from '../common/ToggleNotification'; // ✅ Import toast
-
+import ToastNotification from '../common/ToggleNotification';
+ 
 const ReceiptForm = ({ isEdit = false }) => {
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
-  const [toast, setToast] = useState(null); // ✅ Toast state
+  const [toast, setToast] = useState(null); 
 
   const {
     vendors,
