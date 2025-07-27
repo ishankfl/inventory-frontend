@@ -44,3 +44,7 @@ export const deleteIssueByUser = (issueId)=>{
   return axios.delete(`${server}/api/issue/${issueId}`, authHeader());
 }
 
+
+export const fetchIssueById = (issueId) => {
+  return axios.get(`${server}/api/issues/${issueId}`, authHeader());
+};

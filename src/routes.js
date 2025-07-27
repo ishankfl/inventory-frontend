@@ -25,6 +25,7 @@ import ReceiptForm from "./components/Receipt/ReceiptForm";
 import IssueForm from "./components/issue/IssueForm";
 import { VendorProvider } from "./context/VendorContext";
 import { DepartmentProvider } from "./context/DepartmentContext";
+import IssueDetails from "./components/issue/ViewIssueDetails";
 
 
 const CustomRouter = () => {
@@ -82,7 +83,7 @@ const CustomRouter = () => {
         {/* <Route path="/add-department" element={<AddDepartment />} /> */}
 
         <Route path="/view-issues" element={<ViewIssue />} />
-        <Route path="/view-issues/:id" element={<ViewIssueDetails />} />
+        <Route path="/view-issues/:id" element={<IssueDetails />} />
 
         <Route path="/receipt" element={<ReceiptForm isEdit={false} />} />
         <Route path="/receipt/edit/:id" element={<ReceiptForm isEdit={true} />} />

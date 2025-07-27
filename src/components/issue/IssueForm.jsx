@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
+import { useFormik } from 'formik';
 import { fetchAllItems, fetchIssueById, createIssue, updateIssue } from "../../api/receipt";
 import { getAllDepartments } from '../../api/departments';
 import { getUserId } from '../../utils/tokenutils';
@@ -12,22 +13,28 @@ import { Eye } from 'lucide-react';
 
 const IssueForm = ({ isEdit = false }) => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [departments, setDepartments] = useState([]);
   const [items, setItems] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [errors, setErrors] = useState({});
-  const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    issueId: isEdit ? '' : `ISSUE-${Date.now().toString(36).toUpperCase()}`,
-    issueDate: new Date().toISOString().split('T')[0],
-    invoiceNumber: '',
-    invoiceDate: new Date().toISOString().split('T')[0],
-    deliveryNote: '',
-    departmentId: '',
-    items: []
+  // Initialize form with Formik
+  const formik = useFormik({
+    initialValues: {
+      issueId: isEdit ? '' : `ISSUE-${Date.now().toString(36).toUpperCase()}`,
+      issueDate: new Date().toISOString().split('T')[0],
+      invoiceNumber: '',
+      invoiceDate: '',
+      deliveryNote: '',
+      departmentId: '',
+      items: []
+    },
+    validationSchema: issueSchema,
+    onSubmit: async (values) => {
+      await handleSubmit(values);
+    }
   });
 
   useEffect(() => {
@@ -48,10 +55,7 @@ const IssueForm = ({ isEdit = false }) => {
       setCurrentUser(user);
 
       if (depts.length > 0 && !isEdit) {
-        setFormData(prev => ({
-          ...prev,
-          departmentId: depts[0].id
-        }));
+        formik.setFieldValue('departmentId', depts[0].id);
       }
 
       if (isEdit) {
@@ -76,7 +80,9 @@ const IssueForm = ({ isEdit = false }) => {
             ) || 0
           }))
         };
-        setFormData(transformedData);
+
+        // Set all form values at once
+        formik.setValues(transformedData);
       }
     } catch (error) {
       console.error("Initialization error:", error);
@@ -118,63 +124,23 @@ const IssueForm = ({ isEdit = false }) => {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
-    }
-  };
-
-  const validateForm = async () => {
-    try {
-      await issueSchema.validate(formData, { abortEarly: false });
-      setErrors({});
-      return true;
-    } catch (validationError) {
-      if (validationError.inner) {
-        const newErrors = {};
-        validationError.inner.forEach(err => {
-          newErrors[err.path] = err.message;
-        });
-        setErrors(newErrors);
-      }
-      return false;
-    }
-  };
-
   const handleAddItem = ({ updatedItem, isUpdate }) => {
-    setFormData(prev => {
-      let newItems;
-      if (isUpdate) {
-        newItems = prev.items.map(item =>
+    formik.setFieldValue('items',
+      isUpdate
+        ? formik.values.items.map(item =>
           item.itemId === updatedItem.itemId ? updatedItem : item
-        );
-      } else {
-        newItems = [...prev.items, updatedItem];
-      }
-      return { ...prev, items: newItems };
-    });
+        )
+        : [...formik.values.items, updatedItem]
+    );
   };
 
   const handleRemoveItem = (tempId) => {
-    setFormData(prev => ({
-      ...prev,
-      items: prev.items.filter(item => item.tempId !== tempId)
-    }));
+    formik.setFieldValue('items',
+      formik.values.items.filter(item => item.tempId !== tempId)
+    );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!(await validateForm())) return;
+  const handleSubmit = async (values) => {
     if (!currentUser) {
       alert("User information not available");
       return;
@@ -183,42 +149,41 @@ const IssueForm = ({ isEdit = false }) => {
     try {
       setIsLoading(true);
       const payload = {
-        issueId: formData.issueId,
-        issueDate: new Date(formData.issueDate).toISOString(),
-        invoiceNumber: formData.invoiceNumber,
-        invoiceDate: formData.invoiceDate?.trim() ? new Date(formData.invoiceDate).toISOString() : null,
-        deliveryNote: formData.deliveryNote,
-        departmentId: formData.departmentId,
+        issueId: values.issueId,
+        issueDate: new Date(values.issueDate).toISOString(),
+        invoiceNumber: values.invoiceNumber,
+        invoiceDate: values.invoiceDate?.trim() ? new Date(values.invoiceDate).toISOString() : null,
+        deliveryNote: values.deliveryNote,
+        departmentId: values.departmentId,
         issuedByUserId: getUserId(),
-        issueDetails: formData.items.map(item => ({
+        issueDetails: values.items.map(item => ({
           itemId: item.itemId,
           quantity: parseFloat(item.quantity),
           issueRate: parseFloat(item.rate),
         }))
       };
 
-      const response = isEdit 
+      const response = isEdit
         ? await updateIssue(id, payload)
         : await createIssue(payload);
 
       if (response.data) {
         alert(`Issue ${isEdit ? 'updated' : 'created'} successfully!`);
-        if (isEdit) {
-        } else {
+        if (!isEdit) {
           // Reset form for new entry
-          setFormData({
-            issueId: `ISSUE-${Date.now().toString(36).toUpperCase()}`,
-            issueDate: new Date().toISOString().split('T')[0],
-            invoiceNumber: '',
-            invoiceDate: '',
-            deliveryNote: '',
-            departmentId: departments[0]?.id || '',
-            items: []
+          formik.resetForm({
+            values: {
+              issueId: `ISSUE-${Date.now().toString(36).toUpperCase()}`,
+              issueDate: new Date().toISOString().split('T')[0],
+              invoiceNumber: '',
+              invoiceDate: '',
+              deliveryNote: '',
+              departmentId: departments[0]?.id || '',
+              items: []
+            }
           });
-          setErrors({});
         }
-          navigate('/issue-list');
-return;
+        navigate('/issue-list');
       }
     } catch (error) {
       console.error(`Error ${isEdit ? 'updating' : 'creating'} issue:`, error);
@@ -229,7 +194,7 @@ return;
   };
 
   const calculateTotal = () => {
-    return formData.items.reduce(
+    return formik.values.items.reduce(
       (sum, item) => sum + (parseFloat(item.value) || 0),
       0
     ).toFixed(2);
@@ -266,7 +231,7 @@ return;
       {isLoading && isEdit ? (
         <div className="text-center py-8">Loading issue data...</div>
       ) : (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={formik.handleSubmit}>
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <SectionHeader title="Primary Information" />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -274,8 +239,9 @@ return;
                 label="Issue ID"
                 name="issueId"
                 type="text"
-                value={formData.issueId}
-                onChange={handleInputChange}
+                value={formik.values.issueId}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 readOnly
                 className="bg-gray-100"
               />
@@ -284,9 +250,10 @@ return;
                 label="Issue Date *"
                 name="issueDate"
                 type="date"
-                value={formData.issueDate}
-                onChange={handleInputChange}
-                error={errors.issueDate}
+                value={formik.values.issueDate}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.issueDate && formik.errors.issueDate}
                 required
               />
 
@@ -294,9 +261,10 @@ return;
                 label="Invoice Number"
                 name="invoiceNumber"
                 type="text"
-                value={formData.invoiceNumber}
-                onChange={handleInputChange}
-                error={errors.invoiceNumber}
+                value={formik.values.invoiceNumber}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.invoiceNumber && formik.errors.invoiceNumber}
                 maxLength={100}
               />
 
@@ -304,16 +272,18 @@ return;
                 label="Invoice Date"
                 name="invoiceDate"
                 type="date"
-                value={formData.invoiceDate}
-                onChange={handleInputChange}
-                error={errors.invoiceDate}
+                value={formik.values.invoiceDate}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.invoiceDate && formik.errors.invoiceDate}
               />
 
               <FormSelect
                 label="Department *"
                 name="departmentId"
-                value={formData.departmentId}
-                onChange={handleInputChange}
+                value={formik.values.departmentId}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 options={[
                   { value: "", label: "Select Department" },
                   ...departments.map(dept => ({
@@ -321,7 +291,7 @@ return;
                     label: dept.name
                   }))
                 ]}
-                error={errors.departmentId}
+                error={formik.touched.departmentId && formik.errors.departmentId}
                 required
               />
 
@@ -330,9 +300,10 @@ return;
                   label="Delivery Note"
                   name="deliveryNote"
                   type="textarea"
-                  value={formData.deliveryNote}
-                  onChange={handleInputChange}
-                  error={errors.deliveryNote}
+                  value={formik.values.deliveryNote}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.deliveryNote && formik.errors.deliveryNote}
                   rows={2}
                   maxLength={500}
                 />
@@ -342,11 +313,11 @@ return;
 
           <ItemManagementSection
             items={items}
-            formData={formData}
+            formData={formik.values}
             onAddItem={handleAddItem}
             onRemoveItem={handleRemoveItem}
             calculateTotal={calculateTotal}
-            errors={errors}
+            errors={formik.errors}
             setShowForm={setShowForm}
           />
 
@@ -360,14 +331,13 @@ return;
             </button>
             <button
               type="submit"
-              disabled={formData.items.length === 0 || isLoading}
-              className={`w-36 px-6 py-2 rounded-md ${
-                formData.items.length === 0 || isLoading
+              disabled={formik.values.items.length === 0 || isLoading}
+              className={`w-36 px-6 py-2 rounded-md ${formik.values.items.length === 0 || isLoading
                   ? 'bg-primary-400 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700'
-              } text-white`}
+                } text-white`}
             >
-              {isLoading 
+              {isLoading
                 ? (isEdit ? 'Updating...' : 'Creating...')
                 : (isEdit ? 'Update Issue' : 'Create Issue')}
             </button>
