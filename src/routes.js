@@ -82,6 +82,7 @@ const CustomRouter = () => {
         {/* <Route path="/add-department" element={<AddDepartment />} /> */}
 
         <Route path="/view-issues" element={<ViewIssue />} />
+        <Route path="/view-issues/:id" element={<ViewIssueDetails />} />
 
         <Route path="/receipt" element={<ReceiptForm isEdit={false} />} />
         <Route path="/receipt/edit/:id" element={<ReceiptForm isEdit={true} />} />
