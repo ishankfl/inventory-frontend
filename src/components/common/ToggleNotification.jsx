@@ -15,20 +15,20 @@ const ToastNotification = ({
     setTimeout(() => {
       setIsVisible(false);
       setIsFading(false);
-      if (onClose) onClose();
+      if (typeof onClose === 'function') onClose(); // Ensure callable
     }, 500);
   };
 
-  const handleClose = () => {
-    startFadeOut();
-  };
+  const handleClose = () => startFadeOut();
 
   useEffect(() => {
     let timer;
     let startTime;
+
     if (isVisible) {
       setProgress(100);
       startTime = Date.now();
+
       timer = setInterval(() => {
         const elapsed = Date.now() - startTime;
         const newProgress = Math.max(100 - (elapsed / duration) * 100, 0);
@@ -37,39 +37,25 @@ const ToastNotification = ({
           clearInterval(timer);
           startFadeOut();
         }
-      }, 4000);
+      }, 50); // Smooth updates every 50ms
     }
+
     return () => clearInterval(timer);
   }, [isVisible, duration]);
 
   const getColors = () => {
     switch (type) {
       case 'success':
-        return {
-          bg: 'bg-green-500',
-          progressBg: 'bg-green-200'
-        };
+        return { bg: 'bg-green-500', progressBg: 'bg-green-200' };
       case 'error':
       case 'failed':
-        return {
-          bg: 'bg-red-500',
-          progressBg: 'bg-red-200'
-        };
+        return { bg: 'bg-red-500', progressBg: 'bg-red-200' };
       case 'warning':
-        return {
-          bg: 'bg-yellow-500',
-          progressBg: 'bg-yellow-200'
-        };
+        return { bg: 'bg-yellow-500', progressBg: 'bg-yellow-200' };
       case 'info':
-        return {
-          bg: 'bg-blue-500',
-          progressBg: 'bg-blue-200'
-        };
+        return { bg: 'bg-blue-500', progressBg: 'bg-blue-200' };
       default:
-        return {
-          bg: 'bg-gray-500',
-          progressBg: 'bg-gray-200'
-        };
+        return { bg: 'bg-gray-500', progressBg: 'bg-gray-200' };
     }
   };
 
@@ -79,8 +65,7 @@ const ToastNotification = ({
     <div className="fixed top-4 right-4 z-50 w-[300px]">
       {isVisible && (
         <div
-          className={`relative p-4 rounded shadow ${colors.bg} text-white font-semibold transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'
-            }`}
+          className={`relative p-4 rounded shadow ${colors.bg} text-white font-semibold transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}
         >
           <div
             onClick={handleClose}
@@ -91,13 +76,14 @@ const ToastNotification = ({
           <p>{message}</p>
           <div className={`w-full h-1 ${colors.progressBg} mt-2 overflow-hidden rounded`}>
             <div
-              className="h-1 bg-white transition-all"
-              style={{ width: `${progress}%` }}
-            ></div>
+              className="h-1 bg-white transition-all ease-linear"
+              style={{ width: `${progress}%`, transition: 'width 50ms linear' }}
+            />
           </div>
         </div>
       )}
     </div>
   );
 };
+
 export default ToastNotification;
