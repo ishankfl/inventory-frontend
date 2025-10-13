@@ -1,94 +1,201 @@
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
-const generatePdf = async (dashboardData) => {
-  const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([600, 800]); // width x height
+const generatePdf = async (data) => {
+  try {
+    // Create a temporary container for PDF content
+    const pdfContainer = document.createElement('div');
+    pdfContainer.style.position = 'absolute';
+    pdfContainer.style.left = '-9999px';
+    pdfContainer.style.top = '0';
+    pdfContainer.style.width = '1200px'; // Fixed width for consistent PDF layout
+    pdfContainer.style.backgroundColor = 'white';
+    pdfContainer.style.padding = '20px';
+    pdfContainer.style.fontFamily = 'Arial, sans-serif';
+    
+    document.body.appendChild(pdfContainer);
 
-  const { cardCounts, topProductsByQty, topIssuedItems, dailyTotalReceiptValue } = dashboardData;
+    // Generate the PDF content HTML
+    pdfContainer.innerHTML = generatePdfContent(data);
 
-  const timesFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+    // Wait for images and charts to render
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-  let y = 750;
+    // Capture the container as canvas
+    const canvas = await html2canvas(pdfContainer, {
+      scale: 2, // Higher scale for better quality
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff'
+    });
 
-  // Title
-  page.drawText("Dashboard Report", {
-    x: 50,
-    y,
-    size: 24,
-    font: timesFont,
-    color: rgb(0, 0, 0.7),
-  });
+    // Create PDF
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
 
-  y -= 40;
+    const imgWidth = 210; // A4 width in mm
+    const pageHeight = 295; // A4 height in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    let heightLeft = imgHeight;
+    let position = 0;
 
-  // Card Stats
+    // Add first page
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    // Add additional pages if content is too long
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    // Save the PDF
+    pdf.save('dashboard-report.pdf');
+
+    // Clean up
+    document.body.removeChild(pdfContainer);
+
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    alert('Error generating PDF report');
+  }
+};
+
+const generatePdfContent = (data) => {
+  const currentDate = new Date().toLocaleDateString();
+  
+  return `
+    <div style="padding: 20px; background: white;">
+      <!-- Header -->
+      <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #4f46e5; padding-bottom: 20px;">
+        <h1 style="color: #4f46e5; font-size: 32px; margin: 0;">Dashboard Report</h1>
+        <p style="color: #6b7280; font-size: 14px; margin: 5px 0;">Inventory Analytics Overview</p>
+        <p style="color: #6b7280; font-size: 12px;">Generated on: ${currentDate}</p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px;">
+        ${generateStatCards(data.cardCounts)}
+      </div>
+
+      <!-- Charts Section -->
+      <div style="margin-bottom: 20px;">
+        <!-- Top Products Charts -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+          <!-- Top 10 by Inventory -->
+          <div style="border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px;">
+            <h3 style="color: #374151; margin: 0 0 15px 0; font-size: 18px;">Top 10 by Inventory</h3>
+            <div style="height: 300px; background: #f9fafb; display: flex; align-items: center; justify-content: center; color: #6b7280;">
+              Chart: Top 10 Items by Quantity
+              ${generateTopProductsTable(data.topProductsByQty, 'Stock Quantity')}
+            </div>
+          </div>
+
+          <!-- Top 10 Issued Products -->
+          <div style="border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px;">
+            <h3 style="color: #374151; margin: 0 0 15px 0; font-size: 18px;">Top 10 Issued Products</h3>
+            <div style="height: 300px; background: #f9fafb; display: flex; align-items: center; justify-content: center; color: #6b7280;">
+              Chart: Top 10 Issued Items
+              ${generateTopProductsTable(data.topIssuedItems, 'Issued Quantity')}
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Receipt Value -->
+        <div style="border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px;">
+          <h3 style="color: #374151; margin: 0 0 15px 0; font-size: 18px;">Daily Receipt Value (Last 30 Days)</h3>
+          <div style="height: 300px; background: #f9fafb; display: flex; align-items: center; justify-content: center; color: #6b7280;">
+            Chart: Daily Receipt Trend
+            ${generateReceiptTable(data.dailyTotalReceiptValue)}
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 12px;">
+        Generated by Inventory Management System
+      </div>
+    </div>
+  `;
+};
+
+const generateStatCards = (cardCounts) => {
   const stats = [
-    { label: "Users", value: cardCounts?.users },
-    { label: "Products", value: cardCounts?.products },
-    { label: "Departments", value: cardCounts?.departments },
-    { label: "Categories", value: cardCounts?.categories },
+    { label: 'Users', value: cardCounts?.users || 0, icon: '👥' },
+    { label: 'Products', value: cardCounts?.products || 0, icon: '📦' },
+    { label: 'Departments', value: cardCounts?.departments || 0, icon: '🏢' },
+    { label: 'Categories', value: cardCounts?.categories || 0, icon: '🏷️' }
   ];
 
-  stats.forEach((stat, idx) => {
-    page.drawText(`${stat.label}: ${stat.value ?? 0}`, {
-      x: 50,
-      y: y - idx * 20,
-      size: 14,
-      font: timesFont,
-      color: rgb(0.1, 0.1, 0.1),
-    });
-  });
+  return stats.map(stat => `
+    <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; text-align: center;">
+      <div style="font-size: 24px; margin-bottom: 10px;">${stat.icon}</div>
+      <div style="font-size: 24px; font-weight: bold; color: #374151;">${stat.value}</div>
+      <div style="color: #6b7280; font-size: 14px;">${stat.label}</div>
+    </div>
+  `).join('');
+};
 
-  y -= 100;
+const generateTopProductsTable = (products, quantityLabel) => {
+  if (!products || products.length === 0) {
+    return '<p style="text-align: center; color: #6b7280;">No data available</p>';
+  }
 
-  // Top Products Table
-  page.drawText("Top Products by Quantity:", { x: 50, y, size: 16, font: timesFont, color: rgb(0, 0, 0) });
-  y -= 20;
-  topProductsByQty?.forEach((item, idx) => {
-    page.drawText(`${idx + 1}. ${item.name} - ${item.totalStockQuantity}`, {
-      x: 60,
-      y: y - idx * 15,
-      size: 12,
-      font: timesFont,
-      color: rgb(0.1, 0.3, 0.8),
-    });
-  });
+  return `
+    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+      <thead>
+        <tr style="background: #f8fafc;">
+          <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: left;">Product Name</th>
+          <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">${quantityLabel}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${products.map((product, index) => `
+          <tr>
+            <td style="border: 1px solid #e5e7eb; padding: 8px;">${index + 1}. ${product.name}</td>
+            <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">
+              ${quantityLabel === 'Stock Quantity' ? product.totalStockQuantity : product.totalIssuedQuantity}
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+};
 
-  y -= 20 + (topProductsByQty?.length || 0) * 15;
+const generateReceiptTable = (receiptData) => {
+  if (!receiptData || receiptData.length === 0) {
+    return '<p style="text-align: center; color: #6b7280;">No data available</p>';
+  }
 
-  // Top Issued Items Table
-  page.drawText("Top Issued Items:", { x: 50, y, size: 16, font: timesFont, color: rgb(0, 0, 0) });
-  y -= 20;
-  topIssuedItems?.forEach((item, idx) => {
-    page.drawText(`${idx + 1}. ${item.name} - ${item.totalIssuedQuantity}`, {
-      x: 60,
-      y: y - idx * 15,
-      size: 12,
-      font: timesFont,
-      color: rgb(0.1, 0.8, 0.3),
-    });
-  });
+  // Get last 7 days for the table
+  const recentData = receiptData.slice(-7);
 
-  y -= 20 + (topIssuedItems?.length || 0) * 15;
-
-  // Footer note
-  page.drawText("Generated from Inventory Dashboard", {
-    x: 50,
-    y: 30,
-    size: 10,
-    font: timesFont,
-    color: rgb(0.5, 0.5, 0.5),
-  });
-
-  const pdfBytes = await pdfDoc.save();
-
-  // Download PDF
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "dashboard_report.pdf";
-  a.click();
+  return `
+    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+      <thead>
+        <tr style="background: #f8fafc;">
+          <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: left;">Date</th>
+          <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${recentData.map(day => `
+          <tr>
+            <td style="border: 1px solid #e5e7eb; padding: 8px;">${new Date(day.date).toLocaleDateString()}</td>
+            <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">${day.totalPrice}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
 };
 
 export default generatePdf;
