@@ -3,7 +3,6 @@ import { useUserContext } from '../../context/UserContext';
 import AddStaff from './AddStaff';
 import Header from '../common/Header';
 import SearchBox from '../common/SearchBox';
-import '../../styles/view.scss';
 
 const ViewAllUsers = () => {
   const {

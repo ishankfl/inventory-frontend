@@ -5,7 +5,6 @@ import SearchBox from '../common/SearchBox';
 import AddEditItemForm from './AddEditItemForm';
 import { useItem } from '../../context/ItemContext';
 import ToastNotification from '../common/ToggleNotification';
-import '../../styles/view.scss';
 
 const ViewProducts = () => {
   const {

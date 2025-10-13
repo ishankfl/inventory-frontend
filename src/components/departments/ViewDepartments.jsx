@@ -4,7 +4,6 @@ import SearchBox from "../common/SearchBox";
 import Header from "../common/Header";
 // import AddDepartment from "./AddDepartment";
 // import EditDepartment from "./EditDepartment";
-import "../../styles/view.scss";
 import AddEditDepartmentForm from "./AddEditDepartmentForm";
 
 const ViewAllDepartments = () => {

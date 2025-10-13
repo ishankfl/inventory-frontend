@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useVendor } from "../../context/VendorContext";
 import SearchBox from "../common/SearchBox";
 import Header from "../common/Header";
-import "../../styles/view.scss";
 import AddEditVendorForm from "./AddEditVendorForm";
 
 const ViewAllVendors = () => {

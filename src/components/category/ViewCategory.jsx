@@ -3,7 +3,6 @@ import { useCategory } from '../../context/CategoryContext';
 import AddEditCategoryForm from './AddEditCategoryForm';
 import SearchBox from '../common/SearchBox';
 import Header from '../common/Header';
-import '../../styles/view.scss';
 
 const ViewCategory = () => {
   const {
