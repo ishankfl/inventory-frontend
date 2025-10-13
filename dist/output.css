@@ -776,6 +776,10 @@ video {
   display: inline-block;
 }
 
+.inline {
+  display: inline;
+}
+
 .flex {
   display: flex;
 }
@@ -938,6 +942,11 @@ video {
 
 .w-\[80\%\] {
   width: 80%;
+}
+
+.w-fit {
+  width: -webkit-fit-content;
+  width: fit-content;
 }
 
 .w-full {
@@ -3130,10 +3139,6 @@ select:focus {
     margin-right: 0px;
   }
 
-  .sm\:ml-\[260px\] {
-    margin-left: 260px;
-  }
-
   .sm\:mt-0 {
     margin-top: 0px;
   }
@@ -3256,6 +3261,14 @@ select:focus {
 
   .md\:col-span-3 {
     grid-column: span 3 / span 3;
+  }
+
+  .md\:ml-10 {
+    margin-left: 2.5rem;
+  }
+
+  .md\:ml-\[0\] {
+    margin-left: 0;
   }
 
   .md\:mt-0 {

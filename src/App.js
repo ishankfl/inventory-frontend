@@ -14,7 +14,7 @@ function App() {
   const closeNavbar = () => setShowNavbar(false);
 
   useEffect(() => {
-    setIsUserLoggedin(true);
+    setIsUserLoggedin(isLoggedIn());
   }, []);
 
   return (
@@ -65,11 +65,11 @@ function App() {
         {/* Main Content */}
         <main
           className={`flex-1 overflow-auto transition-all duration-3000
-            ${isUserLoggedin && showNavbar ? 'sm:ml-[260px] lg:ml-[0]' : ''}
+            ${isUserLoggedin && showNavbar ? ' lg:ml-[0] md:ml-[0]' : ''}
           `}
           style={{ height: '100vh' }}
         >
-          <div className="lg:mt-10 lg:ml-10 sm:m-0 sm:p-0">
+          <div className="lg:mt-10 lg:ml-10 md:ml-10 sm:m-0 sm:p-0">
             <CustomRouter />
             {isUserLoggedin && <CurrentActivityBox />}
           </div>

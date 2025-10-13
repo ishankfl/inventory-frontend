@@ -1,5 +1,7 @@
 import React from "react";
 import { Bar, Line } from "react-chartjs-2";
+import generatePdf from "../reports/DashboardReport";
+
 import { useDashboard } from "../../context/DashboardContext";
 import {
   Chart as ChartJS,
@@ -20,6 +22,8 @@ import {
   FaUsers,
   FaChartBar,
   FaUps,
+  FaPrint,
+  FaDownload,
 } from "react-icons/fa";
 
 // Register Chart.js modules
@@ -168,13 +172,24 @@ const Dashboard = () => {
   });
 
   const { cardCounts } = data;
-
+  const trydownload=()=>{
+    console.log("download");
+    generatePdf(data);
+  }
   return (
     <div className="min-h-screen p-6 sm:p-6 lg:p-10">
       {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
-        <p className="text-gray-500 text-sm mt-1">Inventory Analytics Overview</p>
+      <div className="flex justify-between">
+
+        <div className="text-left mb-8">
+          <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
+          <p className="text-gray-500 text-sm mt-1">Inventory Analytics Overview</p>
+        </div>
+        {/* <div className="download-btn"> */}
+          <button className="bg-primary text-white rounded hover:bg-purple-600 transition flex items-center gap-2 w-fit h-10" onClick={() => {trydownload()}}>
+            <FaDownload className="inline mr-2" />
+          </button>
+        {/* </div> */}
       </div>
 
       {/* Stats Cards */}
