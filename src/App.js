@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import CustomRouter from './routes';
 import SideBar from './components/common/SideBar';
-import './styles/main.scss';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import CurrentActivityBox from './components/common/CurrentActivityBox';
 import { isLoggedIn } from './utils/tokenutils';
@@ -15,7 +14,7 @@ function App() {
   const closeNavbar = () => setShowNavbar(false);
 
   useEffect(() => {
-    setIsUserLoggedin(isLoggedIn());
+    setIsUserLoggedin(true);
   }, []);
 
   return (
